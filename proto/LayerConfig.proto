@@ -1,0 +1,15 @@
+package cHasky;
+
+message ActivateConfig {
+    enum Type {
+        EQUAL =     0;  // no activate
+        SIGMOID =   1;
+        TANH =      2;
+    }
+    required Type type = 1 [default = EQUAL];
+}
+
+message LayerConfig {
+    required string name = 1;
+    required ActivateConfig activate_config = 2;
+}
