@@ -10,6 +10,9 @@ message ActivateConfig {
 }
 
 message LayerConfig {
+    // layer's name, should be unique in a config file
     required string name = 1;
     required ActivateConfig activate_config = 2;
+    // size of the neurons contained in the layer
+    optional int32 size = 3;
 }
