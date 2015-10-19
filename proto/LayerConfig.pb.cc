@@ -54,9 +54,10 @@ void protobuf_AssignDesc_LayerConfig_2eproto() {
       sizeof(ActivateConfig));
   ActivateConfig_Type_descriptor_ = ActivateConfig_descriptor_->enum_type(0);
   LayerConfig_descriptor_ = file->message_type(1);
-  static const int LayerConfig_offsets_[2] = {
+  static const int LayerConfig_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LayerConfig, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LayerConfig, activate_config_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LayerConfig, size_),
   };
   LayerConfig_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -106,9 +107,9 @@ void protobuf_AddDesc_LayerConfig_2eproto() {
     "\n\021LayerConfig.proto\022\006cHasky\"l\n\016ActivateC"
     "onfig\0220\n\004type\030\001 \002(\0162\033.cHasky.ActivateCon"
     "fig.Type:\005EQUAL\"(\n\004Type\022\t\n\005EQUAL\020\000\022\013\n\007SI"
-    "GMOID\020\001\022\010\n\004TANH\020\002\"L\n\013LayerConfig\022\014\n\004name"
+    "GMOID\020\001\022\010\n\004TANH\020\002\"Z\n\013LayerConfig\022\014\n\004name"
     "\030\001 \002(\t\022/\n\017activate_config\030\002 \002(\0132\026.cHasky"
-    ".ActivateConfig", 215);
+    ".ActivateConfig\022\014\n\004size\030\003 \001(\005", 229);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "LayerConfig.proto", &protobuf_RegisterTypes);
   ActivateConfig::default_instance_ = new ActivateConfig();
@@ -382,6 +383,7 @@ void ActivateConfig::Swap(ActivateConfig* other) {
 #ifndef _MSC_VER
 const int LayerConfig::kNameFieldNumber;
 const int LayerConfig::kActivateConfigFieldNumber;
+const int LayerConfig::kSizeFieldNumber;
 #endif  // !_MSC_VER
 
 LayerConfig::LayerConfig()
@@ -406,6 +408,7 @@ void LayerConfig::SharedCtor() {
   _cached_size_ = 0;
   name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   activate_config_ = NULL;
+  size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -445,7 +448,7 @@ LayerConfig* LayerConfig::New() const {
 }
 
 void LayerConfig::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
+  if (_has_bits_[0 / 32] & 7) {
     if (has_name()) {
       if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         name_->clear();
@@ -454,6 +457,7 @@ void LayerConfig::Clear() {
     if (has_activate_config()) {
       if (activate_config_ != NULL) activate_config_->::cHasky::ActivateConfig::Clear();
     }
+    size_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -491,6 +495,21 @@ bool LayerConfig::MergePartialFromCodedStream(
          parse_activate_config:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_activate_config()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(24)) goto parse_size;
+        break;
+      }
+
+      // optional int32 size = 3;
+      case 3: {
+        if (tag == 24) {
+         parse_size:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &size_)));
+          set_has_size();
         } else {
           goto handle_unusual;
         }
@@ -539,6 +558,11 @@ void LayerConfig::SerializeWithCachedSizes(
       2, this->activate_config(), output);
   }
 
+  // optional int32 size = 3;
+  if (has_size()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->size(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -567,6 +591,11 @@ void LayerConfig::SerializeWithCachedSizes(
         2, this->activate_config(), target);
   }
 
+  // optional int32 size = 3;
+  if (has_size()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->size(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -591,6 +620,13 @@ int LayerConfig::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->activate_config());
+    }
+
+    // optional int32 size = 3;
+    if (has_size()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->size());
     }
 
   }
@@ -626,6 +662,9 @@ void LayerConfig::MergeFrom(const LayerConfig& from) {
     if (from.has_activate_config()) {
       mutable_activate_config()->::cHasky::ActivateConfig::MergeFrom(from.activate_config());
     }
+    if (from.has_size()) {
+      set_size(from.size());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -655,6 +694,7 @@ void LayerConfig::Swap(LayerConfig* other) {
   if (other != this) {
     std::swap(name_, other->name_);
     std::swap(activate_config_, other->activate_config_);
+    std::swap(size_, other->size_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

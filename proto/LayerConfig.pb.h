@@ -237,12 +237,21 @@ class LayerConfig : public ::google::protobuf::Message {
   inline ::cHasky::ActivateConfig* release_activate_config();
   inline void set_allocated_activate_config(::cHasky::ActivateConfig* activate_config);
 
+  // optional int32 size = 3;
+  inline bool has_size() const;
+  inline void clear_size();
+  static const int kSizeFieldNumber = 3;
+  inline ::google::protobuf::int32 size() const;
+  inline void set_size(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:cHasky.LayerConfig)
  private:
   inline void set_has_name();
   inline void clear_has_name();
   inline void set_has_activate_config();
   inline void clear_has_activate_config();
+  inline void set_has_size();
+  inline void clear_has_size();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -250,6 +259,7 @@ class LayerConfig : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* name_;
   ::cHasky::ActivateConfig* activate_config_;
+  ::google::protobuf::int32 size_;
   friend void  protobuf_AddDesc_LayerConfig_2eproto();
   friend void protobuf_AssignDesc_LayerConfig_2eproto();
   friend void protobuf_ShutdownFile_LayerConfig_2eproto();
@@ -408,6 +418,30 @@ inline void LayerConfig::set_allocated_activate_config(::cHasky::ActivateConfig*
     clear_has_activate_config();
   }
   // @@protoc_insertion_point(field_set_allocated:cHasky.LayerConfig.activate_config)
+}
+
+// optional int32 size = 3;
+inline bool LayerConfig::has_size() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void LayerConfig::set_has_size() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void LayerConfig::clear_has_size() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void LayerConfig::clear_size() {
+  size_ = 0;
+  clear_has_size();
+}
+inline ::google::protobuf::int32 LayerConfig::size() const {
+  // @@protoc_insertion_point(field_get:cHasky.LayerConfig.size)
+  return size_;
+}
+inline void LayerConfig::set_size(::google::protobuf::int32 value) {
+  set_has_size();
+  size_ = value;
+  // @@protoc_insertion_point(field_set:cHasky.LayerConfig.size)
 }
 
 

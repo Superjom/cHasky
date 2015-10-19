@@ -13,6 +13,7 @@
 #include <random>
 #include <map>
 #include <thread>
+#include <memory>
 using namespace std;
 #include "glog/logging.h"
 #include "gtest/gtest.h"
