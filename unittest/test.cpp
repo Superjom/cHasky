@@ -1,6 +1,7 @@
 // utils
 #include "utils/vec.h"
 #include "proto/LayerConfig.h"
+#include "layers/test_NNProjection.h"
 
 TEST(Vec, init) {
     Vec<float> v;
