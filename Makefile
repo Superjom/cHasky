@@ -3,8 +3,9 @@ BIN=./bin
 
 LOCAL_ROOT := ../third/local
 THIRD_INCPATH := -I $(LOCAL_ROOT)/include -I /usr/local/Cellar/protobuf/2.6.1/include
-THIRD_LIB := -L $(LOCAL_ROOT)/lib -L /usr/local/Cellar/protobuf/2.6.1/lib
-CXXFLAGS := -g -Bstatic -std=c++11 -Bdynamic -pthread -lpthread -lgtest -lgtest_main -lglog -lprotobuf -I./ $(THIRD_INCPATH) $(THIRD_LIB) 
+THIRD_LIB := -L $(LOCAL_ROOT)/lib 
+THIRD_STATIC_LIBRARY := $(LOCAL_ROOT)/lib/libgtest.a $(LOCAL_ROOT)/lib/libprotobuf.a 
+CXXFLAGS := -g -Bstatic -std=c++11 -Bdynamic -pthread -lpthread -I./ $(THIRD_INCPATH) $(THIRD_LIB) 
 
 OBJS=utils/vec.o utils/mat.o \
 	 layers/NNProjection.o \
@@ -14,7 +15,7 @@ OBJS=utils/vec.o utils/mat.o \
 $(BIN)/test: unittest/test.cpp $(OBJS) unittest/utils/*.h unittest/proto/*.h
 	@mkdir -p $(BIN)
 	@echo "compiling" unittest/test.cpp 
-	$(CXX) unittest/test.cpp $(CXXFLAGS)  $(OBJS) -o $(BIN)/test
+	export PKG_CONFIG_PATH=$(LOCAL_ROOT)/lib/pkgconfig; $(CXX) unittest/test.cpp $(CXXFLAGS)  $(OBJS) $(THIRD_STATIC_LIBRARY) -o $(BIN)/test `pkg-config --cflags --libs protobuf`
 
 utils/vec.o : utils/vec.h
 utils/mat.o : utils/mat.h
