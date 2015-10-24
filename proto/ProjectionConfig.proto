@@ -2,4 +2,8 @@ package cHasky;
 
 message ProjectionConfig {
     required string type = 1;
+    required string name = 2;
+    // from_size is the number of hidden units of the "from" layer
+    optional int32 from_size = 3;
+    optional int32 to_size = 4;
 };

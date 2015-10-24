@@ -31,6 +31,10 @@ public:
     Parameter<T>& param() {
         return _param;
     }
+    // get configs
+    const string& name() {
+        return config().get_name();
+    }
 
 private:
     ProjectionConfig _config;
