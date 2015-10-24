@@ -1,7 +1,7 @@
 CXX=g++
 BIN=./bin
 
-LOCAL_ROOT := ../hasky/third/local
+LOCAL_ROOT := ../third/local
 THIRD_INCPATH := -I $(LOCAL_ROOT)/include -I /usr/local/Cellar/protobuf/2.6.1/include
 THIRD_LIB := -L $(LOCAL_ROOT)/lib -L /usr/local/Cellar/protobuf/2.6.1/lib
 CXXFLAGS := -g -std=c++11 -pthread -lpthread -lgtest -lgtest_main -lglog -lprotobuf -I./ $(THIRD_INCPATH) $(THIRD_LIB) 
