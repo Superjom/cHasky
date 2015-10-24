@@ -10,4 +10,6 @@ struct Parameter {
 // weight matrix
 std::shared_ptr<Mat<T>> weight;
 
+std::shared_ptr<Vec<T>> bias;
+
 };  // end struct Paramter
