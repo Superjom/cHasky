@@ -4,12 +4,26 @@
  */
 #include "utils/all.h"
 
-template <typename T>
+namespace cHasky {
+
+
 struct Parameter {
 
 // weight matrix
-std::shared_ptr<Mat<T>> weight;
+std::shared_ptr<Mat> weight_p;
+std::shared_ptr<Vec> bias_p;
 
-std::shared_ptr<Vec<T>> bias;
+Mat& weight() {
+    CHECK(weight_p.get());
+    return *weight_p;
+}
+
+Vec& bias() {
+    CHECK(bias_p.get());
+    return *bias_p;
+}
 
 };  // end struct Paramter
+
+
+};  // end namespace cHasky

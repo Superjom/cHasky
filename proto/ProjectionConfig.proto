@@ -6,4 +6,5 @@ message ProjectionConfig {
     // from_size is the number of hidden units of the "from" layer
     optional int32 from_size = 3;
     optional int32 to_size = 4;
+    optional bool use_bias = 5;
 };

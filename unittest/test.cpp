@@ -1,10 +1,11 @@
 // utils
 #include "utils/vec.h"
 //#include "proto/LayerConfig.h"
-//#include "layers/test_NNProjection.h"
+#include "layers/test_NNProjection.h"
 
 TEST(Vec, init) {
-    Vec<float> v;
+    using namespace cHasky;
+    Vec v;
 }
 
 int main(int argc, char **argv) {  

@@ -9,11 +9,13 @@
 #include "common.h"
 #include "vec.h"
 
-template <typename T>
+namespace cHasky {
+
+
 class Mat {
 public:
-    typedef T value_type;
-    typedef Vec<T> vec_t;
+    typedef val_t value_type;
+    typedef Vec vec_t;
 
     explicit Mat() { }
     explicit Mat(const shape_t &shape) {
@@ -25,7 +27,9 @@ public:
 
     void set_shape(const shape_t& shape);
 
-    const shape_t& shape() const;
+    const shape_t& shape() const {
+        return _shape;
+    }
     
     vec_t& operator[] (int id) {
         CHECK_GE(id, 0);
@@ -40,5 +44,7 @@ public:
 
 private:
     shape_t _shape;
-    vector<Vec<value_type> > _data;
+    vector<Vec> _data;
 };
+
+};  // end namespace cHasky

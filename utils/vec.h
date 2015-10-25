@@ -7,10 +7,12 @@
  */
 #pragma once
 #include "common.h"
-template <typename T>
+namespace cHasky {
+
+
 class Vec {
 public:
-    typedef T value_type;
+    typedef val_t value_type;
     Vec() {
     }
     ~Vec() {
@@ -29,9 +31,18 @@ public:
     Vec(size_t size);
     Vec(const Vec& other);
     Vec(Vec&& other);
-    void init(size_t size, bool random_init = false);
+    void init(size_t size, bool random_init = false) {
+        CHECK_GT(size, 0);
+        CHECK_EQ(_data, static_cast<value_type*>(NULL)) << "data can be inited only once";
+        //_data.reset(new value_type[size]);
+        reset(size);
+        for(size_t i = 0; i < _size; ++i) {
+            data()[i] = 0.0;
+        }
+        if(random_init) random(0.0);
+    }
     void clear();
-    void random();
+    void random(float offset=0.5);
     void reset(size_t size);
 	value_type& operator[](size_t i) {
         CHECK_GE(i, 0);
@@ -42,7 +53,9 @@ public:
         CHECK(i >= 0 && i < size());
 		return _data[i];
 	}
-    void random(float offset=0.);
+    size_t size() const {
+        return _size;
+    }
 
 protected:
     value_type* data() {
@@ -51,12 +64,11 @@ protected:
     const value_type* data() const {
         return _data;
     }
-    size_t size() const {
-        return _size;
-    }
 
 private:
     value_type *_data = NULL;
     size_t _size = 0;
 };
 
+
+};  // end namespace cHasky

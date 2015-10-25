@@ -3,14 +3,15 @@
 #include "proto/Argument.pb.h"
 #include "proto/ProjectionConfig.pb.h"
 #include "Parameter.h"
-using namespace cHasky;
 /*
  * 
  * A projection is an ensemble of connections between a subset of layers.
  * It may have paramters sometimes, weight matrix in 
  *  full-connection forward-backward NN for example.
  */
-template <typename T>
+namespace cHasky {
+
+
 class Projection {
 public:
     // all the subchild of Projection should call base Projection's constructor
@@ -28,16 +29,18 @@ public:
     ProjectionConfig& config() {
         return _config;
     }
-    Parameter<T>& param() {
+    Parameter& param() {
         return _param;
     }
     // get configs
     const string& name() {
-        return config().get_name();
+        return config().name();
     }
 
 private:
     ProjectionConfig _config;
-    Parameter<T> _param;
+    Parameter _param;
 };  // end class Projection
 
+
+};  // end namespace cHasky

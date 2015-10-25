@@ -8,9 +8,9 @@
  */
 #include "utils/all.h"
 #include "proto/LayerConfig.pb.h"
-using namespace cHasky;
+namespace cHasky {
 
-template <typename T>
+
 class Layer {
 public:
     const LayerConfig& config() const {
@@ -20,3 +20,5 @@ public:
 private:
     LayerConfig _config;
 };  // end class Layer
+
+};  // end namespace cHasky

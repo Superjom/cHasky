@@ -1,12 +1,11 @@
 #include "vec.h"
+using namespace cHasky;
 
-template<typename T>
-Vec<T>::Vec(size_t size) {
+Vec::Vec(size_t size) {
     init(size);
 }
 
-template<typename T>
-Vec<T>::Vec(const Vec& other) {
+Vec::Vec(const Vec& other) {
     if(_size != other.size()) {
         if(_data) {
             delete _data;
@@ -18,8 +17,7 @@ Vec<T>::Vec(const Vec& other) {
     memcpy(data(), other.data(), sizeof(value_type) * size());
 }
 
-template<typename T>
-Vec<T>::Vec(Vec&& other) {
+Vec::Vec(Vec&& other) {
     if(_data != NULL) {
         delete _data;
         _data = NULL;
@@ -29,9 +27,9 @@ Vec<T>::Vec(Vec&& other) {
     other._data = NULL;
     other._size = 0;
 }
-
+/*
 template<typename T>
-void Vec<T>::init (size_t size, bool random_init) {
+void Vec<T>::init(size_t size, bool random_init) {
     CHECK_GT(size, 0);
     CHECK_EQ(_data, static_cast<value_type*>(NULL)) << "data can be inited only once";
     //_data.reset(new value_type[size]);
@@ -41,22 +39,20 @@ void Vec<T>::init (size_t size, bool random_init) {
     }
     if(random_init) random(0.0);
 }
+*/
 
-template<typename T>
-void Vec<T>::clear() {
+void Vec::clear() {
     for (int i = 0; i < _size; i++) {
         _data[i] = 0;
     }
 }
 
-template<typename T>
-void Vec<T>::random(float offset) {
+void Vec::random(float offset) {
     for(size_t i = 0; i < size(); i++)
         _data[i] = (rand() / (float) RAND_MAX - offset) / _size;
 }
 
-template<typename T>
-void Vec<T>::reset (size_t size_) {
+void Vec::reset (size_t size_) {
     CHECK_GT(size_ , 0);
     if (size_ == _size) return;
     if(_data != NULL) {

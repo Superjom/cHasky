@@ -18,6 +18,8 @@ using namespace std;
 #include "glog/logging.h"
 #include "gtest/gtest.h"
 #include "gflags/gflags.h"
+namespace cHasky {
+
 struct shape_t;
 
 typedef unsigned int            uint;
@@ -25,6 +27,8 @@ typedef vector<shape_t>         vshape_t;
 typedef const vector<shape_t>   cvshape_t;
 
 const float EPISILON = 1e-4;
+
+typedef float val_t;
 
 enum layer_kind_t {
     HIDDEN_LAYER,
@@ -50,3 +54,4 @@ struct shape_t {
     }
 };
 
+};  // end namespace cHasky

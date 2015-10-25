@@ -8,7 +8,6 @@
  */
 #include "../utils/all.h"
 #include "../Projection.h"
-using namespace cHasky;
 /*
  * a NNProjection is the implementation of the multi-layer neural networks' projection
  * the projection is 
@@ -16,11 +15,14 @@ using namespace cHasky;
  *
  * refer to Chapter 1 from Hinton's <<Deep Learning>> for detail.
  */
-template <typename T>
-class NNProjection : public Projection<T> {
+namespace cHasky {
+
+
+class NNProjection : public Projection {
 public:
+
     NNProjection(ProjectionConfig& config) :
-        Projection<T>(config) 
+        Projection(config) 
     { 
         init_parameter();
     }
@@ -31,13 +33,15 @@ protected:
     void init_parameter() {
         CHECK(this->config().has_to_size());
         CHECK(this->config().has_from_size());
-        this->param().weight.reset(new Mat<T>);
-        this->param().bias.reset(new Vec<T>);
+        this->param().weight_p.reset(new Mat);
+        this->param().bias_p.reset(new Vec);
 
         shape_t shape(this->config().to_size(), this->config().from_size());
-        this->param().weight->set_shape(shape);
-        this->param().bias->init(shape.size);
+        this->param().weight().set_shape(shape);
+        this->param().bias().init(shape.size);
     }
 
 private:
 };  // end class NNProjection
+
+};  // end namespace cHasky
