@@ -7,4 +7,6 @@ message ProjectionConfig {
     optional int32 from_size = 3;
     optional int32 to_size = 4;
     optional bool use_bias = 5;
+    // 
+    required float learning_rate = 6 [default = 0.02];
 };

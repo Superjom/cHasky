@@ -1,5 +1,7 @@
 package cHasky;
 
 message Argument {
-    repeated float activation = 1;
+    repeated float output = 1;
+    repeated float activation = 2;
+    repeated float loss = 3;
 };
