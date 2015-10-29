@@ -15,7 +15,7 @@ namespace cHasky {
 class Projection {
 public:
     // all the subchild of Projection should call base Projection's constructor
-    Projection(ProjectionConfig& config) : 
+    Projection(const ProjectionConfig& config) : 
         _config(config) 
     { }
     // re-initialize all the parameters of this projection

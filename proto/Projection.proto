@@ -1,5 +1,0 @@
-package cHasky;
-
-message ProjectionConfig {
-    required string type = 1;
-};
