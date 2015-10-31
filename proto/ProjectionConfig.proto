@@ -3,10 +3,11 @@ package cHasky;
 message ProjectionConfig {
     required string type = 1;
     required string name = 2;
+    optional string param_name = 3;
     // from_size is the number of hidden units of the "from" layer
-    optional int32 from_size = 3;
-    optional int32 to_size = 4;
-    optional bool use_bias = 5;
+    optional int32 from_size = 4;
+    optional int32 to_size = 5;
+    optional bool use_bias = 6;
     // 
-    required float learning_rate = 6 [default = 0.02];
+    required float learning_rate = 7 [default = 0.02];
 };

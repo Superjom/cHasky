@@ -4,7 +4,6 @@
 #include "proto/ProjectionConfig.pb.h"
 #include "Parameter.h"
 /*
- * 
  * A projection is an ensemble of connections between a subset of layers.
  * It may have paramters sometimes, weight matrix in 
  *  full-connection forward-backward NN for example.
@@ -15,9 +14,7 @@ namespace cHasky {
 class Projection {
 public:
     // all the subchild of Projection should call base Projection's constructor
-    Projection(const ProjectionConfig& config) : 
-        _config(config) 
-    { }
+    Projection(const ProjectionConfig& config);
     // re-initialize all the parameters of this projection
     virtual void reset() { };
     // free all parameter's memory
@@ -30,7 +27,7 @@ public:
         return _config;
     }
     Parameter& param() {
-        return _param;
+        return *_param;
     }
     // get configs
     const string& name() {
@@ -38,8 +35,8 @@ public:
     }
 
 private:
-    ProjectionConfig _config;
-    Parameter _param;
+    ProjectionConfig    _config;
+    Parameter*          _param;
 };  // end class Projection
 
 
