@@ -11,8 +11,15 @@
 namespace cHasky {
 
 
+class Layer;
+
 class Projection {
 public:
+    struct ConnectedLayers {
+        Layer* from;
+        Layer* to;
+    };
+
     // all the subchild of Projection should call base Projection's constructor
     Projection(const ProjectionConfig& config);
     // re-initialize all the parameters of this projection
@@ -34,9 +41,15 @@ public:
         return config().name();
     }
 
+    ConnectedLayers& layers() {
+        return _layers;
+    }
+
 private:
     ProjectionConfig    _config;
     Parameter*          _param;
+    // the starting point and the end point of a projection
+    ConnectedLayers     _layers;
 };  // end class Projection
 
 

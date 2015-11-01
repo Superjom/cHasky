@@ -24,6 +24,7 @@ public:
     NNProjection(ProjectionConfig& config) :
         Projection(config) 
     { 
+        CHECK(this->config().has_param_name()) << "NNProjection should have a param_name to init parameter";
         init_parameter();
     }
     virtual void forward    (Argument& fromag, Argument& toag);

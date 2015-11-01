@@ -7,13 +7,15 @@ THIRD_LIB := -L $(LOCAL_ROOT)/lib
 THIRD_STATIC_LIBRARY := $(LOCAL_ROOT)/lib/libgtest.a $(LOCAL_ROOT)/lib/libprotobuf.a $(LOCAL_ROOT)/lib/libglog.a
 CXXFLAGS := -g -Bstatic -std=c++11 -Bdynamic -pthread -lpthread -I./ $(THIRD_INCPATH) $(THIRD_LIB) 
 
-OBJS=Layer.o Projection.o \
+OBJS=Layer.o Repository.o Projection.o \
 	 utils/vec.o utils/mat.o \
 	 proto/LayerConfig.pb.o proto/ProjectionConfig.pb.o proto/Argument.pb.o \
 	 layers/NNProjection.o 
 
 
-$(BIN)/test: unittest/test.cpp $(OBJS) unittest/utils/*.h unittest/proto/*.h
+$(BIN)/test: unittest/test.cpp $(OBJS) unittest/utils/*.h unittest/proto/*.h \
+		Repository.h \
+		unittest/layers/test_NNProjection.h
 	@mkdir -p $(BIN)
 	@echo "compiling" unittest/test.cpp 
 	export PKG_CONFIG_PATH=$(LOCAL_ROOT)/lib/pkgconfig; $(CXX) unittest/test.cpp $(CXXFLAGS) $(THIRD_STATIC_LIBRARY) $(OBJS) -o $(BIN)/test `pkg-config --cflags --libs protobuf`
@@ -21,6 +23,7 @@ $(BIN)/test: unittest/test.cpp $(OBJS) unittest/utils/*.h unittest/proto/*.h
 #Edge.o : Edge.h
 Layer.o : Layer.h
 Projection.o : Projection.h
+Repository.o : Repository.h
 utils/vec.o : utils/vec.h
 utils/mat.o : utils/mat.h
 proto/LayerConfig.pb.o : proto/LayerConfig.pb.h 
