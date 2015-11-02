@@ -26,8 +26,13 @@ public:
     activation_t get_activation();
     activation_t get_diff_activation();
 
-    vector<Projection*> out_pojs() {
+    vector<Projection*>& out_pojs() {
         return _out_pojs;
+    }
+
+    const string& name() {
+        CHECK(_config.has_name());
+        return _config.name();
     }
 
 private:

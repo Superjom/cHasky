@@ -1,5 +1,19 @@
 #include "layers/NNProjection.h"
+#include "Layer.h"
 using namespace cHasky;
+
+void NNProjection::init_param(Layer& l1, Layer& l2) {
+    this->config().set_from_size(l1.config().size());
+    this->config().set_to_size(l2.config().size());
+    this->param().weight_p.reset(new Mat);
+    this->param().bias_p.reset(new Vec);
+
+    shape_t shape(this->config().to_size(), this->config().from_size());
+    this->param().weight().set_shape(shape);
+    this->param().bias().init(shape.size);
+}
+
+
 /*
  * Project from fromag's output to toarg's output
  */

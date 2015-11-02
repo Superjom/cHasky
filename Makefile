@@ -4,11 +4,11 @@ BIN=./bin
 LOCAL_ROOT := /Users/baidu/project/hasky/third/local
 THIRD_INCPATH := -I $(LOCAL_ROOT)/include -I /usr/local/Cellar/protobuf/2.6.1/include
 THIRD_LIB := -L $(LOCAL_ROOT)/lib 
-THIRD_STATIC_LIBRARY := $(LOCAL_ROOT)/lib/libgtest.a $(LOCAL_ROOT)/lib/libprotobuf.a $(LOCAL_ROOT)/lib/libglog.a
-CXXFLAGS := -g -Bstatic -std=c++11 -Bdynamic -pthread -lpthread -I./ $(THIRD_INCPATH) $(THIRD_LIB) 
+THIRD_STATIC_LIBRARY := $(LOCAL_ROOT)/lib/libgtest.a $(LOCAL_ROOT)/lib/libprotobuf.a 
+CXXFLAGS := -g -Bstatic -std=c++11 -Bdynamic -lglog -pthread -lpthread -I./ $(THIRD_INCPATH) $(THIRD_LIB) 
 
-OBJS=Layer.o Repository.o Projection.o \
-	 utils/vec.o utils/mat.o \
+OBJS=Repository.o Projection.o \
+	 utils/str.o utils/vec.o utils/mat.o \
 	 proto/LayerConfig.pb.o proto/ProjectionConfig.pb.o proto/Argument.pb.o \
 	 layers/NNProjection.o 
 
@@ -21,11 +21,13 @@ $(BIN)/test: unittest/test.cpp $(OBJS) unittest/utils/*.h unittest/proto/*.h \
 	export PKG_CONFIG_PATH=$(LOCAL_ROOT)/lib/pkgconfig; $(CXX) unittest/test.cpp $(CXXFLAGS) $(THIRD_STATIC_LIBRARY) $(OBJS) -o $(BIN)/test `pkg-config --cflags --libs protobuf`
 
 #Edge.o : Edge.h
+Activation.o : Activation.h
 Layer.o : Layer.h
 Projection.o : Projection.h
 Repository.o : Repository.h
 utils/vec.o : utils/vec.h
 utils/mat.o : utils/mat.h
+utils/str.o : utils/str.h
 proto/LayerConfig.pb.o : proto/LayerConfig.pb.h 
 proto/ProjectionConfig.pb.o : proto/ProjectionConfig.pb.h
 proto/LayerConfig.pb.o: proto/LayerConfig.pb.h
