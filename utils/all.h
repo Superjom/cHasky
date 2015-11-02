@@ -9,3 +9,4 @@
 #include "common.h"
 #include "vec.h"
 #include "mat.h"
+#include "str.h"

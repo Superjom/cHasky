@@ -25,6 +25,7 @@ struct shape_t;
 typedef unsigned int            uint;
 typedef vector<shape_t>         vshape_t;
 typedef const vector<shape_t>   cvshape_t;
+typedef const string            costr;
 
 const float EPISILON = 1e-4;
 

@@ -21,7 +21,11 @@ public:
     };
 
     // all the subchild of Projection should call base Projection's constructor
-    Projection(const ProjectionConfig& config);
+    //Projection(const ProjectionConfig& config);
+    //Projection(Layer& l1, Layer& l2, ProjectionConfig& config);
+    void connect(costr& l1name, costr& l2name, ProjectionConfig& config);
+    virtual void connect(Layer& l1, Layer& l2, ProjectionConfig& config);
+    virtual void init_param(Layer& l1, Layer& l2);
     // re-initialize all the parameters of this projection
     virtual void reset() { };
     // free all parameter's memory

@@ -21,26 +21,18 @@ namespace cHasky {
 class NNProjection : public Projection {
 public:
 
-    NNProjection(ProjectionConfig& config) :
+    /*NNProjection(ProjectionConfig& config) :
         Projection(config) 
     { 
         CHECK(this->config().has_param_name()) << "NNProjection should have a param_name to init parameter";
         init_parameter();
-    }
+    } */
+    //virtual void connect(Layer& l1, Layer& l2, ProjectionConfig& config);
     virtual void forward    (Argument& fromag, Argument& toag);
     virtual void backward   (Argument& fromag, Argument& toag);
 
 protected:
-    void init_parameter() {
-        CHECK(this->config().has_to_size());
-        CHECK(this->config().has_from_size());
-        this->param().weight_p.reset(new Mat);
-        this->param().bias_p.reset(new Vec);
-
-        shape_t shape(this->config().to_size(), this->config().from_size());
-        this->param().weight().set_shape(shape);
-        this->param().bias().init(shape.size);
-    }
+    virtual void init_param(Layer& l1, Layer& l2);
 
 private:
 };  // end class NNProjection
