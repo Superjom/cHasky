@@ -1,7 +1,7 @@
 CXX=g++-4.8
 BIN=./bin
 
-LOCAL_ROOT := ../third/local
+LOCAL_ROOT := /Users/baidu/project/hasky/third/local
 THIRD_INCPATH := -I $(LOCAL_ROOT)/include -I /usr/local/Cellar/protobuf/2.6.1/include
 THIRD_LIB := -L $(LOCAL_ROOT)/lib 
 THIRD_STATIC_LIBRARY := $(LOCAL_ROOT)/lib/libgtest.a $(LOCAL_ROOT)/lib/libprotobuf.a $(LOCAL_ROOT)/lib/libglog.a
