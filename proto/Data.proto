@@ -1,0 +1,22 @@
+package cHasky;
+
+message SparseRcd {
+    required int32 id = 1;
+    required float val = 2;
+};
+
+message Slot {
+    required int32 slotid = 1;
+    repeated float dense_vector = 2;
+    repeated SparseRcd sparse_vector = 3;
+};
+
+message DataLine {
+    // data id
+    optional int32 id = 1;
+    repeated Slot  slots = 2;
+};
+
+message DataFile {
+    repeated DataLine records = 1;
+};
