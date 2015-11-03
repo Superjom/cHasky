@@ -37,26 +37,3 @@ std::vector<std::string> split(const std::string &s, const std::string &delim) {
     return std::move(cols);
 }
 
-
-template<typename... ARGS>
-void format_string(std::string& s, const char* format, ARGS... args) {
-    // get target size
-    int len = snprintf(NULL, 0, format, args...);
-    CHECK(len >= 0);
-    size_t oldlen = s.length();
-    s.resize(oldlen + len + 1);
-    CHECK(snprintf(&s[oldlen], (size_t)len+1, format, args...) == len);
-    s.resize(oldlen + len);
-}
-
-template<typename... ARGS>
-std::string format_string(const char* format, ARGS... args) {
-    std::string tmp_s;
-    int len = snprintf(NULL, 0, format, args...);
-    CHECK(len >= 0);
-    tmp_s.resize(len + 1);
-    CHECK(snprintf(&tmp_s[0], (size_t)len+1, format, args...) == len);
-    tmp_s.resize(len);
-    return std::move(tmp_s);
-}
-

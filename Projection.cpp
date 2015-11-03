@@ -1,5 +1,6 @@
 #include "Projection.h"
 #include "Repository.h"
+#include "utils/str.h"
 using namespace cHasky;
 
 /*
@@ -17,6 +18,9 @@ Projection::Projection(const ProjectionConfig& config) :
 /*Projection::Projection(Layer& l1, Layer& l2, ProjectionConfig& config) {
     this->connect(l1, l2, config);
 }*/
+void Projection::init_param(Layer& l1, Layer& l2) {
+}
+
 void Projection::connect(costr& l1name, costr& l2name, ProjectionConfig& config) {
     Layer& l1 = * global_repository().get_layer(l1name);
     Layer& l2 = * global_repository().get_layer(l2name);

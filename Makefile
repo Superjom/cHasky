@@ -1,26 +1,24 @@
-CXX=g++-4.8
-BIN=./bin
+CXX = clang++
+BIN = bin
+THIRD_PATH := ../hasky/third/local
+ifeq ($(STATIC_THIRD_LIB), 1)
+THIRD_LIB=$(addprefix $(THIRD_PATH)/lib/, libgflags.a libprotobuf.a libglog.a)
+else
+THIRD_LIB=-L$(THIRD_PATH)/lib -lgflags -lglog -lgtest -lgtest_main -lprotobuf
+endif
 
-LOCAL_ROOT := /Users/baidu/project/hasky/third/local
-THIRD_INCPATH := -I $(LOCAL_ROOT)/include -I /usr/local/Cellar/protobuf/2.6.1/include
-THIRD_LIB := -L $(LOCAL_ROOT)/lib 
-THIRD_STATIC_LIBRARY := $(LOCAL_ROOT)/lib/libgtest.a $(LOCAL_ROOT)/lib/libprotobuf.a 
-CXXFLAGS := -g -Bstatic -std=c++11 -Bdynamic -lglog -pthread -lpthread -I./ $(THIRD_INCPATH) $(THIRD_LIB) 
+INCPATH = -I./ -I$(THIRD_PATH)/include
+CXXFLAGS = -std=c++11 $(INCPATH) 
+LDFLAGS = $(THIRD_LIB) -lpthread
 
-OBJS=Repository.o Projection.o \
+OBJS := Activation.o Layer.o Repository.o Projection.o \
 	 utils/str.o utils/vec.o utils/mat.o \
 	 proto/LayerConfig.pb.o proto/ProjectionConfig.pb.o proto/Argument.pb.o \
 	 layers/NNProjection.o 
 
+bin/test: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) $(LDFLAGS) -o bin/test
 
-$(BIN)/test: unittest/test.cpp $(OBJS) unittest/utils/*.h unittest/proto/*.h \
-		Repository.h \
-		unittest/layers/test_NNProjection.h
-	@mkdir -p $(BIN)
-	@echo "compiling" unittest/test.cpp 
-	export PKG_CONFIG_PATH=$(LOCAL_ROOT)/lib/pkgconfig; $(CXX) unittest/test.cpp $(CXXFLAGS) $(THIRD_STATIC_LIBRARY) $(OBJS) -o $(BIN)/test `pkg-config --cflags --libs protobuf`
-
-#Edge.o : Edge.h
 Activation.o : Activation.h
 Layer.o : Layer.h
 Projection.o : Projection.h
@@ -44,7 +42,6 @@ layers/NNProjection.o : layers/NNProjection.h
 clean:
 	rm  -f $(BIN)/test 
 	rm -f $(OBJS)
+
 shallow_clean:
 	rm  -f $(BIN)/test 
-test:
-	./bin/test
