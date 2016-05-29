@@ -26,3 +26,11 @@
 *.exe
 *.out
 *.app
+/.clang_complete
+/.sconsign.dblite
+/.ycm_extra_conf.py
+/CMakeCache.txt
+/Makefile
+/.ycm_extra_conf.pyc
+/cmake_install.cmake
+/chasky/common/strings.os

@@ -1,5 +1,4 @@
 #include "gtest/gtest.h"
-#include "chasky/common/strings_test.h"
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
