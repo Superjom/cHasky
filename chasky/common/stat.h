@@ -44,7 +44,7 @@ public:
 
   // Add new StatInfo to Registry and return its pointer
   // if key is duplicate, return nullptr
-  // guided by mutex, this method is thread safe
+  // guarded by mutex, this method is thread safe
   StatItemPtr Register(const std::string &key);
 
   // Look up StatItem by key, if the specific StatItem exists, return its
@@ -84,20 +84,16 @@ public:
 
   void Reset() { total_ = 0; }
 
-  uint64_t Get() {
-    Pause();
-    Start();
-    return total_;
-  }
+  uint64_t Get() const { return NowInMilliSec() - start_stamp_; }
 
 protected:
-  uint64_t NowInMicroSec() {
+  uint64_t NowInMicroSec() const {
     timeval tvTime;
     (void)gettimeofday(&tvTime, NULL);
     return tvTime.tv_sec * 1000000LU + tvTime.tv_usec;
   }
 
-  uint64_t NowInMilliSec() {
+  uint64_t NowInMilliSec() const {
     return NowInMicroSec() / 1000.;
   }
 
