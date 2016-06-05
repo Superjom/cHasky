@@ -10,6 +10,8 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/common/strings.cc
   ${CMAKE_SOURCE_DIR}/chasky/common/stat.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_vector.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/common/status.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument.cc
   )
 
 set (TEST_SOURCE_FILES
@@ -17,6 +19,7 @@ set (TEST_SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/common/stat_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/test/test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_vector_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/common/status_test.cc
   )
 
 set (LOCAL_LIB ${CMAKE_SOURCE_DIR}/thirdparty/local/lib)
