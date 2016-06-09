@@ -1,0 +1,20 @@
+syntax = "proto3";
+package chasky;
+
+message ArgumentDef {
+  string name = 1;
+  string type = 2;
+  Shape shape = 3;
+  string description = 4;
+  // Serialized content for Argument/Parameter
+  repeated bytes content = 5;
+  // Reference or not
+  // If the argument is passed as refernece, then the value
+  // can be changed by this layer.
+  bool is_ref = 6;
+
+  message Shape {
+    uint32 height = 1;
+    uint32 width = 2;
+  }
+}
