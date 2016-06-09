@@ -1,0 +1,36 @@
+syntax = "proto3";
+package chasky;
+
+import "chasky/core/framework/types.proto";
+
+message AttrDef {
+  // A description name for this argument.
+  string name = 1;
+
+  string type = 2;
+
+  AttrValue value = 3;
+
+  // Human readable description for this attribute
+  string description = 4;
+};
+
+message AttrValue {
+  oneof value {
+    bytes s = 2;
+    int64 i = 3;
+    float f = 4;
+    bool b = 5;
+    DataType type = 6;
+    ListValue  list = 1;
+  }
+
+  message ListValue {
+    repeated bytes s = 2;
+    repeated int64 i = 3 [packed = true];
+    repeated float f = 4 [packed = true];
+    repeated bool b = 5 [packed = true];
+    repeated DataType type = 6 [packed = true];
+  }
+
+}
