@@ -25,6 +25,7 @@ using std::string;
 // ArgumentField only support local memory storage.
 struct ArgumentField {
   ArgumentField() {}
+
   // Copy pointer
   void CopyFrom(const ArgumentField &other);
 
@@ -53,13 +54,19 @@ struct ArgumentField {
 
 class Argument {
 public:
+  // A default constructor used for new
+  explicit Argument() {}
   // Init and allocate parameter from Argument Def
-  Argument(std::unique_ptr<ArgumentDef> &&arg) : arg_def_(std::move(arg)) {
-    CreateFromDef();
+  explicit Argument(const ArgumentDef* arg) :
+      arg_def_(const_cast<ArgumentDef*>(arg)) {
+    CH_CHECK_OK(FromDef(arg_def_));
   }
 
   // NOTE Copy memory
   explicit Argument(const Argument &other);
+
+  // Create ArgumentField from arg_def_
+  Status FromDef(const ArgumentDef* def);
 
   // Init from protobuf buffer.
   Status FromProto(const std::string &buffer);
@@ -72,16 +79,13 @@ public:
 
   const ArgumentDef::Shape &Shape() const;
 
-  const ArgumentDef *ArgDef() const { return arg_def_.get(); }
+  const ArgumentDef *ArgDef() const { return arg_def_; }
 
   ArgumentField *ArgField() { return arg_field_.get(); }
-
-protected:
-  // Create ArgumentField from arg_def_
-  Status CreateFromDef();
+  const ArgumentField *ArgField() const { return arg_field_.get(); }
 
 private:
-  std::unique_ptr<ArgumentDef> arg_def_;
+  ArgumentDef* arg_def_;
   std::unique_ptr<ArgumentField> arg_field_;
 };
 

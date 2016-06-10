@@ -51,7 +51,36 @@ private:
 };
 
 // NOTE Need not implement?
-Status Argument::CreateFromDef() {
-  LOG(FATAL) << "NotImplemented";
+Status Argument::FromDef(const ArgumentDef* def) {
+  auto& shape = def->shape();
+  switch (def->dtype()) {
+    case CH_FLOAT:
+      arg_field_->Createfloat(shape);
+      break;
+    case CH_DOUBLE:
+      arg_field_->Createdouble(shape);
+      break;
+    case CH_INT32:
+      arg_field_->Createint32(shape);
+      break;
+    case CH_INT64:
+      arg_field_->Createint64(shape);
+      break;
+    case CH_UINT32:
+      arg_field_->Createuint32(shape);
+      break;
+    case CH_UINT64:
+      arg_field_->Createuint64(shape);
+      break;
+    case CH_STRING:
+      arg_field_->string_val = make_shared<string>();
+      break;
+    case CH_VEC_FLOAT:
+      arg_field_->float_vec_val = make_shared<math::CpuFloatVector>(shape.width());
+      break;
+    default:
+      break;
+  }
+  return Status();
 }
 
