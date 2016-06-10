@@ -4,24 +4,25 @@ using namespace std;
 using namespace chasky;
 
 void ArgumentField::CopyFrom(const ArgumentField &other) {
-  float_vec_val_ = other.float_vec_val();
+  float_vec_val = other.float_vec_val;
 }
 
 void ArgumentField::RealCopyFrom(const ArgumentField &other) {
-  float_vec_val_ = std::make_shared<math::CpuFloatVector>(*other.float_vec_val());
+  float_vec_val = std::make_shared<math::CpuFloatVector>(*other.float_vec_val);
 }
 
 bool ArgumentField::IsEmpty() const {
-  return int32_vals_ == nullptr && int64_vals_ == nullptr &&
-         uint32_vals_ == nullptr && uint64_vals_ == nullptr &&
-         float_vals_ == nullptr && double_vals_ == nullptr &&
-         float_vec_val_ == nullptr &&
-         string_val_ == nullptr;
+  return int32_vals == nullptr && int64_vals == nullptr &&
+         uint32_vals == nullptr && uint64_vals == nullptr &&
+         float_vals == nullptr && double_vals == nullptr &&
+         float_vec_val == nullptr &&
+         string_val == nullptr;
 }
 
 Argument::Argument(const Argument &other) {
-  arg_def_.reset(new ArgumentDef(*other.ArgDef()));
-  arg_field_.reset(new ArgumentField(*other.ArgField()));
+  arg_def_ = const_cast<ArgumentDef*>(other.ArgDef());
+  arg_field_.reset(new ArgumentField);
+  arg_field_->CopyFrom(*other.ArgField());
 }
 
 Status Argument::FromProto(const string &buffer) {

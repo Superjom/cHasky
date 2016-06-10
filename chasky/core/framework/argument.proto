@@ -4,9 +4,9 @@ package chasky;
 import "chasky/core/framework/types.proto";
 
 message ArgumentDef {
-  string name = 1;
-  string type = 2;
-  DataType dtype = 3;
+  DataType dtype = 1;
+  string name = 2;
+  string type = 3;
   Shape shape = 4;
   string description = 5;
   // Serialized content for Argument/Parameter
