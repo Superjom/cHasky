@@ -12,33 +12,24 @@
 namespace chasky {
 using std::string;
 
-#define TYPE_GETTER(NAME, TYPE)                                                \
-public:                                                                        \
-  std::shared_ptr<TYPE> NAME##_val() const { return NAME##_val_; }                 \
-                                                                               \
-private:                                                                       \
-  std::shared_ptr<TYPE> NAME##_val_;
+#define TYPE_GETTER(NAME, TYPE) std::shared_ptr<TYPE> NAME##_val;
 
 #define TYPE_VALS_GETTER(NAME, TYPE)                                           \
-public:                                                                        \
-  auto NAME##_vals()->std::shared_ptr<std::vector<TYPE>> const {                     \
-    return NAME##_vals_;                                                       \
-  }                                                                            \
-private:                                                                       \
-  std::shared_ptr<std::vector<TYPE>> NAME##_vals_;
-
+  std::shared_ptr<std::vector<TYPE>> NAME##_vals;                              \
+  void Create##NAME(const ArgumentDef::Shape &shape) {                         \
+    NAME##_vals = std::make_shared<std::vector<TYPE>>(shape.width());            \
+  }
 
 // Storage of all kinds of data types, each Argument will have an ArgumentField
 // to store its value.
 // ArgumentField only support local memory storage.
-class ArgumentField {
-public:
-  explicit ArgumentField() {}
+struct ArgumentField {
+  ArgumentField() {}
   // Copy pointer
-  void CopyFrom(const ArgumentField& other);
+  void CopyFrom(const ArgumentField &other);
 
   // Copy memory
-  void RealCopyFrom(const ArgumentField& other);
+  void RealCopyFrom(const ArgumentField &other);
 
   bool IsEmpty() const;
 
@@ -51,41 +42,39 @@ public:
   TYPE_VALS_GETTER(double, double);
   // vector getter
   TYPE_GETTER(float_vec, math::CpuFloatVector);
-  //TYPE_GETTER(int32_vec, Int32CpuBaseVector);
+  // TYPE_GETTER(int32_vec, Int32CpuBaseVector);
   // store string variables, not document
   TYPE_GETTER(string, std::string);
   // NOTE(superjom) just a useless placeholder
-  //std::shared_ptr<BaseMatrix> matrix_val_;
+  // std::shared_ptr<BaseMatrix> matrix_val_;
 }; // struct Argument
 #undef TYPE_GETTER
 #undef TYPE_VALS_GETTER
 
-
 class Argument {
 public:
   // Init and allocate parameter from Argument Def
-  Argument(std::unique_ptr<ArgumentDef>&& arg): \
-      arg_def_(std::move(arg)) {
+  Argument(std::unique_ptr<ArgumentDef> &&arg) : arg_def_(std::move(arg)) {
     CreateFromDef();
   }
 
   // NOTE Copy memory
-  explicit Argument(const Argument& other);
+  explicit Argument(const Argument &other);
 
   // Init from protobuf buffer.
-  Status FromProto(const std::string& buffer);
+  Status FromProto(const std::string &buffer);
 
   // Serialize the argument to protobuf string. Can be used to save model
   // parameters to file.
   void ToProto(std::string *buffer) const;
 
-  const string& Name() const;
+  const string &Name() const;
 
   const ArgumentDef::Shape &Shape() const;
 
-  const ArgumentDef* ArgDef() const { return arg_def_.get(); }
+  const ArgumentDef *ArgDef() const { return arg_def_.get(); }
 
-  const ArgumentField* ArgField() const { return arg_field_.get(); }
+  ArgumentField *ArgField() { return arg_field_.get(); }
 
 protected:
   // Create ArgumentField from arg_def_
