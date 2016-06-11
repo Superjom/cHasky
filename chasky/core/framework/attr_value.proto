@@ -17,12 +17,13 @@ message AttrDef {
 
 message AttrValue {
   oneof value {
+    // string type
     bytes s = 2;
     int64 i = 3;
     float f = 4;
     bool b = 5;
-    DataType type = 6;
-    ListValue  list = 1;
+    DataType t = 6;
+    ListValue  l = 1;
   }
 
   message ListValue {
@@ -30,7 +31,7 @@ message AttrValue {
     repeated int64 i = 3 [packed = true];
     repeated float f = 4 [packed = true];
     repeated bool b = 5 [packed = true];
-    repeated DataType type = 6 [packed = true];
+    repeated DataType t = 6 [packed = true];
   }
 
 }
