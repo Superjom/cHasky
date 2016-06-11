@@ -33,3 +33,7 @@ TEST_F(TestAttrValueBuilder, dtype) {
       .Value("string");
   ASSERT_EQ(builder.Def().value().dtype_val(), CH_STRING);
 }
+
+TEST(AttrDefBuilder, NewAttrDefBuilder) {
+  NewAttrDefBuilder().Name("hello");
+}

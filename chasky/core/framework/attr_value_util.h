@@ -19,7 +19,8 @@ public:
   AttrDefBuilder(const std::string &name) { def_.set_name(name); }
 
   AttrDefBuilder &Name(const std::string& name) {
-    CHECK(def_.name().empty()) << "duplicate set type";
+    CHECK(def_.name().empty()) << "duplicate set type, the previous name is '"
+                               << def_.name() << "'";
     def_.set_name(name);
     return *this;
   }
@@ -47,9 +48,24 @@ public:
   // A mechanism is needed to make assign and copy cheaper.
   const AttrDef &Def() const { return def_; }
 
+  const AttrDef &Finalize() const {
+    // TODO add some check here.
+    return Def();
+  }
+
 private:
   AttrDef def_;
 };
+
+// A helper function to support syntax like:
+//
+//     NewAttrDefBuilder().Name("name")
+//                        .Type("float")
+//                        .Doc("a description");
+inline AttrDefBuilder NewAttrDefBuilder() {
+  AttrDefBuilder x;
+  return x;
+}
 
 inline void StringToValue(const StringPiece &str, int64_t *val) {
   *val = stoi(str.tostring(), nullptr, 10);
