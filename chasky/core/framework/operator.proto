@@ -19,5 +19,5 @@ message OperatorDef {
   // A one line short description
   string summary = 5;
   // Human readable description
-  string description = 6;
+  string doc = 6;
 }

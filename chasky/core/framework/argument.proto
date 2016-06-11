@@ -8,7 +8,7 @@ message ArgumentDef {
   string name = 2;
   string type = 3;
   Shape shape = 4;
-  string description = 5;
+  string doc = 5;
   // Serialized content for Argument/Parameter
   repeated bytes content = 6;
   // Reference or not
