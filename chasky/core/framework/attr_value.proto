@@ -12,26 +12,26 @@ message AttrDef {
   AttrValue value = 3;
 
   // Human readable description for this attribute
-  string description = 4;
+  string doc = 4;
 };
 
 message AttrValue {
   oneof value {
     // string type
-    bytes s = 2;
-    int64 i = 3;
-    float f = 4;
-    bool b = 5;
-    DataType t = 6;
-    ListValue  l = 1;
+    bytes string_val = 2;
+    int64 int64_val = 3;
+    float float_val = 4;
+    bool bool_val = 5;
+    DataType dtype_val = 6;
+    ListValue  list_val = 1;
   }
 
   message ListValue {
-    repeated bytes s = 2;
-    repeated int64 i = 3 [packed = true];
-    repeated float f = 4 [packed = true];
-    repeated bool b = 5 [packed = true];
-    repeated DataType t = 6 [packed = true];
+    repeated bytes string_val = 2;
+    repeated int64 int64_val = 3 [packed = true];
+    repeated float float_val = 4 [packed = true];
+    repeated bool bool_val = 5 [packed = true];
+    repeated DataType dtype_val = 6 [packed = true];
   }
 
 }
