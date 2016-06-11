@@ -28,6 +28,9 @@ enum DataType {
   CH_VEC_DOUBLE = 16;
   CH_VEC_INT32 = 17;
 
+  // Variadic number of arguments
+  CH_VEC_FLOAT_LIST = 18;
+
   // All matrix types supported
   // ...
 }

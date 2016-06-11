@@ -48,6 +48,9 @@ struct ArgumentField {
   TYPE_GETTER(string, std::string);
   // NOTE(superjom) just a useless placeholder
   // std::shared_ptr<BaseMatrix> matrix_val_;
+
+  // To support variadic number of arguments.
+  TYPE_GETTER(float_vec_list, std::vector<math::CpuFloatVector>);
 }; // struct Argument
 #undef TYPE_GETTER
 #undef TYPE_VALS_GETTER
@@ -88,6 +91,8 @@ private:
   ArgumentDef* arg_def_;
   std::unique_ptr<ArgumentField> arg_field_;
 };
+
+typedef std::shared_ptr<Argument> ArgumentPtr;
 
 } // namespace chasky
 #endif
