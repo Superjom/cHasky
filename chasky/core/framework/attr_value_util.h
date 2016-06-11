@@ -15,6 +15,7 @@ void StringToValue(const StringPiece &str, DataType *dtype);
 class AttrDefBuilder {
 public:
   AttrDefBuilder() {}
+
   AttrDefBuilder(const std::string &name) { def_.set_name(name); }
 
   AttrDefBuilder &Name(const std::string& name) {
@@ -40,34 +41,7 @@ public:
   // 'strs' -> bytes
   // '32' -> 32
   // '1,2,3,4' -> list(1, 2, 3, 4)
-  AttrDefBuilder &Value(const std::string &val) {
-    // TODO check value field is empty
-    StringPiece value(val);
-    // parse to value
-    if (def_.type() == "string") {
-      def_.mutable_value()->set_string_val(val);
-    } else if (def_.type() == "int64") {
-      int64_t v;
-      StringToValue(value, &v);
-      def_.mutable_value()->set_int64_val(v);
-    } else if (def_.type() == "float") {
-      float v;
-      StringToValue(value, &v);
-      def_.mutable_value()->set_float_val(v);
-    } else if (def_.type() == "dtype") {
-      DataType v;
-      StringToValue(value, &v);
-      def_.mutable_value()->set_dtype_val(v);
-    } else if (def_.type() == "list") {
-      LOG(FATAL) << "NotImplemented";
-    } else {
-      // TODO(superjom) add a paser factory to support type-parser registery
-      // Types should be checked in the registry time
-      LOG(FATAL) << "Unsupported type " << def_.type();
-    }
-
-    return *this;
-  }
+  AttrDefBuilder &Value(const std::string &val);
 
   // TODO(superjom) replace copy with pointer.
   // A mechanism is needed to make assign and copy cheaper.
