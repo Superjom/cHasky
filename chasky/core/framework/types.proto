@@ -1,0 +1,36 @@
+syntax = "proto3";
+package chasky;
+
+enum DataType {
+  // Not a legal type, just a placeholder
+  CH_INVALID = 0;
+
+  // All basic types supported
+  CH_FLOAT = 1;
+  CH_DOUBLE = 2;
+  CH_INT32 = 3;
+  CH_INT64 = 4;
+  CH_UINT32 = 5;
+  CH_UINT64 = 6;
+  CH_STRING = 7;
+
+  // All std::vectors<xxx> supported
+  //CH_FLOATS = 8;
+  //CH_DOUBLES = 9;
+  //CH_INT32S = 10;
+  //CH_INT64S = 11;
+  //CH_UINT32S = 12;
+  //CH_UINT64S = 13;
+  //CH_STRINGS = 14;
+
+  // All vector types supported
+  CH_VEC_FLOAT = 15;
+  CH_VEC_DOUBLE = 16;
+  CH_VEC_INT32 = 17;
+
+  // Variadic number of arguments
+  CH_VEC_FLOAT_LIST = 18;
+
+  // All matrix types supported
+  // ...
+}

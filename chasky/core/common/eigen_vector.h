@@ -7,6 +7,8 @@ namespace chasky {
 
 namespace math {
 
+// template <class Type> class EigenVector;
+
 template <class Type> class EigenVector : public CpuBaseVector<Type> {
 public:
   using eigen_vector_type = Eigen::Matrix<Type, Eigen::Dynamic, 1>;
@@ -16,46 +18,51 @@ public:
 
   EigenVector(size_t size) : vec_(size) {}
 
-  EigenVector(const std::vector<value_type> &raw_data) 
-      : vec_(raw_data.size()) {
+  EigenVector(const std::vector<value_type> &raw_data) : vec_(raw_data.size()) {
     for (size_t i = 0; i < raw_data.size(); i++) {
       vec_[i] = raw_data[i];
     }
   }
 
-  EigenVector(const value_type *raw_data, size_t size): vec_(size) {
+  EigenVector(const value_type *raw_data, size_t size) : vec_(size) {
     for (size_t i = 0; i < size; i++) {
       vec_[i] = raw_data[i];
     }
   }
 
-  EigenVector(const EigenVector &other) :
-    vec_(*reinterpret_cast<const eigen_vector_type*>(other.Data())) {}
+  EigenVector(const EigenVector &other)
+      : vec_(*reinterpret_cast<const eigen_vector_type *>(other.Data())) {}
 
   EigenVector(const eigen_vector_type &other) : vec_(other) {}
 
-  virtual base_vector_type& operator=(const base_vector_type &other) override {
+  EigenVector& operator=(const EigenVector &other) {
     vec_ = *reinterpret_cast<const eigen_vector_type*>(other.Data());
     return *this;
   }
 
-  virtual const void* Data() const override {
-    return reinterpret_cast<const void*>(&vec_); }
+  virtual base_vector_type &operator=(const base_vector_type &other) override {
+    vec_ = *reinterpret_cast<const eigen_vector_type *>(other.Data());
+    return *this;
+  }
+
+  virtual const void *Data() const override {
+    return reinterpret_cast<const void *>(&vec_);
+  }
 
   virtual value_type DotWith(const base_vector_type &other) override {
     CHECK_EQ(Size(), other.Size());
-    return vec_.dot(*reinterpret_cast<const eigen_vector_type*>(other.Data()));
+    return vec_.dot(*reinterpret_cast<const eigen_vector_type *>(other.Data()));
   }
 
-  virtual base_vector_type Sub(size_t start_index, size_t end_size = 0) override
-  {
+  virtual base_vector_type Sub(size_t start_index,
+                               size_t end_size = 0) override {
     CHECK_GE(start_index, 0);
     CHECK_LE(end_size, vec_.size());
     return EigenVector(vec_.block(start_index, 0, end_size, 1));
   }
 
-  virtual base_vector_type& SetZero() override {
-    //vec_.Zero();
+  virtual base_vector_type &SetZero() override {
+    // vec_.Zero();
     for (size_t i = 0; i < vec_.size(); i++) {
       vec_[i] = 0;
     }
@@ -63,7 +70,7 @@ public:
   }
 
   // TODO support random by gaussian distribution
-  virtual base_vector_type& Randomize() override {
+  virtual base_vector_type &Randomize() override {
     vec_ = eigen_vector_type::Random(Size(), 1);
     return *this;
   }
@@ -72,15 +79,18 @@ public:
 
   virtual size_t Size() const override;
 
-  virtual Type Get(size_t i) const override {
-    return vec_[i];
-  }
+  virtual Type Get(size_t i) const override { return vec_[i]; }
 
 private:
   eigen_vector_type vec_;
 }; // class EigenVector
 
+using CpuFloatVector = EigenVector<float>;
+using CpuDoubleVector = EigenVector<double>;
+using CpuInt32Vector = EigenVector<int32_t>;
+
 } // namespace math
+
 } // namespace chasky
 
 #endif

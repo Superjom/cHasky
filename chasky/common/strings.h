@@ -15,6 +15,8 @@ void Appendf(std::string *dst, const char *format, ...)
 
 void Appendv(std::string *dst, const char *format, va_list ap);
 
+static const std::string empty_string;
+
 }; // namespace strings
 }; // namespace chasky
 #endif

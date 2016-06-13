@@ -1,0 +1,23 @@
+syntax = "proto3";
+package chasky;
+
+import "chasky/core/framework/types.proto";
+import "chasky/core/framework/argument.proto";
+import "chasky/core/framework/attr_value.proto";
+
+// Defines a Operator. An OperatorDef in a GraphDef specifies a layer with the
+// same name. OperatorDef is Operator's open interface hiddening different device
+// and kernel.
+message OperatorDef {
+  string name = 1;
+  // Input arguments
+  repeated ArgumentDef inputs = 2;
+  // Output arguments
+  repeated ArgumentDef outputs = 3;
+  // Layer's attribute configurations
+  repeated AttrDef attrs = 4;
+  // A one line short description
+  string summary = 5;
+  // Human readable description
+  string doc = 6;
+}
