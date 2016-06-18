@@ -4,5 +4,8 @@
 using namespace std;
 
 namespace chasky {
+OperatorDef& OperatorDefBuilder::Finalize() {
+  return def_;
+}
 
 }
