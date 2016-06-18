@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "chasky/common/ref_count.h"
 #include "chasky/core/common/status.h"
 #include "chasky/core/common/matrix.h"
 #include "chasky/core/common/vector.h"
@@ -17,7 +18,7 @@ using std::string;
 #define TYPE_VALS_GETTER(NAME, TYPE)                                           \
   std::shared_ptr<std::vector<TYPE>> NAME##_vals;                              \
   void Create##NAME(const ArgumentDef::Shape &shape) {                         \
-    NAME##_vals = std::make_shared<std::vector<TYPE>>(shape.width());            \
+    NAME##_vals = std::make_shared<std::vector<TYPE>>(shape.width());          \
   }
 
 // Storage of all kinds of data types, each Argument will have an ArgumentField
@@ -55,21 +56,23 @@ struct ArgumentField {
 #undef TYPE_GETTER
 #undef TYPE_VALS_GETTER
 
-class Argument {
+class Argument : public opt::BaseRefCount {
 public:
   // A default constructor used for new
-  explicit Argument() {}
+  explicit Argument() : arg_def_(nullptr), arg_field_{nullptr} {}
   // Init and allocate parameter from Argument Def
-  explicit Argument(const ArgumentDef* arg) :
-      arg_def_(const_cast<ArgumentDef*>(arg)) {
+  explicit Argument(const ArgumentDef *arg)
+      : arg_def_(const_cast<ArgumentDef *>(arg)) {
     CH_CHECK_OK(FromDef(arg_def_));
   }
 
-  // NOTE Copy memory
   explicit Argument(const Argument &other);
 
+  Argument& operator=(const Argument &other);
+  bool operator==(const Argument &other);
+
   // Create ArgumentField from arg_def_
-  Status FromDef(const ArgumentDef* def);
+  Status FromDef(const ArgumentDef *def);
 
   // Init from protobuf buffer.
   Status FromProto(const std::string &buffer);
@@ -84,15 +87,48 @@ public:
 
   const ArgumentDef *ArgDef() const { return arg_def_; }
 
-  ArgumentField *ArgField() { return arg_field_.get(); }
-  const ArgumentField *ArgField() const { return arg_field_.get(); }
+  ArgumentField *ArgField() { return arg_field_; }
+  const ArgumentField *ArgField() const { return arg_field_; }
+
+  // RefCount's API to free memory
+  virtual void RefFree() override;
+
+  // Whether this argument is passed by reference, if reference, it will not
+  // just copy a pointer from others, otherwise, it will create a ArgumentField
+  // and manange the memory, if reference, it will not
+  // just copy a pointer from others, otherwise, it will create a ArgumentField,
+  // copy content from others and manange ArgumentField's memory
+  bool IsRef() const { return arg_def_->is_ref(); }
+
+  bool IsCopied() const { return !IsRef(); };
 
 private:
-  ArgumentDef* arg_def_;
-  std::unique_ptr<ArgumentField> arg_field_;
+  // Just a pointer to other's def, need not free the memory.
+  ArgumentDef *arg_def_;
+  // If the argument is a reference, arg_field_ will just be a pointer and need
+  // not memory management.
+  // If the arguemnt is a copy, It will create its own ArgumentField and manage
+  // memory.
+  ArgumentField *arg_field_;
 };
 
 typedef std::shared_ptr<Argument> ArgumentPtr;
+
+
+inline Argument& Argument::operator=(const Argument &other) {
+  CHECK(arg_def_) << "arg_def_ should be inited before assign";
+  if (IsRef()) {
+    arg_field_ = const_cast<ArgumentField *>(other.ArgField());
+  } else {
+    arg_field_ = new ArgumentField;
+    arg_field_->CopyFrom(*other.ArgField());
+  }
+  return *this;
+}
+
+inline bool Argument::operator==(const Argument &other) {
+  return ArgField() == other.ArgField();
+}
 
 } // namespace chasky
 #endif

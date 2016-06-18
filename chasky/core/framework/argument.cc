@@ -1,8 +1,8 @@
 #include <vector>
 #include "chasky/core/framework/argument.h"
 using namespace std;
-using namespace chasky;
 
+namespace chasky {
 void ArgumentField::CopyFrom(const ArgumentField &other) {
   float_vec_val = other.float_vec_val;
 }
@@ -20,8 +20,7 @@ bool ArgumentField::IsEmpty() const {
 
 Argument::Argument(const Argument &other) {
   arg_def_ = const_cast<ArgumentDef *>(other.ArgDef());
-  arg_field_.reset(new ArgumentField);
-  arg_field_->CopyFrom(*other.ArgField());
+  *this = other;
 }
 
 Status Argument::FromProto(const string &buffer) {
@@ -43,8 +42,13 @@ private:
   vector<TypeParser> parsers_;
 };
 
-// NOTE Need not implement?
 Status Argument::FromDef(const ArgumentDef *def) {
+  CHECK_NE(arg_def_, nullptr);
+  arg_def_ = const_cast<ArgumentDef *>(def);
+  if (IsRef())
+    return Status();
+
+  // copy mode, create its own ArgumentField
   auto &shape = def->shape();
   switch (def->dtype()) {
   case CH_FLOAT:
@@ -70,6 +74,7 @@ Status Argument::FromDef(const ArgumentDef *def) {
     break;
   case CH_VEC_FLOAT:
     arg_field_->float_vec_val =
+
         make_shared<math::CpuFloatVector>(shape.width());
     break;
   case CH_VEC_FLOAT_LIST:
@@ -80,4 +85,13 @@ Status Argument::FromDef(const ArgumentDef *def) {
     break;
   }
   return Status();
+}
+
+// Only need to manage memory in copy mode.
+void Argument::RefFree() {
+  if (IsCopied()) {
+    delete arg_field_;
+    arg_field_ = nullptr;
+  }
+}
 }
