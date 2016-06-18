@@ -44,5 +44,6 @@ inline ArgumentDefBuilder NewArgumentDefBuilder() {
   ArgumentDefBuilder x;
   return x;
 }
+
 }
 #endif
