@@ -62,6 +62,9 @@ public:
     return *this;
   }
 
+  // Fill empty attributes by inspecting from inputs and outputs
+  OperatorDefBuilder &Finalize();
+
   std::string DebugString() const { return def_.DebugString(); }
 
 private:
