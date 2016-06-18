@@ -2,21 +2,15 @@
 #include "chasky/core/framework/operator.h"
 using namespace chasky;
 
-void Operator::SetExecContext(ExecContext* context) {
-  exec_context_ = context;
-}
+void Operator::SetExecContext(ExecContext *context) { exec_context_ = context; }
 
-// TODO Add more check
-bool ExecContext::IsValid() const {
-  return persistent_argument_ != nullptr;
-}
-
-static OperatorLibrary& Instance() {
-  static OperatorLibrary* library = new OperatorLibrary();
+static OperatorLibrary &Instance() {
+  static OperatorLibrary *library = new OperatorLibrary();
   return *library;
 }
 
-Status OperatorLibrary::Register(const string& name, OperatorCreatorType&& creator) {
+Status OperatorLibrary::Register(const string &name,
+                                 OperatorCreatorType &&creator) {
   if (op_library_.count(name) != 0) {
     return Status(
         error::INVALID_ARGUMENT,
@@ -48,6 +42,4 @@ string OperatorLibrary::DebugString() const {
   return res;
 }
 
-size_t OperatorLibrary::Size() const {
-  return op_library_.size();
-}
+size_t OperatorLibrary::Size() const { return op_library_.size(); }
