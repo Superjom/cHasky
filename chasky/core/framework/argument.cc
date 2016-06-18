@@ -43,7 +43,7 @@ private:
 };
 
 Status Argument::FromDef(const ArgumentDef *def) {
-  CHECK_NE(arg_def_, nullptr);
+  CHECK(arg_def_ != nullptr);
   arg_def_ = const_cast<ArgumentDef *>(def);
   if (IsRef())
     return Status();
