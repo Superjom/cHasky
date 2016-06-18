@@ -1,10 +1,12 @@
 project(chasky)
 cmake_minimum_required(VERSION 3.4.0)
-include_directories(./)
+include_directories(./ ./build/protos)
 include_directories(thirdparty/local/include)
 include_directories(build/protos)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lprotobuf -Wall")
+SET(GCC_COVERAGE_LINK_FLAGS    "-lprotobuf")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -lprotobuf")
+SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
 
 # common source files
 set (SOURCE_FILES
@@ -16,6 +18,7 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/operator_def_builder.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/exec_context.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/operator.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util.cc
   )
 

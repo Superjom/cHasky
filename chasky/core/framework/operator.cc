@@ -1,5 +1,6 @@
 #include "chasky/common/strings.h"
 #include "chasky/core/framework/operator.h"
+using namespace std;
 using namespace chasky;
 
 void Operator::SetExecContext(ExecContext *context) { exec_context_ = context; }
@@ -9,8 +10,12 @@ static OperatorLibrary &Instance() {
   return *library;
 }
 
-Status OperatorLibrary::Register(const string &name,
-                                 OperatorCreatorType &&creator) {
+void ArgumentCreateFloat(Argument* arg, ArgumentDef::Shape& shape) {
+  size_t width = shape.width();
+  arg->ArgField()->float_vals = make_shared<vector<float> >(width);
+}
+
+Status OperatorLibrary::Register(const string& name, OperatorCreatorType&& creator) {
   if (op_library_.count(name) != 0) {
     return Status(
         error::INVALID_ARGUMENT,
