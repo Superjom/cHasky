@@ -98,4 +98,5 @@ private:
   OperatorLibrary::Instance().Register(NAME, CREATOR)
 
 }
+
 #endif
