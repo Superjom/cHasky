@@ -31,6 +31,7 @@ set (TEST_SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/common/string_piece_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/operator_def_builder_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument_test.cc
   )
 
 set (PROTOS_FILES

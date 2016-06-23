@@ -59,16 +59,19 @@ struct ArgumentField {
 class Argument : public opt::BaseRefCount {
 public:
   // A default constructor used for new
-  explicit Argument() : arg_def_(nullptr), arg_field_{nullptr} {}
+  explicit Argument() : arg_def_(nullptr), arg_field_{nullptr}, valid_(false) {}
   // Init and allocate parameter from Argument Def
-  explicit Argument(const ArgumentDef *arg)
-      : arg_def_(const_cast<ArgumentDef *>(arg)) {
+  explicit Argument(const ArgumentDef *def)
+      : arg_def_(const_cast<ArgumentDef *>(def)), valid_(false),
+        arg_field_(nullptr) {
     CH_CHECK_OK(FromDef(arg_def_));
   }
 
   explicit Argument(const Argument &other);
 
-  Argument& operator=(const Argument &other);
+  ~Argument() { UnRef(); }
+
+  Argument &operator=(const Argument &other);
   bool operator==(const Argument &other);
 
   // Create ArgumentField from arg_def_
@@ -90,8 +93,10 @@ public:
   ArgumentField *ArgField() { return arg_field_; }
   const ArgumentField *ArgField() const { return arg_field_; }
 
-  // RefCount's API to free memory
-  virtual void RefFree() override;
+  // set to zero vector or matrix
+  void SetZero();
+
+  Argument &operator+=(const Argument &other);
 
   // Whether this argument is passed by reference, if reference, it will not
   // just copy a pointer from others, otherwise, it will create a ArgumentField
@@ -102,6 +107,19 @@ public:
 
   bool IsCopied() const { return !IsRef(); };
 
+  void SetValid(bool x) { valid_ = x; }
+  bool Valid() const { return valid_; }
+
+protected:
+  // RefCount's API to free memory
+  virtual void RefFree() override {
+    LOG(INFO) << "free";
+    if (IsCopied() && arg_field_) {
+      delete arg_field_;
+      arg_field_ = nullptr;
+    }
+  }
+
 private:
   // Just a pointer to other's def, need not free the memory.
   ArgumentDef *arg_def_;
@@ -110,12 +128,13 @@ private:
   // If the arguemnt is a copy, It will create its own ArgumentField and manage
   // memory.
   ArgumentField *arg_field_;
+
+  bool valid_;
 };
 
 typedef std::shared_ptr<Argument> ArgumentPtr;
 
-
-inline Argument& Argument::operator=(const Argument &other) {
+inline Argument &Argument::operator=(const Argument &other) {
   CHECK(arg_def_) << "arg_def_ should be inited before assign";
   if (IsRef()) {
     arg_field_ = const_cast<ArgumentField *>(other.ArgField());

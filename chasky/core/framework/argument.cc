@@ -18,7 +18,7 @@ bool ArgumentField::IsEmpty() const {
          float_vec_val == nullptr && string_val == nullptr;
 }
 
-Argument::Argument(const Argument &other) {
+Argument::Argument(const Argument &other) : valid_(false), BaseRefCount(other) {
   arg_def_ = const_cast<ArgumentDef *>(other.ArgDef());
   *this = other;
 }
@@ -87,11 +87,14 @@ Status Argument::FromDef(const ArgumentDef *def) {
   return Status();
 }
 
+/*
 // Only need to manage memory in copy mode.
 void Argument::RefFree() {
-  if (IsCopied()) {
+  LOG(INFO) << "free";
+  if (IsCopied() && arg_field_) {
     delete arg_field_;
     arg_field_ = nullptr;
   }
 }
+*/
 }
