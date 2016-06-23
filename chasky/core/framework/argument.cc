@@ -1,10 +1,15 @@
 #include <vector>
+#include <glog/logging.h>
 #include "chasky/core/framework/argument.h"
 using namespace std;
 
 namespace chasky {
-void ArgumentField::CopyFrom(const ArgumentField &other) {
-  float_vec_val = other.float_vec_val;
+void ArgumentField::CopyFrom(const ArgumentField &other, bool is_ref) {
+  if (is_ref) {
+    float_vec_val = other.float_vec_val;
+  } else { // copy mode
+    LOG(FATAL) << "NotImplemented";
+  }
 }
 
 void ArgumentField::RealCopyFrom(const ArgumentField &other) {
@@ -18,7 +23,7 @@ bool ArgumentField::IsEmpty() const {
          float_vec_val == nullptr && string_val == nullptr;
 }
 
-Argument::Argument(const Argument &other) : valid_(false), BaseRefCount(other) {
+Argument::Argument(const Argument &other) : valid_(false) {
   arg_def_ = const_cast<ArgumentDef *>(other.ArgDef());
   *this = other;
 }
@@ -42,11 +47,26 @@ private:
   vector<TypeParser> parsers_;
 };
 
+DataType String2Dtype(StringPiece type) {
+  // TODO add more types
+  if (type == "vec_float")
+    return CH_VEC_FLOAT;
+  return CH_VEC_FLOAT;
+}
+
 Status Argument::FromDef(const ArgumentDef *def) {
   CHECK(arg_def_ != nullptr);
   arg_def_ = const_cast<ArgumentDef *>(def);
   if (IsRef())
     return Status();
+
+  arg_def_->set_dtype(String2Dtype(arg_def_->type()));
+
+  DLOG(INFO) << "init from type " << arg_def_->type() << " "
+             << arg_def_->dtype();
+
+  CHECK(arg_field_);
+  CHECK(arg_field_->IsEmpty());
 
   // copy mode, create its own ArgumentField
   auto &shape = def->shape();
@@ -72,11 +92,11 @@ Status Argument::FromDef(const ArgumentDef *def) {
   case CH_STRING:
     arg_field_->string_val = make_shared<string>();
     break;
-  case CH_VEC_FLOAT:
+  case CH_VEC_FLOAT: {
+    DLOG(INFO) << "create cpu float vec";
     arg_field_->float_vec_val =
-
         make_shared<math::CpuFloatVector>(shape.width());
-    break;
+  } break;
   case CH_VEC_FLOAT_LIST:
     arg_field_->float_vec_list_val =
         make_shared<vector<math::CpuFloatVector>>();

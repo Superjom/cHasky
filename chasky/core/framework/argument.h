@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "chasky/common/string_piece.h"
 #include "chasky/common/ref_count.h"
 #include "chasky/core/common/status.h"
 #include "chasky/core/common/matrix.h"
@@ -28,7 +29,7 @@ struct ArgumentField {
   ArgumentField() {}
 
   // Copy pointer
-  void CopyFrom(const ArgumentField &other);
+  void CopyFrom(const ArgumentField &other, bool is_ref);
 
   // Copy memory
   void RealCopyFrom(const ArgumentField &other);
@@ -56,20 +57,22 @@ struct ArgumentField {
 #undef TYPE_GETTER
 #undef TYPE_VALS_GETTER
 
-class Argument : public opt::BaseRefCount {
+typedef std::shared_ptr<ArgumentField> ArgFldPtr;
+
+class Argument {
 public:
   // A default constructor used for new
-  explicit Argument() : arg_def_(nullptr), arg_field_{nullptr}, valid_(false) {}
+  explicit Argument()
+      : arg_def_(nullptr), arg_field_{std::make_shared<ArgumentField>()},
+        valid_(false) {}
   // Init and allocate parameter from Argument Def
   explicit Argument(const ArgumentDef *def)
       : arg_def_(const_cast<ArgumentDef *>(def)), valid_(false),
-        arg_field_(nullptr) {
+        arg_field_(std::make_shared<ArgumentField>()) {
     CH_CHECK_OK(FromDef(arg_def_));
   }
 
   explicit Argument(const Argument &other);
-
-  ~Argument() { UnRef(); }
 
   Argument &operator=(const Argument &other);
   bool operator==(const Argument &other);
@@ -90,8 +93,7 @@ public:
 
   const ArgumentDef *ArgDef() const { return arg_def_; }
 
-  ArgumentField *ArgField() { return arg_field_; }
-  const ArgumentField *ArgField() const { return arg_field_; }
+  const ArgFldPtr ArgField() const { return arg_field_; }
 
   // set to zero vector or matrix
   void SetZero();
@@ -111,15 +113,6 @@ public:
   bool Valid() const { return valid_; }
 
 protected:
-  // RefCount's API to free memory
-  virtual void RefFree() override {
-    LOG(INFO) << "free";
-    if (IsCopied() && arg_field_) {
-      delete arg_field_;
-      arg_field_ = nullptr;
-    }
-  }
-
 private:
   // Just a pointer to other's def, need not free the memory.
   ArgumentDef *arg_def_;
@@ -127,7 +120,7 @@ private:
   // not memory management.
   // If the arguemnt is a copy, It will create its own ArgumentField and manage
   // memory.
-  ArgumentField *arg_field_;
+  ArgFldPtr arg_field_;
 
   bool valid_;
 };
@@ -136,11 +129,14 @@ typedef std::shared_ptr<Argument> ArgumentPtr;
 
 inline Argument &Argument::operator=(const Argument &other) {
   CHECK(arg_def_) << "arg_def_ should be inited before assign";
+  CHECK(other.ArgField()) << "can not copy from null arg";
+  DLOG(INFO) << "argument copy assign in ref mode? " << IsRef();
+
   if (IsRef()) {
-    arg_field_ = const_cast<ArgumentField *>(other.ArgField());
+    arg_field_ = other.ArgField();
   } else {
-    arg_field_ = new ArgumentField;
-    arg_field_->CopyFrom(*other.ArgField());
+    arg_field_ = std::make_shared<ArgumentField>();
+    arg_field_->CopyFrom(*other.ArgField(), arg_def_->is_ref());
   }
   return *this;
 }
