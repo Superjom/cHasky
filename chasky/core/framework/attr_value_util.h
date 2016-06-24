@@ -18,7 +18,7 @@ public:
 
   AttrDefBuilder(const std::string &name) { def_.set_name(name); }
 
-  AttrDefBuilder &Name(const std::string& name) {
+  AttrDefBuilder &Name(const std::string &name) {
     CHECK(def_.name().empty()) << "duplicate set type, the previous name is '"
                                << def_.name() << "'";
     def_.set_name(name);
@@ -75,5 +75,23 @@ inline void StringToValue(const StringPiece &str, float *val) {
   *val = stof(str.tostring(), nullptr);
 }
 
+// A helper class to filling in the value.
+// NOTE the attr_value's definition should be built before filling in value.
+// The client should know all the attributes of a single operator
+class AttrValueBuilder {
+public:
+  // Set Attr
+  AttrValueBuilder(AttrValue *attr_value) : attr_value_(attr_value) {}
+  // set Value
+  void Value(float x) { attr_value_->set_float_val(x); }
+  void Value(int64_t x) { attr_value_->set_int64_val(x); }
+  void Value(std::string x) { attr_value_->set_string_val(x); }
+  void Value(bool x) { attr_value_->set_bool_val(x); }
+  void Value(DataType x) { attr_value_->set_dtype_val(x); }
+  // TODO add list value
+
+private:
+  AttrValue *attr_value_;
+};
 }
 #endif
