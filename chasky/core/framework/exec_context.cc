@@ -10,13 +10,35 @@ Status ExecContext::CreateFromDef(const chasky::OperatorDef &def) {
   return Status();
 }
 
-Status ExecContext::AddInput(const ArgumentDef &def) {
-  input_args_.emplace_back(&def);
+Status ExecContext::AddInput(const std::string &key, const ArgumentDef &def) {
+  input_args_.emplace(key, Argument(&def));
   return Status();
 }
 
-Status ExecContext::AddOutpuut(const ArgumentDef &def) {
-  output_args_.emplace_back(&def);
+Status ExecContext::AddOutput(const std::string &key, const ArgumentDef &def) {
+  output_args_.emplace(key, Argument(&def));
   return Status();
+}
+
+void ExecContext::WaitUntilForwardReady() {
+  std::unique_lock<std::mutex> lock(mu_);
+  forward_ready_cond_.wait(lock, [this] {
+    for (const auto &item : input_args_) {
+      if (!item.second.Valid())
+        return false;
+    }
+    return true;
+  });
+}
+
+void ExecContext::WaitUntilBackwardReady() {
+  std::unique_lock<std::mutex> lock(mu_);
+  forward_ready_cond_.wait(lock, [this] {
+    for (const auto &item : grad_args_) {
+      if (!item.second.Valid())
+        return false;
+    }
+    return true;
+  });
 }
 }

@@ -30,26 +30,83 @@ public:
   // and outputs
   Status CreateFromDef(const OperatorDef &def);
 
-  Status AddInput(const ArgumentDef &def);
+  Status AddInput(const std::string &key, const ArgumentDef &def);
 
-  Status AddOutpuut(const ArgumentDef &def);
+  // set argument and make it valid
+  Status AddInput(const std::string &key, Argument arg) {
+    input_args_[key] = arg;
+    input_args_[key].SetValid(true);
+    std::unique_lock<std::mutex> lock(mu_);
+    forward_ready_cond_.notify_all();
+    return Status();
+  }
 
-  const Argument &input(size_t i) { return input_args_[i]; }
-  const Argument &output(size_t i) { return input_args_[i]; }
-  Argument &mutable_input(size_t i) { return input_args_[i]; }
-  Argument &mutable_output(size_t i) { return output_args_[i]; }
+  Status AddGrad(const std::string &key, Argument arg) {
+    grad_args_[key] = arg;
+    grad_args_[key].SetValid(true);
+    std::unique_lock<std::mutex> lock(mu_);
+    backward_ready_cond_.notify_all();
+    return Status();
+  }
+
+  Status AddOutput(const std::string &key, const ArgumentDef &def);
+
+  const Argument &input(const std::string &key) { return input_args_[key]; }
+  const Argument &output(const std::string &key) { return output_args_[key]; }
+  size_t inputs_size() const { return input_args_.size(); }
+  size_t output_size() const { return output_args_.size(); }
+  Argument *mutable_input(const std::string &key) { return &input_args_[key]; }
+  Argument *mutable_output(const std::string &key) {
+    return &output_args_[key];
+  }
+
+  void SetReady(const std::string &arg_key) {
+    input_args_[arg_key].SetValid(true);
+  }
 
   bool IsValid() const;
 
+  // Wait for all the input activation arguments are ready.
+  void WaitUntilForwardReady();
+
+  // Wait for all the input gradient arguments are ready.
+  void WaitUntilBackwardReady();
+
+  bool KeepRunning() const { return *keep_running_; }
+
+  const std::unordered_map<std::string, Argument> &InputArgs() const {
+    return input_args_;
+  }
+  const std::unordered_map<std::string, Argument> &OutputArgs() const {
+    return output_args_;
+  }
+
+  std::mutex &Lock() { return mu_; }
+  std::condition_variable &ForwardReadyCond() { return forward_ready_cond_; }
+  std::condition_variable &BackwardReadyCond() { return backward_ready_cond_; }
+
 private:
-  std::vector<Argument> input_args_;
-  std::vector<Argument> output_args_;
+  // key is "%s:%s:%s" % (node.name, "input", arg.name)
+  std::unordered_map<std::string, Argument> input_args_;
+
+  // key is "%s:%s:%s" % (node.name, "output", arg.name)
+  std::unordered_map<std::string, Argument> output_args_;
+
+  // key is "%s:%s:%s" % (node.name, "grad", arg.name)
+  std::unordered_map<std::string, Argument> grad_args_;
 
   OperatorDef operator_def_;
 
   // Persistent arguments(model's parameters)
   std::shared_ptr<std::unordered_map<std::string, ArgumentField>>
       persistent_argument_;
+
+  // global flag tells whether to keep running
+  bool *keep_running_;
+
+  mutable std::mutex mu_;
+  mutable std::condition_variable forward_ready_cond_;
+  mutable std::condition_variable backward_ready_cond_;
 };
 }
 #endif
