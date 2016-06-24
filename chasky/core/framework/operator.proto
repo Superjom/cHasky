@@ -18,6 +18,7 @@ message OperatorDef {
   repeated AttrDef attrs = 4;
   // A one line short description
   string summary = 5;
+
   // Human readable description
-  string doc = 6;
+  string doc = 8;
 }
