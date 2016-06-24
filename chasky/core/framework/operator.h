@@ -25,12 +25,17 @@ class Operator : public OperatorInterface {
 public:
   void SetExecContext(ExecContext *context);
 
+  virtual void CheckContext() = 0;
+
   // Create an operator from def
   virtual Status FromDef(const OperatorDef &def) = 0;
 
   StringPiece Name() const { return name_; }
 
   const OperatorDef &Def() const { return def_; }
+
+  const ExecContext &exec_context() { return *exec_context_; }
+  ExecContext *mutable_exec_context() { return exec_context_; }
 
 private:
   ExecContext *exec_context_;
