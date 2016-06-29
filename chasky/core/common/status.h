@@ -54,7 +54,7 @@ private:
   std::unique_ptr<State> state_;
 }; // class Status
 
-#define CH_CHECK_OK(val) CHECK((val).ok())
+#define CH_CHECK_OK(val) CHECK((val).ok()) << (val).msg();
 
 } // namespace chasky
 #endif
