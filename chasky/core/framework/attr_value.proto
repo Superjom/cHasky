@@ -11,8 +11,10 @@ message AttrDef {
 
   AttrValue value = 3;
 
+  bool is_required = 4;
+
   // Human readable description for this attribute
-  string doc = 4;
+  string doc = 5;
 };
 
 message AttrValue {
