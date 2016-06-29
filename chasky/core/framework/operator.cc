@@ -8,10 +8,12 @@ void Operator::SetExecContext(ExecContext *context) {
   //CHECK(CheckInput());
 }
 
-static OperatorLibrary &Instance() {
+/*
+OperatorLibrary &Instance() {
   static OperatorLibrary *library = new OperatorLibrary();
   return *library;
 }
+*/
 
 void ArgumentCreateFloat(Argument *arg, ArgumentDef::Shape &shape) {
   size_t width = shape.width();

@@ -8,6 +8,7 @@
 #include "chasky/core/framework/argument.h"
 #include "chasky/core/framework/exec_context.h"
 #include "chasky/core/framework/operator.pb.h"
+#include "chasky/core/framework/graph.pb.h"
 namespace chasky {
 
 // Interface of Operator, operator only support two methods:
@@ -27,8 +28,15 @@ public:
 
   virtual void CheckContext() = 0;
 
-  // Create an operator from def
-  virtual Status FromDef(const OperatorDef &def) = 0;
+  // Create an operator from definition
+  // @def: operator's definition
+  // @attrs: node's attrs
+  // The operator's attributes is registered in `attrs`, this api should read
+  // definition's field names and try to get value from `attrs`.
+  virtual Status
+  FromDef(const OperatorDef &def,
+          const ::google::protobuf::Map<::std::string, ::chasky::AttrValue>
+              &attrs) = 0;
 
   StringPiece Name() const { return name_; }
 
@@ -45,10 +53,13 @@ private:
 
 class OperatorLibrary {
 public:
-  using OperatorCreatorType = std::function<std::unique_ptr<Operator *>()>;
+  using OperatorCreatorType = std::function<std::unique_ptr<Operator>()>;
 
   // Singleton, the global operator library
-  static OperatorLibrary &Instance();
+  static OperatorLibrary &Instance() {
+    static OperatorLibrary *library = new OperatorLibrary();
+    return *library;
+  }
 
   // Register an operator creator with a name, if another operator called the
   // same name exists, then it will not insert the new operator and just
