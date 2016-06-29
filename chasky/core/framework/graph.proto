@@ -10,24 +10,24 @@ message GraphDef {
   string name = 1;
 
   repeated NodeDef nodes = 2;
-
 }
 
 message NodeDef {
   // The name given to this layer
   string name = 1;
 
-  bool is_source = 6;
+  bool is_source = 2;
 
-  bool is_end = 7;
+  bool is_end = 3;
 
   // The operator's type
-  string op = 2;
+  string op = 4;
 
   // Each input is "node:src_ouput" with "node" being a string name and
   // src_output being the name of node's output
-  repeated string input = 3;
+  repeated string input = 6;
 
-  map<string, AttrValue> attr = 4;
+  // mixed node's and operators' attributes
+  map<string, AttrValue> attr = 7;
 }
 
