@@ -1,6 +1,8 @@
 #ifndef CHASKY_CORE_FRAMEWORK_OPERATOR_DEF_BUILDER_H_
 #define CHASKY_CORE_FRAMEWORK_OPERATOR_DEF_BUILDER_H_
 #include <string>
+#include <unordered_map>
+#include "chasky/core/common/status.h"
 #include "chasky/core/framework/operator.pb.h"
 namespace chasky {
 
@@ -70,5 +72,34 @@ public:
 private:
   OperatorDef def_;
 };
+
+class OperatorDefLibrary {
+public:
+  Status Register(const std::string &name, OperatorDef &&def);
+
+  Status LookUp(const std::string &name, const OperatorDef *def);
+
+  static OperatorDefLibrary &Instance() {
+    static OperatorDefLibrary *x = new OperatorDefLibrary();
+    return *x;
+  }
+
+  std::string DebugString() const;
+
+  size_t Size() const;
+
+private:
+  std::unordered_map<std::string, OperatorDef> def_library_;
+  ;
+};
+
+// Register operator definition like
+// REGISTER_OP_DEF(op_name, OpDefBuilder().Name("op_naem")
+//                                        .Input("src1")
+//                                        .Input("src2")
+//                                        .Output("out1")
+//                                        .Attr("size:int32"))
+#define REGISTER_OP_DEF(NAME, DEF)                                             \
+  OperatorDefLibrary::Instance().Register(NAME, DEF);
 }
 #endif
