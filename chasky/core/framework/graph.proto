@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package chasky;
 
-import "chasky/core/framework/operator.proto";
+import "chasky/core/framework/function.proto";
 import "chasky/core/framework/attr_value.proto";
 
 message GraphDef {
@@ -20,14 +20,14 @@ message NodeDef {
 
   bool is_end = 3;
 
-  // The operator's type
-  string op = 4;
+  // The function's type
+  string func = 4;
 
   // Each input is "node:src_ouput" with "node" being a string name and
   // src_output being the name of node's output
   repeated string input = 6;
 
-  // mixed node's and operators' attributes
+  // mixed node's and functioin' attributes
   map<string, AttrValue> attr = 7;
 }
 
