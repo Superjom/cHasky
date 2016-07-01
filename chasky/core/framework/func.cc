@@ -1,16 +1,17 @@
 #include "chasky/common/strings.h"
-#include "chasky/core/framework/operator.h"
+#include "chasky/core/framework/func.h"
 using namespace std;
-using namespace chasky;
 
-void Operator::SetExecContext(ExecContext *context) {
+namespace chasky {
+
+/*void Function::SetExecContext(ExecContext *context) {
   exec_context_ = context;
-  //CHECK(CheckInput());
-}
+  // CHECK(CheckInput());
+  }*/
 
 /*
-OperatorLibrary &Instance() {
-  static OperatorLibrary *library = new OperatorLibrary();
+FunctionLibrary &Instance() {
+  static FunctionLibrary *library = new FunctionLibrary();
   return *library;
 }
 */
@@ -20,8 +21,8 @@ void ArgumentCreateFloat(Argument *arg, ArgumentDef::Shape &shape) {
   arg->ArgField()->float_vals = make_shared<vector<float>>(width);
 }
 
-Status OperatorLibrary::Register(const string &name,
-                                 OperatorCreatorType &&creator) {
+Status FunctionLibrary::Register(const string &name,
+                                 FunctionCreatorType &&creator) {
   if (op_library_.count(name) != 0) {
     return Status(
         error::INVALID_ARGUMENT,
@@ -33,8 +34,8 @@ Status OperatorLibrary::Register(const string &name,
   return Status();
 }
 
-Status OperatorLibrary::LookUp(const string &name,
-                               OperatorCreatorType *creator) {
+Status FunctionLibrary::LookUp(const string &name,
+                               FunctionCreatorType *creator) {
   auto it = op_library_.find(name);
   if (it == op_library_.end()) {
     return Status(error::OUT_OF_RANGE,
@@ -44,13 +45,15 @@ Status OperatorLibrary::LookUp(const string &name,
   return Status();
 }
 
-string OperatorLibrary::DebugString() const {
+string FunctionLibrary::DebugString() const {
   string res;
-  strings::Appendf(&res, "OperatorLibrary with %lu creators\n", Size());
+  strings::Appendf(&res, "FunctionLibrary with %lu creators\n", Size());
   for (auto item : op_library_) {
     strings::Appendf(&res, "key: [%s]", item.first.c_str());
   }
   return res;
 }
 
-size_t OperatorLibrary::Size() const { return op_library_.size(); }
+size_t FunctionLibrary::Size() const { return op_library_.size(); }
+
+}
