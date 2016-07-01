@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 #include "chasky/core/framework/attr_value_util.h"
 #include "chasky/core/framework/argument_def_builder.h"
-#include "chasky/core/framework/operator_def_builder.h"
+#include "chasky/core/framework/function_def_builder.h"
 using namespace std;
 using namespace chasky;
 
-TEST(OperatorDefBuilder, init) {
-  OperatorDefBuilder builder;
+TEST(FunctionDefBuilder, init) {
+  FunctionDefBuilder builder;
   builder.Name("layer1")
       .Attr(NewAttrDefBuilder()
                 .Name("size")
