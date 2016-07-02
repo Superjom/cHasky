@@ -6,7 +6,7 @@ using namespace std;
 namespace chasky {
 
 // Set default width for each output
-FunctionDef &FunctionDefBuilder::Finalize() {
+FunctionDef FunctionDefBuilder::Finalize() {
   size_t default_width = 0;
   if (def_.inputs_size() > 0) {
     default_width = def_.inputs(0).shape().width();
@@ -32,14 +32,14 @@ Status FunctionDefLibrary::Register(const string &name, FunctionDef &&def) {
   return Status();
 }
 
-Status FunctionDefLibrary::LookUp(const string &name, const FunctionDef *def) {
+Status FunctionDefLibrary::LookUp(const string &name, FunctionDef **def) {
   auto it = def_library_.find(name);
   if (it == def_library_.end()) {
     return Status(
         error::OUT_OF_RANGE,
         strings::Printf("no operator definition called %s.", name.c_str()));
   }
-  def = &it->second;
+  *def = &it->second;
   return Status();
 }
 
@@ -52,5 +52,4 @@ string FunctionDefLibrary::DebugString() const {
   }
   return res;
 }
-
 }
