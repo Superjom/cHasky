@@ -5,13 +5,13 @@
 namespace chasky {
 using std::string;
 
-std::string GenEdgeKey(const string &node_name, const string &task,
+std::string GenEdgeKey(const string &node_name, const string &target_name,
                        const string &arg_name) {
-  return strings::Printf("%s:%s->%s", node_name.c_str(), task.c_str(),
-                         arg_name.c_str());
+  return strings::Printf("%s:%s->%s", node_name.c_str(), arg_name.c_str(),
+                         target_name.c_str());
 }
 
-std::string GenEdgeKey(const std::string input, const std::string &node2) {
+std::string GenEdgeKey(const std::string &input, const std::string &node2) {
   return strings::Printf("%s->%s", input.c_str(), node2.c_str());
 }
 
@@ -22,7 +22,7 @@ Edge::Edge(const Node *src, const Node *trg, const std::string &arg)
 
 Node::Node(const NodeDef &def) : def_(def) {
   FunctionLibrary::FunctionCreatorType func_creator;
-  CH_CHECK_OK(FunctionLibrary::Instance().LookUp(def.op(), &func_creator));
+  CH_CHECK_OK(FunctionLibrary::Instance().LookUp(def.func(), &func_creator));
   // init function's definition by filling attributes from node's definition.
   // TODO much code here
   // TODO just add unittest
@@ -50,16 +50,26 @@ Status Node::Compute(chasky::TaskType task) {
 Status Node::ForwardCompute() {
   Status status = func_->ForwardCompute();
   if (status.ok()) {
+    /*
     for (auto &e : in_links_) {
       ReleaseEdge(&e);
     }
+    */
   }
   return status;
 }
 
-Status Node::ReleaseEdge(const Edge *edge) {}
+Status Node::BackwardCompute() {
+  // TODO
+  return Status();
+}
 
-Status Node::StartService() {}
+Status Node::ReleaseEdge(const Edge *edge) {
+  // TODO
+  return Status();
+}
+
+Status Node::StartService() { return Status(); }
 
 Status Node::ConnectTo(Node *other, bool forward_or_bachward) {
   auto status = Status();
