@@ -20,17 +20,27 @@ Edge::Edge(const Node *src, const Node *trg, const std::string &arg)
           GenEdgeKey(src->Name().tostring(), trg->Name().tostring(), arg)),
       src_(src), trg_(trg) {}
 
-Node::Node(const NodeDef &def) : def_(def) {
-  FunctionLibrary::FunctionCreatorType func_creator;
+Node::Node(const NodeDef &def) : def_(def), func_def_(nullptr) {
+  CHECK(!def.name().empty());
+  DLOG(INFO) << "creating node " << def.name();
+
+  Status status;
+  FunctionLibrary::FunctionCreatorType *func_creator;
+  CH_CHECK_OK(FunctionDefLibrary::Instance().LookUp(def.func(), &func_def_));
+  CHECK(func_def_ != nullptr);
+  CHECK_EQ(def.func(), func_def_->name());
+
   CH_CHECK_OK(FunctionLibrary::Instance().LookUp(def.func(), &func_creator));
   // init function's definition by filling attributes from node's definition.
   // TODO much code here
   // TODO just add unittest
   CH_CHECK_OK(FunctionDefLibrary::Instance().LookUp(def.func(), &func_def_));
 
+  DLOG(INFO) << "creating function " << func_def_->name();
   // create an function
-  func_ = func_creator();
-  CH_CHECK_OK(func_->FromDef(func_def_, def.attr()));
+  func_ = (*func_creator)();
+  DLOG(INFO) << "func is created";
+  CH_CHECK_OK(func_->FromDef(*func_def_, def.attr()));
 }
 
 std::unique_ptr<Node> Node::Create(const NodeDef &def) {
