@@ -35,13 +35,13 @@ Status FunctionLibrary::Register(const string &name,
 }
 
 Status FunctionLibrary::LookUp(const string &name,
-                               FunctionCreatorType *creator) {
+                               FunctionCreatorType **creator) {
   auto it = op_library_.find(name);
   if (it == op_library_.end()) {
     return Status(error::OUT_OF_RANGE,
-                  strings::Printf("no key called %s is found", name.c_str()));
+                  strings::Printf("no key called '%s' is found", name.c_str()));
   }
-  creator = &it->second;
+  *creator = &it->second;
   return Status();
 }
 
@@ -55,5 +55,4 @@ string FunctionLibrary::DebugString() const {
 }
 
 size_t FunctionLibrary::Size() const { return op_library_.size(); }
-
 }

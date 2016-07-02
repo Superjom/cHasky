@@ -5,7 +5,7 @@ include_directories(thirdparty/local/include)
 include_directories(build/protos)
 
 SET(GCC_COVERAGE_LINK_FLAGS    "-lprotobuf")
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -lprotobuf")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
 
 # common source files
@@ -34,6 +34,7 @@ set (TEST_SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_def_builder_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/node_test.cc
   )
 

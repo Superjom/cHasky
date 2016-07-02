@@ -65,7 +65,7 @@ public:
   }
 
   // Fill empty attributes by inspecting from inputs and outputs
-  FunctionDef &Finalize();
+  FunctionDef Finalize();
 
   std::string DebugString() const { return def_.DebugString(); }
 
@@ -77,7 +77,7 @@ class FunctionDefLibrary {
 public:
   Status Register(const std::string &name, FunctionDef &&def);
 
-  Status LookUp(const std::string &name, const FunctionDef *def);
+  Status LookUp(const std::string &name, FunctionDef **def);
 
   static FunctionDefLibrary &Instance() {
     static FunctionDefLibrary *x = new FunctionDefLibrary();
@@ -99,7 +99,7 @@ private:
 //                                        .Input("src2")
 //                                        .Output("out1")
 //                                        .Attr("size:int32"))
-#define REGISTER_OP_DEF(NAME, DEF)                                             \
-  FunctionDefLibrary::Instance().Register(NAME, DEF);
+// #define REGISTER_OP_DEF(NAME, DEF)                                             \
+//   FunctionDefLibrary::Instance().Register(NAME, DEF);
 }
 #endif

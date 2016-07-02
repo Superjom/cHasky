@@ -19,13 +19,14 @@ class FunctionInterface {
 public:
   virtual Status ForwardCompute() = 0;
 
-  virtual Status GradCompute() = 0;
+  virtual Status BackwardCompute() = 0;
 };
 
 // Base class for all funcs
 class Function : public FunctionInterface {
 public:
-  //void SetExecContext(ExecContext *context);
+  // void SetExecContext(ExecContext *context);
+  Function() {}
 
   virtual void CheckContext() = 0;
 
@@ -43,11 +44,11 @@ public:
 
   const FunctionDef &Def() const { return def_; }
 
-  //const ExecContext &exec_context() { return *exec_context_; }
-  //ExecContext *mutable_exec_context() { return exec_context_; }
+  // const ExecContext &exec_context() { return *exec_context_; }
+  // ExecContext *mutable_exec_context() { return exec_context_; }
 
 private:
-  //ExecContext *exec_context_;
+  // ExecContext *exec_context_;
   StringPiece name_;
   FunctionDef def_;
 };
@@ -71,7 +72,7 @@ public:
   // Look up the library for the func which match the name, if not exits,
   // just return error.
   // NOTE It is not Rewrie-Read thread-sefe.
-  Status LookUp(const std::string &name, FunctionCreatorType *creator);
+  Status LookUp(const std::string &name, FunctionCreatorType **creator);
 
   // Human readable description of all the func creator store in
   // the library.
@@ -84,8 +85,9 @@ private:
   std::unordered_map<std::string, FunctionCreatorType> op_library_;
 };
 
-#define REGISTER_OP(NAME, CREATOR)                                             \
-  FunctionLibrary::Instance().Register(NAME, CREATOR)
+// #define REGISTER_OP(NAME, CLASS)                                               \
+//   FunctionLibrary::Instance().Register(                                        \
+//       NAME, [] { return std::unique_ptr<Function>(new CLASS); });
 }
 
 #endif

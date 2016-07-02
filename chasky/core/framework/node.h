@@ -89,12 +89,6 @@ private:
 // out-link edges, and other nodes will receive this arguments.
 class Node {
 public:
-  Node(){};
-  // Create a node, including create the corresponding function's object.
-  Node(const NodeDef &def);
-
-  ~Node();
-
   // Create a node from definition
   static std::unique_ptr<Node> Create(const NodeDef &def);
 
@@ -120,10 +114,16 @@ public:
 
   StringPiece Name() const { return def_.name(); }
 
+  ~Node();
+
 protected:
   // Tell the edge's endpoints that the argument is ready.
   Status ReleaseEdge(const std::string &edge);
   Status ReleaseEdge(const Edge *edge);
+
+  // Create a node, including create the corresponding function's object.
+  Node(const NodeDef &def);
+
 
 private:
   // Current task
@@ -131,7 +131,7 @@ private:
   // the corresponding function
   std::unique_ptr<Function> func_;
   NodeDef def_;
-  FunctionDef func_def_;
+  FunctionDef *func_def_;
   // ExecContext exec_context_;
   Argument grad_;
   std::thread service_thread_;
