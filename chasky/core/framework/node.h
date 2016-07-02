@@ -3,7 +3,7 @@
 #include <memory>
 #include <thread>
 #include "chasky/core/framework/graph.pb.h"
-#include "chasky/core/framework/func.h"
+#include "chasky/core/framework/function.h"
 #include "chasky/core/framework/argument.h"
 namespace chasky {
 

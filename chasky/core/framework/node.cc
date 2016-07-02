@@ -1,6 +1,5 @@
 #include "chasky/common/strings.h"
 #include "chasky/core/framework/node.h"
-#include "chasky/core/framework/func.h"
 #include "chasky/core/framework/function_def_builder.h"
 
 namespace chasky {
