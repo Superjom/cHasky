@@ -34,4 +34,3 @@
 /.ycm_extra_conf.pyc
 /cmake_install.cmake
 /chasky/common/strings.os
-*.h
