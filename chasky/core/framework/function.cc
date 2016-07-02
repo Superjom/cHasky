@@ -1,5 +1,5 @@
 #include "chasky/common/strings.h"
-#include "chasky/core/framework/func.h"
+#include "chasky/core/framework/function.h"
 using namespace std;
 
 namespace chasky {
