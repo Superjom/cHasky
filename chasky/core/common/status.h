@@ -13,13 +13,14 @@ enum Code {
   INVALID_ARGUMENT = 2,
   OUT_OF_RANGE = 3,
   UNIMPLEMENTED = 4
-}; 
+};
 } // namespace error
 
 class Status {
 public:
-  explicit Status() : state_(nullptr) {}
-  explicit Status(error::Code code, std::string msg)
+  Status() : state_(nullptr) {}
+
+  explicit Status(error::Code code, const std::string &msg)
       : state_(new State({code, msg})) {}
 
   bool ok() const { return state_ == nullptr; }
@@ -40,7 +41,13 @@ public:
 
   static error::Code OK() { return error::Code::OK; }
 
-  const std::string &msg() const { return strings::empty_string; }
+  const std::string &msg() const {
+    if (ok()) {
+      return strings::empty_string;
+    } else {
+      return state_->msg;
+    }
+  }
 
   bool operator==(const Status &x) const;
   bool operator!=(const Status &x) const;
@@ -54,7 +61,7 @@ private:
   std::unique_ptr<State> state_;
 }; // class Status
 
-#define CH_CHECK_OK(val) CHECK((val).ok()) << (val).msg();
+#define CH_CHECK_OK(val) CHECK((val).ok()) << "error: " << (val).msg();
 
 } // namespace chasky
 #endif
