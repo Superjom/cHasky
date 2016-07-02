@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include "chasky/core/common/status.h"
 #include "chasky/core/framework/argument.h"
-#include "chasky/core/framework/operator.pb.h"
+#include "chasky/core/framework/function.pb.h"
 namespace chasky {
 
 // Execution context for an operator. Includes operator's inputs and outputs,
@@ -94,8 +94,6 @@ private:
 
   // key is "%s:%s:%s" % (node.name, "grad", arg.name)
   std::unordered_map<std::string, Argument> grad_args_;
-
-  OperatorDef operator_def_;
 
   // Persistent arguments(model's parameters)
   std::shared_ptr<std::unordered_map<std::string, ArgumentField>>
