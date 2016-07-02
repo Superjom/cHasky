@@ -16,10 +16,12 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/common/status.cc
   ${CMAKE_SOURCE_DIR}/chasky/common/string_piece.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/operator_def_builder.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/exec_context.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/operator.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_def_builder.cc
+  #${CMAKE_SOURCE_DIR}/chasky/core/framework/exec_context.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/function.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/node.cc
+  #${CMAKE_SOURCE_DIR}/chasky/core/runtime/session.cc
   )
 
 set (TEST_SOURCE_FILES
@@ -30,15 +32,17 @@ set (TEST_SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/common/status_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/common/string_piece_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util_test.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/operator_def_builder_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_def_builder_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/node_test.cc
   )
 
 set (PROTOS_FILES
   ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/argument.pb.cc
-  ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/operator.pb.cc
+  ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/function.pb.cc
   ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/attr_value.pb.cc
   ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/types.pb.cc
+  ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/graph.pb.cc
 )
 
 set (LOCAL_LIB ${CMAKE_SOURCE_DIR}/thirdparty/local/lib)
