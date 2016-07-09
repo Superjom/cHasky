@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "chasky/core/framework/graph.pb.h"
 #include "chasky/core/framework/graph.h"
+#include "chasky/core/runtime/graph_builder.h"
 // Session implemention for python client
 namespace chasky {
 
@@ -13,6 +14,8 @@ namespace chasky {
 // It hold all the resources for the graph, and manage their lifetime.
 class Session {
 public:
+  Session();
+
   Session(const std::string &name);
 
   Status CreateGraph(const GraphDef &def);
@@ -20,13 +23,13 @@ public:
   Status StartExec();
 
   Status KillExec();
-
   // @name: graph's name
-  Status DestroyGraph(const std::string &name);
+  Status DestroyGraph();
 
 private:
   std::string name_;
-  std::unique_ptr<Graph> graph_;
+  //std::unique_ptr<Graph> graph_;
+  std::unique_ptr<GraphBuilder> graph_builder_;
 };
 
 // Return 0 for success, -1 for fail
