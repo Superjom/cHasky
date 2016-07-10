@@ -7,20 +7,20 @@ namespace chasky {
 
 class Graph {
 public:
-
   static std::unique_ptr<Graph> Create();
+  typedef std::unordered_map<std::string, std::unique_ptr<Node>> nodes_t;
+  typedef std::unordered_map<std::string, std::unique_ptr<Edge>> edges_t;
 
   // getters
-  const decltype(nodes_) Nodes() const { return nodes_; }
-  decltype(nodes_) *mutable_nodes() { return &nodes_; }
-  const decltype(edges_) Edges() const { return edges_; }
-  const decltype(edges_) *mutable_edges() const {
-    return &edges_;
-  }
+  const nodes_t &Nodes() const { return nodes_; }
+  nodes_t *mutable_nodes() { return &nodes_; }
+  const edges_t &Edges() const { return edges_; }
+  edges_t *mutable_edges() { return &edges_; }
 
 private:
-  std::unordered_map<std::string, std::unique_ptr<Node> > nodes_;
-  std::unordered_map<std::string, std::unique_ptr<Edge> > edges_;
+  std::unordered_map<std::string, std::unique_ptr<Node>> nodes_;
+  std::unordered_map<std::string, std::unique_ptr<Edge>> edges_;
 };
-}
+
+} // namespace chasky
 #endif
