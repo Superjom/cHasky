@@ -14,3 +14,5 @@
   if (!(COND)) {                                                               \
     return false;                                                              \
   };
+
+#define UN_IMPLEMENTED LOG(FATAL) << "UnImplemented";
