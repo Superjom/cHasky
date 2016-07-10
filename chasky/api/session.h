@@ -33,6 +33,6 @@ private:
 };
 
 // Return 0 for success, -1 for fail
-int CreateGraph(GraphDef *def);
-}
+// int CreateGraph(GraphDef *def);
+// }
 #endif

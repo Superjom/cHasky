@@ -3,9 +3,11 @@ cmake_minimum_required(VERSION 3.4.0)
 include_directories(./ ./build/protos)
 include_directories(thirdparty/local/include)
 include_directories(build/protos)
+include_directories(
+  /System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7)
 
 SET(GCC_COVERAGE_LINK_FLAGS    "-lprotobuf")
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -framework Python")
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
 
 # common source files
@@ -21,7 +23,9 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/node.cc
-  #${CMAKE_SOURCE_DIR}/chasky/core/runtime/session.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/session.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/graph_builder.cc
   )
 
 set (TEST_SOURCE_FILES
@@ -46,6 +50,11 @@ set (PROTOS_FILES
   ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/graph.pb.cc
 )
 
+set (SWIG_FILES
+  ${CMAKE_SOURCE_DIR}/chasky/api/session.cc
+  ${CMAKE_SOURCE_DIR}/chasky/api/chasky_wrap.cxx
+  )
+
 set (LOCAL_LIB ${CMAKE_SOURCE_DIR}/thirdparty/local/lib)
 
 # test case
@@ -62,3 +71,18 @@ target_link_libraries (chaskytest
   "${LOCAL_LIB}/libprotobuf.a"
   )
 
+add_library(_chasky SHARED ${SOURCE_FILES}
+  ${PROTOS_FILES}
+  ${SWIG_FILES}
+  )
+
+target_link_libraries (_chasky
+  "${LOCAL_LIB}/libgtest.a"
+  "${LOCAL_LIB}/libgtest_main.a"
+  "${LOCAL_LIB}/libglog.a"
+  "${LOCAL_LIB}/libprotobuf.a"
+  )
+set_target_properties(_chasky
+        PROPERTIES PREFIX ""
+                   SUFFIX ".so"
+        )

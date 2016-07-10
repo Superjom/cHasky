@@ -1,35 +1,28 @@
-#include <string>
-#include <iostream>
-#include "chasky/api/session.swig"
-//#include "chasky/api/session.h"
+#include <memory>
+#include "chasky/common/buf.h"
+#include "chasky/api/chasky_api.h"
+#include "chasky/core/framework/graph.pb.h"
+#include "chasky/core/runtime/session.h"
 
-using chasky::GraphDef;
-using chasky::Status;
+struct SessionPrivate {
+  std::shared_ptr<chasky::Session> session;
+};
 
-// Convert protobuf to string 
-GraphDef Buf2Str(const std::string &buf);
-// Convert string to protobuf
-GraphDef Str2Buf(const std::string &buf);
-
-bool ::session::CreateGraph(const std::string& buf) {
-  GraphDef graphdef = Str2Buf(buf);
-  return session_->CreateGraph(graphdef).ok();
+bool Session::CreateGraph(const std::string &str_buf) {
+  session_ = new SessionPrivate;
+  auto buf = chasky::str2buf<chasky::GraphDef>(str_buf);
+  session_->session = std::make_shared<chasky::Session>(buf.name());
+  return session_->session->CreateGraph(buf).ok();
 }
 
-bool ::session::StartExec() {
-  return session_->StartExec().ok();
+bool Session::StartExec() {
+  return session_->session->StartExec().ok();
 }
 
-bool ::session::KillExec() {
-  return session_->KillExec().ok();
+bool Session::KillExec() {
+  return session_->session->KillExec().ok();
 }
 
-bool ::session::DestroyGraph() {
-  return session_->DestroyGraph().ok();
-}
-
-GraphDef Str2Buf(const std::string &buf) {
-  GraphDef def;
-  def.ParseFromString(buf);
-  return def;
+bool Session::DestroyGraph() {
+  return session_->session->DestroyGraph().ok();
 }
