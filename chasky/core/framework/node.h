@@ -92,6 +92,15 @@ public:
   // Create a node from definition
   static std::unique_ptr<Node> Create(const NodeDef &def);
 
+  Node(Node&& other) :
+      cur_task_(other.cur_task_),
+      func_(std::move(other.func_)),
+      def_(std::move(other.def_)),
+      func_def_(other.func_def_),
+      grad_(std::move(other.grad_)),
+      service_thread_(std::move(other.service_thread_)) {}
+
+
   // Call ForwardCompute or BackwardCompute
   Status Compute(TaskType task);
   // Forward computation.

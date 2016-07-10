@@ -1,7 +1,6 @@
-#ifndef CHASKY_API_SESSION_H_
-#define CHASKY_API_SESSION_H_
+#ifndef CHASKY_CORE_RUNTIME_SESSION_H_
+#define CHASKY_CORE_RUNTIME_SESSION_H_
 #include <memory>
-#include <unordered_map>
 #include "chasky/core/framework/graph.pb.h"
 #include "chasky/core/framework/graph.h"
 #include "chasky/core/runtime/graph_builder.h"
@@ -13,7 +12,7 @@ namespace chasky {
 // kill the session.
 // It hold all the resources for the graph, and manage their lifetime.
 class Session {
-public:
+ public:
   Session();
 
   Session(const std::string &name);
@@ -26,13 +25,12 @@ public:
   // @name: graph's name
   Status DestroyGraph();
 
-private:
+ private:
   std::string name_;
   //std::unique_ptr<Graph> graph_;
   std::unique_ptr<GraphBuilder> graph_builder_;
 };
 
-// Return 0 for success, -1 for fail
-// int CreateGraph(GraphDef *def);
-// }
+
+}
 #endif
