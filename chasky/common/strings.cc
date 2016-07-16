@@ -53,5 +53,20 @@ void Appendf(std::string *dst, const char *format, ...) {
   va_end(ap);
 }
 
+std::vector<std::string> Split(StringPiece text, char delim) {
+  std::vector<std::string> result;
+  int token_start = 0;
+  if (!text.empty()) {
+    for (size_t i = 0; i < text.size() + 1; i++) {
+      if ((i == text.size()) || (text[i] == delim)) {
+        StringPiece token(text.data() + token_start, i - token_start);
+        result.push_back(token.tostring());
+        token_start = i + 1;
+      }
+    }
+  }
+  return result;
+}
+
 } // namespace strings
 } // namespace chasky

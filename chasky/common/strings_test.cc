@@ -28,5 +28,13 @@ TEST(Appendf, appendf) {
   ASSERT_EQ(res, "hello20080.7");
 }
 
+TEST(Split, split) {
+  StringPiece a("hello world");
+  auto pieces = strings::Split(a, ' ');
+  ASSERT_EQ(pieces.size(), 2);
+  ASSERT_EQ(pieces[0], "hello");
+  ASSERT_EQ(pieces[1], "world");
+}
+
 }; // namespace test
 }; // namespace chasky
