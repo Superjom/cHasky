@@ -4,6 +4,7 @@
 #include <memory>
 #include <unordered_map>
 #include "chasky/core/common/status.h"
+#include "chasky/common/strings.h"
 #include "chasky/common/string_piece.h"
 #include "chasky/core/framework/argument.pb.h"
 #include "chasky/core/framework/argument.h"
@@ -17,9 +18,22 @@ namespace chasky {
 // is like ANN's backward
 class FunctionInterface {
 public:
-  virtual Status ForwardCompute() = 0;
+  // A Node will determine which function to use. And a function will init
+  // itself according to function's definition(attributes).
+  virtual Status InitFromProto(const FunctionDef &def) = 0;
 
-  virtual Status BackwardCompute() = 0;
+  // Forward computation
+  // args: input arguments. If inputs are matrixs, then all their shape should
+  // be the same.
+  // activation: function's activation output
+  // def: function's definition
+  // A real function will determine the type fields of arguments to use
+  // according to function's definition.
+  virtual Status ForwardCompute(const std::vector<const Argument *> &args,
+                                const std::vector<Argument *> *activations,
+                                const FunctionDef &def) = 0;
+
+  virtual Status BackwardCompute(const Argument *grad) = 0;
 };
 
 // Base class for all funcs
@@ -29,6 +43,22 @@ public:
   Function() {}
 
   virtual void CheckContext() = 0;
+
+  // Function registerer must use signature as key.
+  static std::string Signature(const std::string &name, DataType dtype) {
+    return strings::Printf("%s:%d", name.c_str(), dtype);
+  }
+
+  // Parse signature and extract different infomation fields.
+  // Return true if successfully parsed, else false.
+  static bool ParseSignature(const std::string &sign, std::string *name,
+                                    DataType *dtype) {
+    auto pieces = strings::Split(sign, ':');
+    if (pieces.size() != 2) return false;
+    *name = pieces[0];
+    *dtype = static_cast<DataType>(std::stoi(pieces[1]));
+    return true;
+  }
 
   // Create an func from definition
   // @def: func's definition
