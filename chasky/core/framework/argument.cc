@@ -1,4 +1,5 @@
 #include <vector>
+#include <unordered_map>
 #include <glog/logging.h>
 #include "chasky/core/framework/argument.h"
 using namespace std;
@@ -6,21 +7,29 @@ using namespace std;
 namespace chasky {
 void ArgumentField::CopyFrom(const ArgumentField &other, bool is_ref) {
   if (is_ref) {
-    float_vec_val = other.float_vec_val;
+    int32_val = other.int32_val;
+    uint32_val = other.uint32_val;
+    uint64_val = other.uint64_val;
+    int64_val = other.int64_val;
+    float_mat_val = other.float_mat_val;
+    // TODO add all other fields
   } else { // copy mode
     LOG(FATAL) << "NotImplemented";
   }
 }
 
 void ArgumentField::RealCopyFrom(const ArgumentField &other) {
-  float_vec_val = std::make_shared<math::CpuFloatVector>(*other.float_vec_val);
+  // float_vec_val =
+  // std::make_shared<math::CpuFloatVector>(*other.float_vec_val);
 }
 
 bool ArgumentField::IsEmpty() const {
-  return int32_vals == nullptr && int64_vals == nullptr &&
+  return float_val == nullptr && int32_val == nullptr &&
+         uint32_val == nullptr && uint64_val == nullptr &&
+         float_mat_val == nullptr && float_mat_vals == nullptr &&
+         int32_vals == nullptr && int64_vals == nullptr &&
          uint32_vals == nullptr && uint64_vals == nullptr &&
-         float_vals == nullptr && double_vals == nullptr &&
-         float_vec_val == nullptr && string_val == nullptr;
+         float_vals == nullptr && double_vals == nullptr;
 }
 
 Argument::Argument(const Argument &other) : valid_(false) {
@@ -48,10 +57,11 @@ private:
 };
 
 DataType String2Dtype(StringPiece type) {
-  // TODO add more types
-  if (type == "vec_float")
-    return CH_VEC_FLOAT;
-  return CH_VEC_FLOAT;
+  // TODO register more types
+  static std::unordered_map<std::string, DataType> str2dtype = {
+      {"float_mat", CH_MAT_FLOAT}};
+  LOG(INFO) << "string2dtype " << type;
+  return str2dtype[type.tostring()];
 }
 
 Status Argument::FromDef(const ArgumentDef *def) {
@@ -71,50 +81,44 @@ Status Argument::FromDef(const ArgumentDef *def) {
   // copy mode, create its own ArgumentField
   auto &shape = def->shape();
   switch (def->dtype()) {
+  // single element
   case CH_FLOAT:
-    arg_field_->Createfloat(shape);
+    arg_field_->create_float_val();
     break;
   case CH_DOUBLE:
-    arg_field_->Createdouble(shape);
+    arg_field_->create_double_val();
     break;
   case CH_INT32:
-    arg_field_->Createint32(shape);
+    arg_field_->create_int32_val();
     break;
   case CH_INT64:
-    arg_field_->Createint64(shape);
+    arg_field_->create_int64_val();
     break;
   case CH_UINT32:
-    arg_field_->Createuint32(shape);
+    arg_field_->create_uint32_val();
     break;
   case CH_UINT64:
-    arg_field_->Createuint64(shape);
+    arg_field_->create_uint64_val();
     break;
   case CH_STRING:
-    arg_field_->string_val = make_shared<string>();
+    arg_field_->create_string_val();
     break;
-  case CH_VEC_FLOAT: {
-    DLOG(INFO) << "create cpu float vec";
-    arg_field_->float_vec_val =
-        make_shared<math::CpuFloatVector>(shape.width());
+  // case CH_VEC_FLOAT: {
+  //   DLOG(INFO) << "create cpu float vec";
+  //   arg_field_->float_vec_val =
+  //       make_shared<math::CpuFloatVector>(shape.width());
+  // } break;
+  case CH_MAT_FLOAT: {
+    DLOG(INFO) << "create cpu float matrix";
+    arg_field_->create_float_mat_val(shape);
   } break;
-  case CH_VEC_FLOAT_LIST:
-    arg_field_->float_vec_list_val =
-        make_shared<vector<math::CpuFloatVector>>();
-    break;
+  // case CH_VEC_FLOAT_LIST:
+  //   arg_field_->float_vec_list_val =
+  //       make_shared<vector<math::CpuFloatVector>>();
+  //   break;
   default:
     break;
   }
   return Status();
 }
-
-/*
-// Only need to manage memory in copy mode.
-void Argument::RefFree() {
-  LOG(INFO) << "free";
-  if (IsCopied() && arg_field_) {
-    delete arg_field_;
-    arg_field_ = nullptr;
-  }
-}
-*/
 }
