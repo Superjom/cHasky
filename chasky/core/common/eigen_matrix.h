@@ -21,7 +21,11 @@ public:
   using value_type = Type;
   typedef std::pair<size_t, size_t> shape_t;
 
+  EigenMatrix() : mat_(nullptr) {}
+
   EigenMatrix(const std::shared_ptr<eigen_matrix_t> mat) : mat_(mat) {}
+
+  EigenMatrix(const self_type &other) : mat_(other.MatPtr()) {}
 
   EigenMatrix(const shape_t &shape, bool random_init = true)
       : mat_(std::make_shared<eigen_matrix_t>(shape.first, shape.second)) {
@@ -42,11 +46,18 @@ public:
   virtual void MultWith(const base_matrix_t &other, float ratio1 = 1.,
                         float ratio2 = 1.) override {
 
+    // TODO add shape check here.
     auto other_mat = reinterpret_cast<const eigen_matrix_t *>(other.RawMat());
-    // LOG(INFO) << "this\t" << mat_->cols() << " " << mat_->rows();
-    // LOG(INFO) << "other\t" << other_mat->cols() << " " << other_mat->rows();
-    //*mat_ = (*mat_ * ratio1) * ((*other_mat) * ratio2);
-    *mat_ = *mat_ * (*other_mat);
+    *mat_ = (*mat_ * ratio1) * (*other_mat * ratio2);
+  }
+
+  virtual void AddWith(const base_matrix_t &other, float ratio1 = 1.,
+                       float ratio2 = 1.) override {
+    auto other_mat = reinterpret_cast<const eigen_matrix_t *>(other.RawMat());
+    // check shape
+    CHECK_EQ(mat_->rows(), other.Shape().first);
+    CHECK_EQ(mat_->cols(), other.Shape().second);
+    *mat_ = *mat_ * ratio1 + *other_mat * ratio2;
   }
 
   virtual const Type *Data() const override { return mat_->data(); }
@@ -73,10 +84,10 @@ private:
   std::shared_ptr<eigen_matrix_t> mat_;
 };
 
-using float_mat_t = EigenMatrix<float>;
-using double_mat_t = EigenMatrix<double>;
-using int32_mat_t = EigenMatrix<int32_t>;
-using int64_mat_t = EigenMatrix<int64_t>;
+using CpuFloatMatrix = EigenMatrix<float>;
+using DoubleFloatMatrix = EigenMatrix<double>;
+using CpuInt32Matrix = EigenMatrix<int32_t>;
+using CpuInt64Matrix = EigenMatrix<int64_t>;
 
 } // namespace math
 
