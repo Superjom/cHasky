@@ -3,6 +3,10 @@
 #define CHASKY_API_CHASKY_API_H_
 #include <string>
 
+#define VERSION "0.0.1"
+
+std::string GetVersion();
+
 // I am not familiar with SWIG. Just add some simple necessary APIs here.
 struct SessionPrivate;
 

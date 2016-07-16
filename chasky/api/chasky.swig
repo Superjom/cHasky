@@ -8,3 +8,5 @@
 %ignore SessionPrivate;
 
 %include "chasky_api.h"
+
+%rename(get_version) GetVersion;
