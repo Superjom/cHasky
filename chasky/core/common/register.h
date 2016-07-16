@@ -8,7 +8,8 @@ namespace registry {
 template <typename LibraryT, typename T> class RegistryWrapper {
 public:
   RegistryWrapper(const std::string &name, T &&value) {
-    DLOG(INFO) << "Register " << "name";
+    DLOG(INFO) << "Register "
+               << "name";
     LibraryT::Instance().Register(name, std::move(value));
   }
 };
@@ -20,8 +21,8 @@ using FunctionRegistry =
 using FunctionDefRegistry = RegistryWrapper<FunctionDefLibrary, FunctionDef>;
 
 // Helper to register function creator.
-#define REGISTER_FUNC(NAME, CLASS)                                             \
-  REGISTER_CREATOR(NAME, CLASS, FunctionRegistry, Function);
+#define REGISTER_FUNC(NAME, DTYPE, CLASS)                                      \
+  REGISTER_CREATOR(NAME, DTYPE, CLASS, FunctionRegistry, Function);
 
 // Helper to register function definition.
 // REGISTER_FUNC_DEF(func_name, FunctionDefBuilder().Name("func_name")
@@ -33,9 +34,10 @@ using FunctionDefRegistry = RegistryWrapper<FunctionDefLibrary, FunctionDef>;
   static ::chasky::registry::FunctionDefRegistry __register_func_def_##NAME(   \
       #NAME, (DEF));
 
-#define REGISTER_CREATOR(NAME, CLASS, REGISTRY, INTERFACE)                     \
-  ::chasky::registry:: REGISTRY __register_op_##REGISTRY##NAME(          \
-      #NAME, [] { return std::unique_ptr<INTERFACE>(new CLASS); });
+#define REGISTER_CREATOR(NAME, DTYPE, CLASS, REGISTRY, INTERFACE)              \
+  ::chasky::registry::REGISTRY __register_op_##REGISTRY##NAME##DTYPE(          \
+      Function::Signature(#NAME, DTYPE),                                       \
+      [] { return std::unique_ptr<INTERFACE>(new CLASS); });
 
 } // namespace registry
 } // namespace chasky
