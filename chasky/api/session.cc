@@ -4,6 +4,10 @@
 #include "chasky/core/framework/graph.pb.h"
 #include "chasky/core/runtime/session.h"
 
+std::string GetVersion() {
+  return VERSION;
+}
+
 struct SessionPrivate {
   std::shared_ptr<chasky::Session> session;
 };

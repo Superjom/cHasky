@@ -8,6 +8,8 @@
 // Session implemention for python client
 namespace chasky {
 
+std::string GetVersion();
+
 // Session is an interface for python client to control computation graph's
 // exectuation. Including creating, destroying graph, start computation and
 // kill the session.
