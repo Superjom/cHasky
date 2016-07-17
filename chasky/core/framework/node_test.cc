@@ -4,6 +4,7 @@
 #include "chasky/core/framework/graph.pb.h"
 #include "chasky/core/framework/function.h"
 #include "chasky/core/framework/node.h"
+#include "chasky/core/framework/graph.h"
 #include "chasky/core/framework/argument_def_builder.h"
 #include "chasky/core/framework/attr_value_util.h"
 namespace chasky {
@@ -31,6 +32,7 @@ REGISTER_FUNC_DEF(
         .Input(NewArgumentDefBuilder().Name("src1").Finalize())
         .Input(NewArgumentDefBuilder().Name("src2").Finalize())
         .Output(NewArgumentDefBuilder().Name("output1").Finalize())
+        .Param(NewArgumentDefBuilder().Name("param1").Finalize())
         .Attr(AttrDefBuilder().Name("attr1").Type("int32").Finalize())
         .Finalize());
 
@@ -46,7 +48,8 @@ TEST(Node, Create) {
   LOG(INFO) << "function_def_library:\n"
             << FunctionDefLibrary::Instance().DebugString();
 
-  auto node = Node::Create(def);
+  auto graph = Graph::Create();
+  auto node = Node::Create(def, graph.get());
   ASSERT_TRUE(node != nullptr);
 }
 

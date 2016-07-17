@@ -52,6 +52,11 @@ public:
     return *this;
   }
 
+  FunctionDefBuilder &Param(const ArgumentDef &x) {
+    *def_.add_params() = x;
+    return *this;
+  }
+
   // Set one line short description
   FunctionDefBuilder &Summary(const std::string &x) {
     def_.set_summary(x);

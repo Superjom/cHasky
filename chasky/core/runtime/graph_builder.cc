@@ -15,8 +15,8 @@ Status GraphBuilder::CreateNodes() {
   // create nodes
   for (const auto &node_def : graph_def_.nodes()) {
     LOG(INFO) << strings::Printf("create node: %s[%s]", node_def.name().c_str(),
-                                 node_def.func().c_str());
-    auto node = Node::Create(node_def);
+                                 node_def.signature().c_str());
+    auto node = Node::Create(node_def, graph_.get());
     if (!nodes_.insert(std::make_pair(node_def.name(), std::move(node)))
              .second) {
       status.Update(Status{error::UNKNOWN,

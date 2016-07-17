@@ -19,6 +19,9 @@ message FunctionDef {
   // A one line short description
   string summary = 5;
 
+  // Model parameters.
+  repeated ArgumentDef params = 6;
+
   // Human readable description
   string doc = 8;
 }

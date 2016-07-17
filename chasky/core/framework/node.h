@@ -8,6 +8,7 @@
 namespace chasky {
 
 class Node;
+class Graph;
 
 enum TaskType { FORWORD, BACKWARD };
 
@@ -90,13 +91,14 @@ private:
 class Node {
 public:
   // Create a node from definition
-  static std::unique_ptr<Node> Create(const NodeDef &def);
+  static std::unique_ptr<Node> Create(const NodeDef &def, Graph* graph);
 
   Node(Node &&other)
-      : cur_task_(other.cur_task_), func_(std::move(other.func_)),
-        def_(std::move(other.def_)), func_def_(other.func_def_),
+      : def_(std::move(other.def_)), func_def_(other.func_def_),
+        cur_task_(other.cur_task_), func_(std::move(other.func_)),
         grad_(std::move(other.grad_)),
-        service_thread_(std::move(other.service_thread_)) {}
+        service_thread_(std::move(other.service_thread_)),
+        graph_(other.graph_) {}
 
   // Call ForwardCompute or BackwardCompute
   Status Compute(TaskType task);
@@ -130,7 +132,7 @@ protected:
   void CreateModelParameters();
 
   // Create a node, including create the corresponding function's object.
-  Node(const NodeDef &def);
+  Node(const NodeDef &def, Graph* graph);
 
 private:
   NodeDef def_;
@@ -148,6 +150,8 @@ private:
   std::vector<Edge *> inlinks_;
 
   std::thread service_thread_;
+
+  Graph *graph_;
 };
 
 } // namespace chasky

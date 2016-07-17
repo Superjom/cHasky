@@ -1,5 +1,6 @@
 #include "chasky/common/macros.h"
 #include "chasky/common/strings.h"
+#include "chasky/core/framework/graph.h"
 #include "chasky/core/framework/node.h"
 #include "chasky/core/framework/function_def_builder.h"
 
@@ -21,8 +22,10 @@ Edge::Edge(const Node *src, const Node *trg, const std::string &arg)
           GenEdgeKey(src->Name().tostring(), trg->Name().tostring(), arg)),
       src_(src), trg_(trg) {}
 
-Node::Node(const NodeDef &def) : def_(def), func_def_(nullptr) {
+Node::Node(const NodeDef &def, Graph *graph)
+    : def_(def), func_def_(nullptr), graph_(graph) {
   CHECK(!def_.name().empty());
+  CHECK(graph_ != nullptr);
   DLOG(INFO) << "creating node " << def_.name();
   // extract information from signature
   std::string def_name;
@@ -36,7 +39,8 @@ Node::Node(const NodeDef &def) : def_(def), func_def_(nullptr) {
   CH_CHECK_OK(
       FunctionDefLibrary::Instance().LookUp(def_.def_name(), &func_def_));
   CHECK(func_def_ != nullptr);
-  CHECK(!def_.def_name().empty()) << "should extract def_name from signature first";
+  CHECK(!def_.def_name().empty())
+      << "should extract def_name from signature first";
   CHECK_EQ(def_.def_name(), func_def_->name());
 
   CH_CHECK_OK(
@@ -57,8 +61,8 @@ Node::Node(const NodeDef &def) : def_(def), func_def_(nullptr) {
   CreateModelParameters();
 }
 
-std::unique_ptr<Node> Node::Create(const NodeDef &def) {
-  std::unique_ptr<Node> node(new Node(def));
+std::unique_ptr<Node> Node::Create(const NodeDef &def, Graph *graph) {
+  std::unique_ptr<Node> node(new Node(def, graph));
   return node;
 }
 
@@ -99,7 +103,8 @@ Status Node::ReleaseEdge(const Edge *edge) {
 
 void Node::CreateOutputArguments() {
   FunctionDef *func_def;
-  CH_CHECK_OK(FunctionDefLibrary::Instance().LookUp(def_.def_name(), &func_def));
+  CH_CHECK_OK(
+      FunctionDefLibrary::Instance().LookUp(def_.def_name(), &func_def));
 
   for (size_t i = 0; i < func_def->outputs_size(); i++) {
     const auto &output_def = func_def->outputs(i);
@@ -108,7 +113,16 @@ void Node::CreateOutputArguments() {
   }
 }
 
-void Node::CreateModelParameters() { UN_IMPLEMENTED }
+void Node::CreateModelParameters() {
+  DLOG(INFO) << "CreateModelParameters\t"
+             << "create " << func_def_->params_size() << " parameters.";
+  CHECK(func_def_ != nullptr);
+  for (auto &def : func_def_->params()) {
+    auto arg_name =
+        strings::Printf("%s:%s", def_.name().c_str(), def.name().c_str());
+    CH_CHECK_OK(graph_->RegisterParameter(arg_name, def));
+  }
+}
 
 Status Node::StartService() {
   UN_IMPLEMENTED
