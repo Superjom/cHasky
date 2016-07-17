@@ -92,14 +92,11 @@ public:
   // Create a node from definition
   static std::unique_ptr<Node> Create(const NodeDef &def);
 
-  Node(Node&& other) :
-      cur_task_(other.cur_task_),
-      func_(std::move(other.func_)),
-      def_(std::move(other.def_)),
-      func_def_(other.func_def_),
-      grad_(std::move(other.grad_)),
-      service_thread_(std::move(other.service_thread_)) {}
-
+  Node(Node &&other)
+      : cur_task_(other.cur_task_), func_(std::move(other.func_)),
+        def_(std::move(other.def_)), func_def_(other.func_def_),
+        grad_(std::move(other.grad_)),
+        service_thread_(std::move(other.service_thread_)) {}
 
   // Call ForwardCompute or BackwardCompute
   Status Compute(TaskType task);
@@ -129,21 +126,29 @@ protected:
   // Tell the edge's endpoints that the argument is ready.
   Status ReleaseEdge(const std::string &edge);
   Status ReleaseEdge(const Edge *edge);
+  void CreateOutputArguments();
+  void CreateModelParameters();
 
   // Create a node, including create the corresponding function's object.
   Node(const NodeDef &def);
 
-
 private:
+  NodeDef def_;
+  FunctionDef *func_def_;
   // Current task
   TaskType cur_task_;
   // the corresponding function
   std::unique_ptr<Function> func_;
-  NodeDef def_;
-  FunctionDef *func_def_;
+  // output arguments
+  std::vector<Argument> outputs_;
   // ExecContext exec_context_;
   Argument grad_;
+
+  // NOTE All the input arguments should in order.
+  std::vector<Edge *> inlinks_;
+
   std::thread service_thread_;
 };
-}
+
+} // namespace chasky
 #endif

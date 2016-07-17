@@ -1,3 +1,4 @@
+#include "chasky/common/macros.h"
 #include "chasky/common/strings.h"
 #include "chasky/core/framework/node.h"
 #include "chasky/core/framework/function_def_builder.h"
@@ -21,26 +22,39 @@ Edge::Edge(const Node *src, const Node *trg, const std::string &arg)
       src_(src), trg_(trg) {}
 
 Node::Node(const NodeDef &def) : def_(def), func_def_(nullptr) {
-  CHECK(!def.name().empty());
-  DLOG(INFO) << "creating node " << def.name();
+  CHECK(!def_.name().empty());
+  DLOG(INFO) << "creating node " << def_.name();
+  // extract information from signature
+  std::string def_name;
+  DataType dtype;
+  CHECK(Function::ParseSignature(def_.signature(), &def_name, &dtype));
+  def_.set_def_name(def_name);
+  def_.set_dtype(dtype);
 
   Status status;
   FunctionLibrary::FunctionCreatorType *func_creator;
-  CH_CHECK_OK(FunctionDefLibrary::Instance().LookUp(def.func(), &func_def_));
+  CH_CHECK_OK(
+      FunctionDefLibrary::Instance().LookUp(def_.def_name(), &func_def_));
   CHECK(func_def_ != nullptr);
-  CHECK_EQ(def.func(), func_def_->name());
+  CHECK(!def_.def_name().empty()) << "should extract def_name from signature first";
+  CHECK_EQ(def_.def_name(), func_def_->name());
 
-  CH_CHECK_OK(FunctionLibrary::Instance().LookUp(def.func(), &func_creator));
+  CH_CHECK_OK(
+      FunctionLibrary::Instance().LookUp(def_.signature(), &func_creator));
   // init function's definition by filling attributes from node's definition.
   // TODO much code here
   // TODO just add unittest
-  CH_CHECK_OK(FunctionDefLibrary::Instance().LookUp(def.func(), &func_def_));
+  CH_CHECK_OK(
+      FunctionDefLibrary::Instance().LookUp(def_.def_name(), &func_def_));
 
   DLOG(INFO) << "creating function " << func_def_->name();
   // create an function
   func_ = (*func_creator)();
   DLOG(INFO) << "func is created";
-  CH_CHECK_OK(func_->FromDef(*func_def_, def.attr()));
+  CH_CHECK_OK(func_->FromDef(*func_def_, def_.attr()));
+
+  CreateOutputArguments();
+  CreateModelParameters();
 }
 
 std::unique_ptr<Node> Node::Create(const NodeDef &def) {
@@ -58,28 +72,48 @@ Status Node::Compute(chasky::TaskType task) {
 }
 
 Status Node::ForwardCompute() {
-  Status status = func_->ForwardCompute();
-  if (status.ok()) {
-    /*
-    for (auto &e : in_links_) {
-      ReleaseEdge(&e);
-    }
-    */
+  // Prepare inputs
+  std::vector<const Argument *> inputs;
+  std::vector<Argument *> outputs;
+  for (const auto &edge : inlinks_) {
+    inputs.push_back(&edge->Activation());
   }
+  for (auto &output : outputs_) {
+    outputs.push_back(&output);
+  }
+
+  Status status = func_->ForwardCompute(inputs, &outputs, *func_def_);
   return status;
 }
 
 Status Node::BackwardCompute() {
   // TODO
+  UN_IMPLEMENTED
   return Status();
 }
 
 Status Node::ReleaseEdge(const Edge *edge) {
-  // TODO
+  UN_IMPLEMENTED
   return Status();
 }
 
-Status Node::StartService() { return Status(); }
+void Node::CreateOutputArguments() {
+  FunctionDef *func_def;
+  CH_CHECK_OK(FunctionDefLibrary::Instance().LookUp(def_.def_name(), &func_def));
+
+  for (size_t i = 0; i < func_def->outputs_size(); i++) {
+    const auto &output_def = func_def->outputs(i);
+    DLOG(INFO) << "output_def:\t" << &output_def;
+    outputs_.emplace_back(&output_def);
+  }
+}
+
+void Node::CreateModelParameters() { UN_IMPLEMENTED }
+
+Status Node::StartService() {
+  UN_IMPLEMENTED
+  return Status();
+}
 
 Status Node::ConnectTo(Node *other, bool forward_or_bachward) {
   auto status = Status();
@@ -99,4 +133,5 @@ Node::~Node() {
     service_thread_.join();
   }
 }
-}
+
+} // namespace chasky

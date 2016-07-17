@@ -65,7 +65,9 @@ DataType String2Dtype(StringPiece type) {
 }
 
 Status Argument::FromDef(const ArgumentDef *def) {
-  CHECK(arg_def_ != nullptr);
+  CHECK(def != nullptr);
+  CHECK(arg_def_ == nullptr || arg_def_ == def) << "duplicate set arg's definition."
+                             << "arg_def_ is already set to " << arg_def_;
   arg_def_ = const_cast<ArgumentDef *>(def);
   if (IsRef())
     return Status();

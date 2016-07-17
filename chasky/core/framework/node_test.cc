@@ -35,9 +35,10 @@ REGISTER_FUNC_DEF(
         .Finalize());
 
 TEST(Node, Create) {
+  auto sign = Function::Signature("demo_func", CH_FLOAT);
   NodeDef def;
   def.set_name("node1");
-  def.set_func("demo_func");
+  def.set_signature(sign);
 
   LOG(INFO) << "function_library:\n"
             << FunctionLibrary::Instance().DebugString();
