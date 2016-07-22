@@ -34,9 +34,78 @@ TEST(CpuFloatMatrix, mult) {
   CpuFloatMatrix mat1(shape, true);
   CpuFloatMatrix mat2(shape2, true);
 
+  LOG(INFO) << "mat1\t" << mat1.DebugString();
+  LOG(INFO) << "mat2\t" << mat2.DebugString();
+
   mat1.MultWith(mat2);
 
   LOG(INFO) << mat1.DebugString();
+}
+
+TEST(CpuFloatMatrix, add) {
+  auto shape = std::make_pair(3, 6);
+  CpuFloatMatrix mat1(shape, true);
+  CpuFloatMatrix mat2(shape, true);
+
+  LOG(INFO) << "mat1\t" << mat1.DebugString();
+  LOG(INFO) << "mat2\t" << mat2.DebugString();
+
+  EXPECT_TRUE(mat1.Get(0, 3) != mat2.Get(0, 3));
+  LOG(INFO) << "add\t" << mat1.DebugString();
+
+  mat1.AddWith(mat2);
+}
+
+TEST(CpuFloatMatrix, reshape) {
+  auto shape = std::make_pair(3, 4);
+  CpuFloatMatrix mat1(shape, true);
+
+  mat1.Reshape(4, 3);
+
+  auto shape2 = mat1.Shape();
+  EXPECT_EQ(shape2.first, 4);
+  EXPECT_EQ(shape2.second, 3);
+}
+
+TEST(CpuFloatMatrix, SetZero) {
+  auto shape = std::make_pair(3, 4);
+  CpuFloatMatrix mat1(shape, true);
+
+  EXPECT_TRUE(mat1.Get(0, 1) != 0.);
+  mat1.SetZero();
+  EXPECT_TRUE(mat1.Get(0, 1) == 0.);
+}
+
+class CpuFloatMatrixTest : public ::testing::Test {
+public:
+  virtual void SetUp() {
+    auto shape = std::make_pair(20, 40);
+    CpuFloatMatrix mat1(shape);
+
+    mat.CopyFrom(mat1);
+  }
+
+protected:
+  CpuFloatMatrix mat;
+};
+
+TEST_F(CpuFloatMatrixTest, CloneFrom) {
+  auto shape = std::make_pair(3, 4);
+  CpuFloatMatrix mat1(shape);
+  auto mat_ptr = mat.MatPtr();
+
+  mat.CloneFrom(mat1);
+  EXPECT_EQ(mat1.MatPtr(), mat.MatPtr());
+  EXPECT_TRUE(mat1.MatPtr() != mat_ptr);
+}
+
+TEST_F(CpuFloatMatrixTest, CopyFrom) {
+  auto shape = std::make_pair(30, 90);
+  CpuFloatMatrix mat1(shape, true);
+  mat.CopyFrom(mat1);
+  EXPECT_TRUE(mat.MatPtr() != mat1.MatPtr());
+
+  EXPECT_EQ(mat.Get(0, 4), mat1.Get(0, 4));
 }
 
 } // namespace test
