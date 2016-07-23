@@ -47,22 +47,22 @@ struct ArgumentField {
 
   // single argument
   TYPE_GETTER(string_val, std::string);
-  TYPE_GETTER(int32_val, int32_t);
+  // TYPE_GETTER(int32_val, int32_t);
   TYPE_GETTER(int64_val, int64_t);
-  TYPE_GETTER(uint32_val, uint32_t);
+  // TYPE_GETTER(uint32_val, uint32_t);
   TYPE_GETTER(uint64_val, uint64_t);
   TYPE_GETTER(float_val, float);
-  TYPE_GETTER(double_val, double);
+  // TYPE_GETTER(double_val, double);
   TYPE_GETTER(float_mat_val, math::CpuFloatMatrix);
   TYPE_GETTER_MATRIX(float_mat_val, math::CpuFloatMatrix);
   // diffent types of raw array
   TYPE_GETTER(string_vals, std::vector<std::string>);
-  TYPE_GETTER(int32_vals, std::vector<int32_t>);
+  // TYPE_GETTER(int32_vals, std::vector<int32_t>);
   TYPE_GETTER(int64_vals, std::vector<int64_t>);
-  TYPE_GETTER(uint32_vals, std::vector<uint32_t>);
+  // TYPE_GETTER(uint32_vals, std::vector<uint32_t>);
   TYPE_GETTER(uint64_vals, std::vector<uint64_t>);
   TYPE_GETTER(float_vals, std::vector<float>);
-  TYPE_GETTER(double_vals, std::vector<double>);
+  // TYPE_GETTER(double_vals, std::vector<double>);
   TYPE_GETTER(float_mat_vals, std::vector<math::CpuFloatMatrix>);
 
   // To support variadic number of arguments.

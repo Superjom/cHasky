@@ -7,8 +7,8 @@ using namespace std;
 namespace chasky {
 void ArgumentField::CopyFrom(const ArgumentField &other, bool is_ref) {
   if (is_ref) {
-    int32_val = other.int32_val;
-    uint32_val = other.uint32_val;
+    // int32_val = other.int32_val;
+    // uint32_val = other.uint32_val;
     uint64_val = other.uint64_val;
     int64_val = other.int64_val;
     float_mat_val = other.float_mat_val;
@@ -24,12 +24,10 @@ void ArgumentField::RealCopyFrom(const ArgumentField &other) {
 }
 
 bool ArgumentField::IsEmpty() const {
-  return float_val == nullptr && int32_val == nullptr &&
-         uint32_val == nullptr && uint64_val == nullptr &&
+  return float_val == nullptr && uint64_val == nullptr &&
          float_mat_val == nullptr && float_mat_vals == nullptr &&
-         int32_vals == nullptr && int64_vals == nullptr &&
-         uint32_vals == nullptr && uint64_vals == nullptr &&
-         float_vals == nullptr && double_vals == nullptr;
+         int64_vals == nullptr && uint64_vals == nullptr &&
+         float_vals == nullptr;
 }
 
 Argument::Argument(const Argument &other) : valid_(false) {
@@ -66,8 +64,9 @@ DataType String2Dtype(StringPiece type) {
 
 Status Argument::FromDef(const ArgumentDef *def) {
   CHECK(def != nullptr);
-  CHECK(arg_def_ == nullptr || arg_def_ == def) << "duplicate set arg's definition."
-                             << "arg_def_ is already set to " << arg_def_;
+  CHECK(arg_def_ == nullptr || arg_def_ == def)
+      << "duplicate set arg's definition."
+      << "arg_def_ is already set to " << arg_def_;
   arg_def_ = const_cast<ArgumentDef *>(def);
   if (IsRef())
     return Status();
@@ -87,18 +86,18 @@ Status Argument::FromDef(const ArgumentDef *def) {
   case CH_FLOAT:
     arg_field_->create_float_val();
     break;
-  case CH_DOUBLE:
-    arg_field_->create_double_val();
-    break;
-  case CH_INT32:
-    arg_field_->create_int32_val();
-    break;
+  // case CH_DOUBLE:
+  //   arg_field_->create_double_val();
+  //   break;
+  // case CH_INT32:
+  //   arg_field_->create_int32_val();
+  //   break;
   case CH_INT64:
     arg_field_->create_int64_val();
     break;
-  case CH_UINT32:
-    arg_field_->create_uint32_val();
-    break;
+  // case CH_UINT32:
+  //   arg_field_->create_uint32_val();
+  //   break;
   case CH_UINT64:
     arg_field_->create_uint64_val();
     break;
