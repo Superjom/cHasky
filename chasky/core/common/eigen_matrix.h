@@ -89,12 +89,10 @@ public:
     return std::make_pair(mat_->rows(), mat_->cols());
   }
 
-  virtual std::string DebugString() const override {
-    std::stringstream ss;
-    ss << *mat_;
-    return ss.str();
-  }
+  // Return a human-readable string.
+  virtual std::string DebugString() const override;
 
+  // Get the element on i-th row and j-th col
   virtual Type Get(size_t i, size_t j) const override { return (*mat_)(i, j); }
 
   virtual std::shared_ptr<eigen_matrix_t> MatPtr() const override {
@@ -102,6 +100,13 @@ public:
   }
 
   const eigen_matrix_t &Mat() const { return *mat_; }
+
+  // Serialize the matrix's data to a binary string.
+  virtual std::string Serialize() const override;
+
+  // De-serialize a binary string and fill the matrix.
+  // NOTE The matrix should be created and initialized first.
+  virtual Status DeSerialize(const std::string &ss) override;
 
 private:
   std::shared_ptr<eigen_matrix_t> mat_;
@@ -111,6 +116,40 @@ using CpuFloatMatrix = EigenMatrix<float>;
 using DoubleFloatMatrix = EigenMatrix<double>;
 using CpuInt32Matrix = EigenMatrix<int32_t>;
 using CpuInt64Matrix = EigenMatrix<int64_t>;
+
+template <typename Type>
+using EigenMatrixPtr = std::shared_ptr<EigenMatrix<Type>>;
+
+template <typename Type> std::string EigenMatrix<Type>::DebugString() const {
+  std::stringstream ss;
+  ss << *mat_;
+  return ss.str();
+}
+
+template <typename Type> std::string EigenMatrix<Type>::Serialize() const {
+  std::string ss;
+  const auto size = Shape().first * Shape().second;
+  ss.resize(sizeof(value_type) * size);
+  memcpy(&ss[0], (unsigned char *)Data(), size * sizeof(value_type));
+  return ss;
+}
+
+template <typename Type>
+Status EigenMatrix<Type>::DeSerialize(const std::string &ss) {
+  const auto shape = Shape();
+  auto size = Shape().first * Shape().second;
+
+  Status status;
+  CH_TEST_OR_UPDATE_STATUS(mat_ != nullptr, error::NOT_INITED,
+                           "matrix is not initialized.");
+  CH_TEST_OR_UPDATE_STATUS(
+      ss.size() == size * sizeof(value_type), error::OUT_OF_RANGE,
+      strings::Printf("matrix de-serialize error;\nmatrix's shape:(%lu,%lu), \
+                        serialized string's size is %lu",
+                      shape.first, shape.second, ss.size()));
+  memcpy(mat_->data(), ss.data(), size * sizeof(value_type));
+  return status;
+}
 
 } // namespace math
 

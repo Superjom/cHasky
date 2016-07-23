@@ -108,5 +108,30 @@ TEST_F(CpuFloatMatrixTest, CopyFrom) {
   EXPECT_EQ(mat.Get(0, 4), mat1.Get(0, 4));
 }
 
+TEST_F(CpuFloatMatrixTest, Serialize_DeSerialize) {
+  // serialize
+  auto ss = mat.Serialize();
+  auto shape = mat.Shape();
+  auto size = shape.first * shape.second;
+  ASSERT_EQ(size * sizeof(float), ss.size());
+
+  CpuFloatMatrix tmp;
+  tmp.CopyFrom(mat);
+
+  // de-serialize
+  mat.SetZero();
+  ASSERT_TRUE(mat.DeSerialize(ss).ok());
+
+  LOG(INFO) << "shape:\t" << shape.first << "\t" << shape.second;
+
+  for (size_t w = 0; w < shape.first; w++) {
+    for (size_t h = 0; h < shape.second; h++) {
+      auto a = mat.Get(w, h);
+      auto b = tmp.Get(w, h);
+      EXPECT_EQ(a, b);
+    }
+  }
+}
+
 } // namespace test
 } // namespace chasky
