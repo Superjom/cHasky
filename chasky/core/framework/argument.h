@@ -60,7 +60,7 @@ struct ArgumentField {
   TYPE_GETTER(float_mat_vals, std::vector<math::CpuFloatMatrix>);
 
   // To support variadic number of arguments.
-  TYPE_GETTER(float_vec_list, std::vector<math::CpuFloatVector>);
+  // TYPE_GETTER(float_vec_list, std::vector<math::CpuFloatVector>);
 }; // struct Argument
 #undef TYPE_GETTER
 
