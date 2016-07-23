@@ -74,16 +74,21 @@ private:
   std::unique_ptr<State> state_;
 }; // class Status
 
-#define CH_CHECK_OK(val) CHECK((val).ok()) << "error: " << (val).msg();
+#define CH_CHECK_OK(val) CHECK((val).ok()); //<< "error: " << (val).msg();
+
+#define CH_STEST_RETURN(val, error_code, msg) \
+  CH_TEST_OR_UPDATE_STATUS(val, error_code, msg); \
+  CH_TEST_OR_RETURN(status);
 
 #define CH_TEST_OR_UPDATE_STATUS(val, err_code, msg)                           \
   if (!(val)) {                                                                \
+    DLOG(ERROR) << msg;                                                        \
     status.Update(err_code, msg);                                              \
   }
 
-#define CH_TEST_OR_RETURN(STATUS) \
-  if (! STATUS.ok()) return STATUS;
-
+#define CH_TEST_OR_RETURN(STATUS)                                              \
+  if (!STATUS.ok())                                                            \
+    return STATUS;
 
 } // namespace chasky
 #endif
