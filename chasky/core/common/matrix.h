@@ -1,6 +1,7 @@
 #ifndef CHASKY_CORE_COMMON_MATRIX_H_
 #define CHASKY_CORE_COMMON_MATRIX_H_
 #include <memory>
+#include "chasky/core/common/status.h"
 #include "chasky/core/framework/kernel.h"
 namespace chasky {
 
@@ -41,6 +42,10 @@ public:
 
   // get element on i-th row j-th col
   virtual Type Get(size_t i, size_t j) const = 0;
+
+  virtual std::string Serialize() const = 0;
+
+  virtual Status DeSerialize(const std::string &ss) = 0;
 
   // protected:
   // std::shared_ptr<RawMatType> mat_;

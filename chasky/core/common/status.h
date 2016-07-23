@@ -12,7 +12,8 @@ enum Code {
   UNKNOWN = 1,
   INVALID_ARGUMENT = 2,
   OUT_OF_RANGE = 3,
-  UNIMPLEMENTED = 4
+  NOT_INITED = 4,
+  UNIMPLEMENTED = 5
 };
 } // namespace error
 
@@ -39,6 +40,18 @@ public:
     }
   }
 
+  void Update(error::Code code, const std::string &msg) {
+    if (state_ == nullptr)
+      state_.reset(new State({code, msg}));
+  }
+
+  void Update(error::Code code, const char *format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    state_.reset(new State({code, strings::Printf(format, ap)}));
+    va_end(ap);
+  }
+
   static error::Code OK() { return error::Code::OK; }
 
   const std::string &msg() const {
@@ -62,6 +75,15 @@ private:
 }; // class Status
 
 #define CH_CHECK_OK(val) CHECK((val).ok()) << "error: " << (val).msg();
+
+#define CH_TEST_OR_UPDATE_STATUS(val, err_code, msg)                           \
+  if (!(val)) {                                                                \
+    status.Update(err_code, msg);                                              \
+  }
+
+#define CH_TEST_OR_RETURN(STATUS) \
+  if (! STATUS.ok()) return STATUS;
+
 
 } // namespace chasky
 #endif

@@ -28,7 +28,7 @@ using std::string;
 #define TYPE_GETTER_MATRIX(NAME, TYPE)                                         \
   void create_##NAME(const ArgumentDef::Shape &shape) {                        \
     reset(std::make_shared<TYPE>(                                              \
-        std::make_pair(shape.height(), shape.width())));                       \
+        std::make_pair(shape.width(), shape.height())));                       \
   }
 
 // Storage of all kinds of data types, each Argument will have an ArgumentField
@@ -47,22 +47,16 @@ struct ArgumentField {
 
   // single argument
   TYPE_GETTER(string_val, std::string);
-  // TYPE_GETTER(int32_val, int32_t);
   TYPE_GETTER(int64_val, int64_t);
-  // TYPE_GETTER(uint32_val, uint32_t);
   TYPE_GETTER(uint64_val, uint64_t);
   TYPE_GETTER(float_val, float);
-  // TYPE_GETTER(double_val, double);
   TYPE_GETTER(float_mat_val, math::CpuFloatMatrix);
   TYPE_GETTER_MATRIX(float_mat_val, math::CpuFloatMatrix);
   // diffent types of raw array
   TYPE_GETTER(string_vals, std::vector<std::string>);
-  // TYPE_GETTER(int32_vals, std::vector<int32_t>);
   TYPE_GETTER(int64_vals, std::vector<int64_t>);
-  // TYPE_GETTER(uint32_vals, std::vector<uint32_t>);
   TYPE_GETTER(uint64_vals, std::vector<uint64_t>);
   TYPE_GETTER(float_vals, std::vector<float>);
-  // TYPE_GETTER(double_vals, std::vector<double>);
   TYPE_GETTER(float_mat_vals, std::vector<math::CpuFloatMatrix>);
 
   // To support variadic number of arguments.
@@ -90,7 +84,8 @@ public:
 
   explicit Argument(const Argument &other);
 
-  Argument &operator=(const Argument &other);
+  void Assign(const Argument& other);
+
   bool operator==(const Argument &other);
 
   // Create ArgumentField from arg_def_
@@ -132,6 +127,9 @@ public:
   void SetValid(bool x) { valid_ = x; }
   bool Valid() const { return valid_; }
 
+protected:
+  Argument &operator=(const Argument &other);
+
 private:
   // Just a pointer to other's def, need not free the memory.
   ArgumentDef *arg_def_;
@@ -146,10 +144,11 @@ private:
 
 typedef std::shared_ptr<Argument> ArgumentPtr;
 
-inline Argument &Argument::operator=(const Argument &other) {
+inline void Argument::Assign(const Argument &other) {
   CHECK(arg_def_) << "arg_def_ should be inited before assign";
   CHECK(other.ArgField()) << "can not copy from null arg";
   DLOG(INFO) << "argument copy assign in ref mode? " << IsRef();
+  arg_def_ = const_cast<ArgumentDef *>(other.ArgDef());
 
   if (IsRef()) {
     arg_field_ = other.ArgField();
@@ -157,7 +156,6 @@ inline Argument &Argument::operator=(const Argument &other) {
     arg_field_ = std::make_shared<ArgumentField>();
     arg_field_->CopyFrom(*other.ArgField(), arg_def_->is_ref());
   }
-  return *this;
 }
 
 inline bool Argument::operator==(const Argument &other) {
