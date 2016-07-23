@@ -75,23 +75,45 @@ inline void StringToValue(const StringPiece &str, float *val) {
   *val = stof(str.tostring(), nullptr);
 }
 
+// inline void StringToValue(const StringPiece &str, DataType *val) {
+//   if (str == "float_mat") {
+//     *val = CH_MAT_FLOAT;
+//   }
+// }
+
 // A helper class to filling in the value.
 // NOTE the attr_value's definition should be built before filling in value.
 // The client should know all the attributes of a single operator
 class AttrValueBuilder {
 public:
   // Set Attr
-  AttrValueBuilder(AttrValue *attr_value) : attr_value_(attr_value) {}
+  AttrValueBuilder() {}
   // set Value
-  void Value(float x) { attr_value_->set_float_val(x); }
-  void Value(int64_t x) { attr_value_->set_int64_val(x); }
-  void Value(std::string x) { attr_value_->set_string_val(x); }
-  void Value(bool x) { attr_value_->set_bool_val(x); }
-  void Value(DataType x) { attr_value_->set_dtype_val(x); }
+  AttrValueBuilder &Value(float x) {
+    attr_value_.set_float_val(x);
+    return *this;
+  }
+  AttrValueBuilder &Value(int64_t x) {
+    attr_value_.set_int64_val(x);
+    return *this;
+  }
+  AttrValueBuilder &Value(std::string x) {
+    attr_value_.set_string_val(x);
+    return *this;
+  }
+  AttrValueBuilder &Value(bool x) {
+    attr_value_.set_bool_val(x);
+    return *this;
+  }
+  AttrValueBuilder &Value(DataType x) {
+    attr_value_.set_dtype_val(x);
+    return *this;
+  }
+  AttrValue Finalize() const { return std::move(attr_value_); }
   // TODO add list value
 
 private:
-  AttrValue *attr_value_;
+  AttrValue attr_value_;
 };
 }
 #endif
