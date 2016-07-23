@@ -5,20 +5,33 @@
 namespace chasky {
 namespace registry {
 
-template <typename LibraryT, typename T> class RegistryWrapper {
+template <typename LibraryT, typename T, bool IsDef> class RegistryWrapper {
 public:
   RegistryWrapper(const std::string &name, T &&value) {
-    DLOG(INFO) << "Register "
-               << "name";
-    LibraryT::Instance().Register(name, std::move(value));
+    if (IsDef) {
+      DLOG(INFO) << "Register FunctionDef"
+                 << "[" << name << "]";
+    } else {
+      DLOG(INFO) << "Register Function"
+                 << "[" << name << "]";
+    }
+    auto status = LibraryT::Instance().Register(name, std::move(value));
+    if (status.ok()) {
+      DLOG(INFO) << "successfully register " << name;
+    } else {
+      DLOG(ERROR) << "failed to register " << name << ", " << status.msg();
+      DLOG(INFO) << FunctionLibrary::Instance().DebugString();
+    }
   }
 };
 
 // FunctionRegistry is a class helper to register function object.
 using FunctionRegistry =
-    RegistryWrapper<FunctionLibrary, FunctionLibrary::FunctionCreatorType>;
+    RegistryWrapper<FunctionLibrary, FunctionLibrary::FunctionCreatorType,
+                    /*IsDef*/ false>;
 
-using FunctionDefRegistry = RegistryWrapper<FunctionDefLibrary, FunctionDef>;
+using FunctionDefRegistry =
+    RegistryWrapper<FunctionDefLibrary, FunctionDef, true>;
 
 // Helper to register function creator.
 #define REGISTER_FUNC(NAME, DTYPE, CLASS)                                      \
