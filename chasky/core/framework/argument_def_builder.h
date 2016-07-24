@@ -6,6 +6,8 @@ namespace chasky {
 // A helper class to help specifying an argument's ArgumentDef
 class ArgumentDefBuilder {
 public:
+  ArgumentDefBuilder() {}
+
   ArgumentDefBuilder &Name(const std::string &x) {
     def_.set_name(x);
     return *this;
