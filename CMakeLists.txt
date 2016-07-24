@@ -15,6 +15,7 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/common/strings.cc
   ${CMAKE_SOURCE_DIR}/chasky/common/stat.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_vector.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_matrix.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/status.cc
   ${CMAKE_SOURCE_DIR}/chasky/common/string_piece.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument.cc
@@ -26,6 +27,7 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/runtime/session.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/runtime/graph_builder.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN.cc
   )
 
 set (TEST_SOURCE_FILES
@@ -40,7 +42,9 @@ set (TEST_SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/node_test.cc
-  )
+  ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_matrix_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN_test.cc
+)
 
 set (PROTOS_FILES
   ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/argument.pb.cc
@@ -86,3 +90,11 @@ set_target_properties(_chasky
         PROPERTIES PREFIX ""
                    SUFFIX ".so"
         )
+
+add_custom_command(
+  OUTPUT  ${CMAKE_SOURCE_DIR}/chasky/api/chasky_wrap.cxx
+  COMMAND cd ${CMAKE_SOURCE_DIR}/chasky/api; sh compile_swig.sh
+  DEPENDS ${CMAKE_SOURCE_DIR}/chasky/api/chasky.swig ${CMAKE_SOURCE_DIR}/chasky/api/chasky_api.h
+  )
+
+set( CMAKE_EXPORT_COMPILE_COMMANDS 1 )
