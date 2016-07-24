@@ -23,15 +23,12 @@ void ArgumentCreateFloat(Argument *arg, ArgumentDef::Shape &shape) {
 
 Status FunctionLibrary::Register(const string &name,
                                  FunctionCreatorType &&creator) {
-  if (op_library_.count(name) != 0) {
-    return Status(
-        error::INVALID_ARGUMENT,
-        strings::Printf("A key called %s already exists", name.c_str()));
-  }
-  if (!op_library_.insert({name, creator}).second) {
-    return Status(error::UNKNOWN, strings::empty_string);
-  }
-  return Status();
+  Status status;
+  CH_STEST_RETURN2(op_library_.count(name) == 0, error::INVALID_ARGUMENT,
+                   "A key called %s already exists", name.c_str());
+  CH_STEST_RETURN2(op_library_.insert({name, creator}).second, error::UNKNOWN,
+                   "map insert error");
+  return status;
 }
 
 Status FunctionLibrary::LookUp(const string &name,
