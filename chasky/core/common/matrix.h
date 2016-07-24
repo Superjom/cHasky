@@ -40,6 +40,9 @@ public:
 
   virtual std::string DebugString() const = 0;
 
+  // Human-readable short debug string.
+  virtual std::string Description() const = 0;
+
   // get element on i-th row j-th col
   virtual Type Get(size_t i, size_t j) const = 0;
 
