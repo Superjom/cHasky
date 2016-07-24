@@ -74,7 +74,10 @@ private:
   std::unique_ptr<State> state_;
 }; // class Status
 
-#define CH_CHECK_OK(val) CHECK((val).ok()); //<< "error: " << (val).msg();
+#define CH_CHECK_OK(val) CHECK((val).ok()) << "error: " << (val).msg();
+
+#define CH_STEST_RETURN2(val, error_code, args...) \
+  CH_STEST_RETURN(val, error_code, strings::Printf(args));
 
 #define CH_STEST_RETURN(val, error_code, msg) \
   CH_TEST_OR_UPDATE_STATUS(val, error_code, msg); \
