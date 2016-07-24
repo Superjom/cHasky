@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package chasky;
 
+import "chasky/core/framework/types.proto";
 import "chasky/core/framework/function.proto";
 import "chasky/core/framework/attr_value.proto";
 
@@ -20,14 +21,17 @@ message NodeDef {
 
   bool is_end = 3;
 
-  // The function's type
-  string func = 4;
-
+  // The function's signature, should be the format like: "%s:%d" % (def_name, datatype)
+  string signature = 4;
   // Each input is "node:src_ouput" with "node" being a string name and
   // src_output being the name of node's output
   repeated string input = 6;
 
   // mixed node's and functioin' attributes
   map<string, AttrValue> attr = 7;
+
+  // These fields are extracted from `signature` field. Should be inited in Node's construction.
+  string def_name = 8;
+  DataType dtype = 9;
 }
 
