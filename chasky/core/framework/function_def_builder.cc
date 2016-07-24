@@ -8,9 +8,18 @@ namespace chasky {
 // Set default width for each output
 FunctionDef FunctionDefBuilder::Finalize() {
   size_t default_width = 0;
-  if (def_.inputs_size() > 0) {
-    default_width = def_.inputs(0).shape().width();
+  for (size_t i = 0; i < def_.inputs_size(); i++) {
+    if (def_.inputs(i).has_shape()) {
+      default_width = def_.inputs(i).shape().width();
+      if (default_width > 0)
+        break;
+    }
   }
+  if (default_width == 0) {
+    DLOG(WARNING) << "FunctionDef " << def_.name() << " no shape is set";
+    return def_;
+  }
+
   for (size_t i = 0; i < def_.outputs_size(); i++) {
     if (def_.outputs(i).shape().width() == 0) {
       def_.mutable_outputs(i)->mutable_shape()->set_width(default_width);
@@ -20,16 +29,14 @@ FunctionDef FunctionDefBuilder::Finalize() {
 }
 
 Status FunctionDefLibrary::Register(const string &name, FunctionDef &&def) {
-  if (def_library_.count(name) != 0) {
-    return Status(error::INVALID_ARGUMENT,
-                  strings::Printf("An operator called %s has been registered",
-                                  name.c_str()));
-  }
-  if (!def_library_.insert({name, def}).second) {
-    return Status(error::UNKNOWN, strings::empty_string);
-  }
+  Status status;
+  DLOG(INFO) << ".. begin register def " << name;
+  CH_STEST_RETURN2(def_library_.count(name) == 0, error::INVALID_ARGUMENT,
+                   "An operator called %s has been registered", name.c_str());
 
-  return Status();
+  CH_STEST_RETURN2(def_library_.insert({name, def}).second, error::UNKNOWN,
+                   "insert map error");
+  return status;
 }
 
 Status FunctionDefLibrary::LookUp(const string &name, FunctionDef **def) {
