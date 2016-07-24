@@ -52,9 +52,10 @@ public:
   // Parse signature and extract different infomation fields.
   // Return true if successfully parsed, else false.
   static bool ParseSignature(const std::string &sign, std::string *name,
-                                    DataType *dtype) {
+                             DataType *dtype) {
     auto pieces = strings::Split(sign, ':');
-    if (pieces.size() != 2) return false;
+    if (pieces.size() != 2)
+      return false;
     *name = pieces[0];
     *dtype = static_cast<DataType>(std::stoi(pieces[1]));
     return true;
@@ -97,12 +98,14 @@ public:
   // same name exists, then it will not insert the new func and just
   // return error.
   // NOTE It is not thread-safe.
-  Status Register(const std::string &name, FunctionCreatorType &&creator);
+  Status Register(const std::string &name,
+                  FunctionCreatorType &&creator) CH_USE_RESULT;
 
   // Look up the library for the func which match the name, if not exits,
   // just return error.
   // NOTE It is not Rewrie-Read thread-sefe.
-  Status LookUp(const std::string &name, FunctionCreatorType **creator);
+  Status LookUp(const std::string &name,
+                FunctionCreatorType **creator) CH_USE_RESULT;
 
   // Human readable description of all the func creator store in
   // the library.
