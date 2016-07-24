@@ -29,10 +29,11 @@ REGISTER_FUNC_DEF(
     demo_func,
     FunctionDefBuilder()
         .Name("demo_func")
-        .Input(NewArgumentDefBuilder().Name("src1").Finalize())
-        .Input(NewArgumentDefBuilder().Name("src2").Finalize())
-        .Output(NewArgumentDefBuilder().Name("output1").Finalize())
-        .Param(NewArgumentDefBuilder().Name("param1").Finalize())
+        .Input(ArgumentDefBuilder().Name("src1").Type("float_mat").Finalize())
+        .Input(ArgumentDefBuilder().Name("src2").Type("float_mat").Finalize())
+        .Output(
+            ArgumentDefBuilder().Name("output1").Type("float_mat").Finalize())
+        .Param(ArgumentDefBuilder().Name("param1").Type("float_mat").Finalize())
         .Attr(AttrDefBuilder().Name("attr1").Type("int32").Finalize())
         .Finalize());
 
