@@ -27,9 +27,7 @@ bool ArgumentField::IsEmpty() const {
          float_vals == nullptr;
 }
 
-Argument::Argument(const Argument &other) : valid_(false) {
-  Assign(other);
-}
+Argument::Argument(const Argument &other) : valid_(false) { Assign(other); }
 
 Status Argument::FromProto(const string &buffer) {
   LOG(FATAL) << "NotImplemented";
@@ -53,22 +51,33 @@ private:
 DataType String2Dtype(StringPiece type) {
   // TODO register more types
   static std::unordered_map<std::string, DataType> str2dtype = {
-      {"float_mat", CH_MAT_FLOAT}};
+      {"float_mat", CH_MAT_FLOAT},
+      {"float_mat_list", CH_MAT_FLOAT_LIST},
+      {"float", CH_MAT_FLOAT_LIST},
+      {"int64", CH_INT64}};
   LOG(INFO) << "string2dtype " << type;
-  return str2dtype[type.tostring()];
+  auto it = str2dtype.find(type.tostring());
+  CHECK(it != str2dtype.end()) << "String2Dtype not support type [" << type
+                               << "]";
+  return it->second;
 }
 
 // ref or copy ? should ref create an empty matrix?
 Status Argument::FromDef(const ArgumentDef *def) {
+  Status status;
   DLOG(INFO) << "create Argument from def:\n" << def->DebugString();
-  CHECK(def != nullptr);
-  CHECK(arg_def_ == nullptr || arg_def_ == def)
-      << "duplicate set arg's definition."
-      << "arg_def_ is already set to " << arg_def_;
+  CH_STEST_RETURN2(def != nullptr, error::INVALID_ARGUMENT, "def is nullptr");
+  CH_STEST_RETURN2(
+      arg_def_ == nullptr || arg_def_ == def, error::INVALID_ARGUMENT,
+      "duplicate set arg's definition. arg_def_ is already set to \n%s",
+      arg_def_->DebugString().c_str());
+
   arg_def_ = const_cast<ArgumentDef *>(def);
   // if (IsRef())
   //   return Status();
 
+  CH_STEST_RETURN2(!arg_def_->type().empty(), error::INVALID_ARGUMENT,
+                   "def.type is not set");
   arg_def_->set_dtype(String2Dtype(arg_def_->type()));
 
   DLOG(INFO) << "init from type " << arg_def_->type() << " "
@@ -97,9 +106,16 @@ Status Argument::FromDef(const ArgumentDef *def) {
     DLOG(INFO) << "create cpu float matrix";
     arg_field_->create_float_mat_val(shape);
   } break;
+  case CH_MAT_FLOAT_LIST: {
+    DLOG(INFO) << "create cpu float matrix list";
+    arg_field_->create_float_mat_vals();
+  } break;
   default:
+    status.Update(error::INVALID_ARGUMENT, "not supported type in Argument: %d",
+                  (int)def->dtype());
     break;
   }
-  return Status();
+  return status;
 }
+
 }

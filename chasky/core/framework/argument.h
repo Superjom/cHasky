@@ -57,8 +57,9 @@ struct ArgumentField {
   TYPE_GETTER(int64_vals, std::vector<int64_t>);
   TYPE_GETTER(uint64_vals, std::vector<uint64_t>);
   TYPE_GETTER(float_vals, std::vector<float>);
-  TYPE_GETTER(float_mat_vals, std::vector<math::CpuFloatMatrix>);
-
+  // Use shapred_ptr to pass in arguments from other functions's output.
+  TYPE_GETTER(float_mat_vals,
+              std::vector<std::shared_ptr<math::CpuFloatMatrix>>)
   // To support variadic number of arguments.
   // TYPE_GETTER(float_vec_list, std::vector<math::CpuFloatVector>);
 }; // struct Argument
@@ -84,7 +85,7 @@ public:
 
   explicit Argument(const Argument &other);
 
-  void Assign(const Argument& other);
+  void Assign(const Argument &other);
 
   bool operator==(const Argument &other);
 
@@ -126,6 +127,12 @@ public:
 
   void SetValid(bool x) { valid_ = x; }
   bool Valid() const { return valid_; }
+
+  // Human-readable short debug string.
+  std::string Description() const;
+
+  // Human-readable long debug string.
+  std::string DebugString() const;
 
 protected:
   Argument &operator=(const Argument &other);
