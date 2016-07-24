@@ -92,6 +92,11 @@ public:
   // Return a human-readable string.
   virtual std::string DebugString() const override;
 
+  virtual std::string Description() const override {
+    return strings::Printf("<CpuFloatMatrix (%lu,%lu)>", Shape().first,
+                           Shape().second);
+  }
+
   // Get the element on i-th row and j-th col
   virtual Type Get(size_t i, size_t j) const override { return (*mat_)(i, j); }
 
