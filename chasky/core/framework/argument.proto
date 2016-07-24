@@ -4,7 +4,6 @@ package chasky;
 import "chasky/core/framework/types.proto";
 
 message ArgumentDef {
-  DataType dtype = 1;
   string name = 2;
   string type = 3;
   Shape shape = 4;
@@ -15,6 +14,8 @@ message ArgumentDef {
   // If the argument is passed as refernece, then the value
   // can be changed by this layer.
   bool is_ref = 7;
+  // Should inspect from type
+  DataType dtype = 1;
 
   message Shape {
     uint32 height = 1;
