@@ -33,7 +33,14 @@ public:
                                 const std::vector<Argument *> *activations,
                                 const FunctionDef &def) = 0;
 
-  virtual Status BackwardCompute(const Argument *grad) = 0;
+  // @grad is this function's gradient. gradient * f'(x) will be the former
+  // function's gradient
+  // @x is this function's forword input.
+  // @previous_grad is previous functions gradient.
+  // previous_grad += f'(x) * grad
+  virtual Status BackwardCompute(const std::vector<const Argument *> x,
+                                 const Argument *grad,
+                                 const Argument *previous_grad) = 0;
 };
 
 // Base class for all funcs
