@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -x -e
 
 rm -rf build/protos
 mkdir -p build/protos
