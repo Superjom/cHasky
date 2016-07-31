@@ -44,9 +44,9 @@ public:
     return Status();
   }
 
-  virtual Status BackwardCompute(const std::vector<const Argument *> x,
-                                 const Argument *grad,
-                                 const Argument *previous_grad) override {
+  virtual Status
+  BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
+                  const std::vector<Argument *> *previous_grad) override {
     return Status();
   }
 };

@@ -38,9 +38,9 @@ public:
   // @x is this function's forword input.
   // @previous_grad is previous functions gradient.
   // previous_grad += f'(x) * grad
-  virtual Status BackwardCompute(const std::vector<const Argument *> x,
-                                 const Argument *grad,
-                                 const Argument *previous_grad) = 0;
+  virtual Status
+  BackwardCompute(const std::vector<const Argument *>& x, const Argument &grad,
+                  const std::vector<Argument *> *previous_grad) = 0;
 };
 
 // Base class for all funcs
