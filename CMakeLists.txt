@@ -24,6 +24,7 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/node.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/edge.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/runtime/session.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/runtime/graph_builder.cc
