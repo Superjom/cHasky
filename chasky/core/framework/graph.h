@@ -4,17 +4,28 @@
 #include "chasky/core/framework/node.h"
 #include "chasky/core/framework/graph.pb.h"
 namespace chasky {
+class Graph;
+using graph_ptr_t = std::shared_ptr<Graph>;
 
 class Graph {
 public:
-  typedef std::unordered_map<std::string, std::unique_ptr<Node>> nodes_t;
-  typedef std::unordered_map<std::string, std::unique_ptr<Edge>> edges_t;
+  typedef std::unordered_map<std::string, node_ptr_t> nodes_t;
+  typedef std::unordered_map<std::string, edge_ptr_t> edges_t;
   typedef std::unordered_map<std::string, std::shared_ptr<Argument>> args_t;
 
   static std::unique_ptr<Graph> Create();
 
   // Get a parameter by name
   std::shared_ptr<Argument> Param(const std::string &name);
+
+  // Get all edges point to target Node identified by `signature`.
+  // The `signature` should be format like "{node}:{arg_name}"
+  Status GetEdgeByTarget(const std::string &signature,
+                         std::vector<edge_ptr_t> *edges);
+
+  // Get all edges point from Source Node which identified by `signature`.
+  Status GetEdgesBySource(const std::string &signature,
+                          std::vector<edge_ptr_t> *edges);
 
   // Register a parameter by name and definiton.
   // NOTE not thread-safe.
@@ -40,8 +51,8 @@ public:
   edges_t *mutable_edges() { return &edges_; }
 
 private:
-  std::unordered_map<std::string, std::unique_ptr<Node>> nodes_;
-  std::unordered_map<std::string, std::unique_ptr<Edge>> edges_;
+  std::unordered_map<std::string, node_ptr_t> nodes_;
+  std::unordered_map<std::string, edge_ptr_t> edges_;
   // Model parameters, shared by all nodes in a graph.
   // Key are "%s:%s" % (node.name, param.name)
   // The parameters are registered by Nodes.

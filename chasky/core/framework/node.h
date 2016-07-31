@@ -8,7 +8,11 @@
 namespace chasky {
 
 class Node;
+class Edge;
 class Graph;
+
+using node_ptr_t = std::shared_ptr<Node>;
+using edge_ptr_t = std::shared_ptr<Edge>;
 
 enum TaskType { FORWORD, BACKWARD };
 
@@ -16,8 +20,8 @@ enum TaskType { FORWORD, BACKWARD };
 // @node1: source node's name
 // @node2: target node's name
 // @arg: source's argument's name
-std::string GenEdgeKey(const std::string &node1, const std::string &node2,
-                       const std::string &arg);
+std::string GenEdgeKey(const std::string &source, const std::string &src_arg,
+                       const std::string &target, const std::string &trg_arg);
 
 // Generate edge's signature
 // @input: format like "%s:%s" % (node1, arg)
@@ -26,7 +30,12 @@ std::string GenEdgeKey(const std::string &input, const std::string &node2);
 
 class Edge {
 public:
-  Edge(const Node *src, const Node *trg, const std::string &arg);
+  // An edge is like "source_node.output_arg -> target_node.input_arg", it
+  // identifies an argument to another.
+  // NOTE Edge connects different nodes by Argument, an node will have multiple
+  // edges if it has more than one argument.
+  Edge(const Node *src, const std::string &src_arg, const Node *trg,
+       const std::string &trg_arg);
 
   // Consumers wait for activatioin/gradient ready.
   void Consume(TaskType task) const {
@@ -91,7 +100,7 @@ private:
 class Node {
 public:
   // Create a node from definition
-  static std::unique_ptr<Node> Create(const NodeDef &def, Graph* graph);
+  static std::unique_ptr<Node> Create(const NodeDef &def, Graph *graph);
 
   Node(Node &&other)
       : def_(std::move(other.def_)), func_def_(other.func_def_),
@@ -132,7 +141,7 @@ protected:
   void CreateModelParameters();
 
   // Create a node, including create the corresponding function's object.
-  Node(const NodeDef &def, Graph* graph);
+  Node(const NodeDef &def, Graph *graph);
 
 private:
   NodeDef def_;
