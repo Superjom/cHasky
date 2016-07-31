@@ -11,8 +11,13 @@ message GraphDef {
   string name = 1;
 
   repeated NodeDef nodes = 2;
+  // Each input is "node:src_ouput" with "node" being a string name and
+  // src_output being the name of node's output
+  // repeated string input = 6;
+  repeated EdgeDef edges = 6;
 }
 
+// A Node is the container of a function.
 message NodeDef {
   // The name given to this layer
   string name = 1;
@@ -23,9 +28,6 @@ message NodeDef {
 
   // The function's signature, should be the format like: "%s:%d" % (def_name, datatype)
   string signature = 4;
-  // Each input is "node:src_ouput" with "node" being a string name and
-  // src_output being the name of node's output
-  repeated string input = 6;
 
   // mixed node's and functioin' attributes
   map<string, AttrValue> attr = 7;
@@ -35,3 +37,17 @@ message NodeDef {
   DataType dtype = 9;
 }
 
+// An Edge is the connection between two nodes.
+message EdgeDef {
+  // source node
+  string src_node = 1;
+  // source node's argument name
+  string src_arg = 2;
+  // target node
+  string trg_node = 3;
+  // target node's argument
+  string trg_arg = 4;
+  // edge's signature, format like "{src_node}:{src_arg}->{trg_node}:{trg_arg}
+  // will generate automatically.
+  string signature_ = 5;
+}
