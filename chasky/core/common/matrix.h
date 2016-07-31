@@ -24,7 +24,7 @@ public:
   // Set all elements to zero.
   virtual void SetZero() = 0;
 
-  // Share data with other.
+  // Share data with other, just by pointer.
   virtual void CloneFrom(BaseMatrix &other) = 0;
 
   // Malloc memory and copy data from other.
