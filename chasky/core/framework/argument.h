@@ -128,6 +128,9 @@ public:
   void SetValid(bool x) { valid_ = x; }
   bool Valid() const { return valid_; }
 
+  void SetSignature(const std::string &x) { signature_ = x; }
+  const std::string &Signature() const { return signature_; }
+
   // Human-readable short debug string.
   std::string Description() const;
 
@@ -147,6 +150,9 @@ private:
   ArgFldPtr arg_field_;
 
   bool valid_;
+
+  // Format like "{node}:{arg_name}".
+  std::string signature_;
 };
 
 typedef std::shared_ptr<Argument> ArgumentPtr;
