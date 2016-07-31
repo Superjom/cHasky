@@ -101,9 +101,31 @@ Status AddN<T>::ForwardCompute(const std::vector<const Argument *> &args,
 
 // @previous_grad: should be a list
 template <typename T>
-Status AddN<T>::BackwardCompute(const std::vector<const Argument *> x,
-                               const Argument *grad,
-                               const Argument *previous_grad) {
+Status AddN<T>::BackwardCompute(const std::vector<const Argument *> &x,
+                                const Argument &grad,
+                                const std::vector<Argument *> *previous_grad) {
+  Status status;
+  std::vector<std::shared_ptr<T>> *x_inputs, *previous_grad_list;
+  T *grad_val;
+  // Both x and previous_grad has one single argument with list data type.
+  CHECK_EQ(x.size(), 1UL) << "x should have only 1 argument";
+  CHECK_EQ(previous_grad->size(), 1UL)
+      << "previous_grad should have only 1 argument";
+  // Both x and previous_grad should have the same number of element in list
+  // field.
+  CHECK(x[0]->ArgField()->get(&x_inputs));
+  CHECK(previous_grad->at(0)->ArgField()->get(&previous_grad_list));
+  CHECK(grad.ArgField()->get(&grad_val));
+  CHECK_EQ(x_inputs->size(), previous_grad_list->size())
+      << "both x and previous_grad should have the same number of elements in "
+         "list field ";
+  CHECK_GT(x_inputs->size(), 0)
+      << "both x and previous_grad should have at least one inputs";
+
+  for (auto &pg : *previous_grad_list) {
+    pg->CopyFrom(*grad_val);
+  }
+  return status;
 }
 
 REGISTER_FUNC(AddN, CH_MAT_FLOAT, AddN<math::CpuFloatMatrix>);

@@ -38,9 +38,9 @@ public:
   //   current node's grad
   // @previous_grad: list
   //   each element is a previous node's grad
-  virtual Status BackwardCompute(const std::vector<const Argument *> x,
-                                 const Argument *grad,
-                                 const Argument *previous_grad) override;
+  Status BackwardCompute(const std::vector<const Argument *> &x,
+                         const Argument &grad,
+                         const std::vector<Argument *> *previous_grad) override;
 
   // TODO remove this api?
   virtual void CheckContext() override;
