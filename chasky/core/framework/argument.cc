@@ -13,6 +13,19 @@ Status Argument::FromProto(const string &buffer) {
 
 void Argument::ToProto(string *buffer) const { LOG(FATAL) << "NotImplemented"; }
 
+Status Argument::AppendList(DataType dtype, Argument &arg) {
+  Status status;
+  if (dtype == CH_MAT_FLOAT_LIST) {
+    CH_STEST_RETURN2(arg_field_->float_mat_vals, error::NOT_INITED,
+                     "float_mat_vals is not inited");
+    CH_STEST_RETURN2(
+        arg_field_->float_vals, error::INVALID_ARGUMENT,
+        "arg's float matrix field is empty, should be inited first");
+    arg_field_->float_mat_vals->push_back(arg.ArgField()->float_mat_val);
+  }
+  return status;
+}
+
 const string &Argument::Name() const { return arg_def_->name(); }
 
 const ArgumentDef::Shape &Argument::Shape() const { return arg_def_->shape(); }

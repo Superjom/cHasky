@@ -46,6 +46,11 @@ public:
   // parameters to file.
   void ToProto(std::string *buffer) const;
 
+  // Append an Argument to this.list field.
+  // @dtype: list field's dtype
+  // @arg: the argument to push_back to the list field
+  Status AppendList(DataType dtype, Argument &arg);
+
   const string &Name() const;
 
   const ArgumentDef::Shape &Shape() const;
