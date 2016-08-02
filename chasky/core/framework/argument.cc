@@ -11,6 +11,21 @@ Status Argument::FromProto(const string &buffer) {
   LOG(FATAL) << "NotImplemented";
 }
 
+Status Argument::SetList(std::vector<ArgumentPtr> &list) {
+  Status status;
+  // check all the input arguments have the same dtype
+  CHECK(!list.empty());
+  auto input_dtype = arg_def_->dtype();
+
+  for (auto &arg : list) {
+    CH_STEST_RETURN2(arg->ArgDef()->dtype() == input_dtype,
+                     error::INVALID_ARGUMENT,
+                     "All the input arguments should have the same dtype");
+    CH_CHECK_OK(AppendList(input_dtype, *arg));
+  }
+  return status;
+}
+
 void Argument::ToProto(string *buffer) const { LOG(FATAL) << "NotImplemented"; }
 
 Status Argument::AppendList(DataType dtype, Argument &arg) {
@@ -108,5 +123,4 @@ Status Argument::FromDef(const ArgumentDef *def) {
   }
   return status;
 }
-
 }

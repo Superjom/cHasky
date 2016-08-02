@@ -16,6 +16,8 @@
 namespace chasky {
 using std::string;
 
+class Argument;
+using ArgumentPtr = std::shared_ptr<Argument>;
 
 class Argument {
 public:
@@ -42,6 +44,10 @@ public:
   // Init from protobuf buffer.
   Status FromProto(const std::string &buffer);
 
+  // Set list-field from a list of arguments.
+  // NOTE all the input arguments should be the same dtype.
+  Status SetList(std::vector<ArgumentPtr> &list);
+
   // Serialize the argument to protobuf string. Can be used to save model
   // parameters to file.
   void ToProto(std::string *buffer) const;
@@ -62,6 +68,7 @@ public:
   //     float *x;
   //     arg.ArgField()->Get(&x);
   const ArgFldPtr ArgField() const { return arg_field_; }
+  ArgFldPtr ArgField() { return arg_field_; }
 
   // set to zero vector or matrix
   void SetZero();
@@ -106,8 +113,6 @@ private:
   // Format like "{node}:{arg_name}".
   std::string signature_;
 };
-
-typedef std::shared_ptr<Argument> ArgumentPtr;
 
 inline void Argument::Assign(const Argument &other) {
   CHECK(arg_def_) << "arg_def_ should be inited before assign";
