@@ -58,6 +58,8 @@ public:
   const Node *Source() const { return src_; }
   const Node *Target() const { return trg_; }
   StringPiece Signature() const { return signature_; }
+  StringPiece SrcSign() const { return src_sign_; }
+  StringPiece TrgSign() const { return trg_sign_; }
   Argument &Activation() { return activation_; }
   Argument &Gradient() { return gradient_; }
   const Argument &Activation() const { return activation_; }
@@ -66,6 +68,10 @@ public:
 private:
   // format: "%s->%s" % (srcNode.name, destNode.name)
   std::string signature_;
+  // format: "{src_node}:{arg_name}"
+  std::string src_sign_;
+  // format: "{trg_node}:{arg_name}"
+  std::string trg_sign_;
   // forward product
   Argument activation_;
   // backward product
@@ -83,7 +89,6 @@ private:
   // Mark whether gradient is ready, should be reset false after each turn.
   mutable bool backward_is_read_ = false;
 };
-
 
 } // namespace chasky
 #endif

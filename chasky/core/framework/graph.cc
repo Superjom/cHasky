@@ -22,14 +22,6 @@ Status Graph::RegisterEdge(StringPiece sign, edge_ptr_t edge) {
                    "an edge called %s already exists", signature.c_str());
   CH_STEST_RETURN2(edges_.insert({signature, edge}).second, error::UNKNOWN,
                    "edges_ insert map error");
-  // register by source and target
-  char src_sign[100], trg_sign[100];
-  int success_args =
-      std::scanf(signature.c_str(), "%s->%s", src_sign, trg_sign);
-  CH_STEST_RETURN2(success_args == 2, error::INVALID_ARGUMENT,
-                   "signature [%s] do not match the format "
-                   "'{src_node}:{arg1}->{trg_node}:{arg2}'",
-                   signature.c_str());
 
 #define REGISTER_EDGE(EDGES, KEY)                                              \
   if (EDGES.find(KEY) == EDGES.end()) {                                        \
@@ -37,8 +29,8 @@ Status Graph::RegisterEdge(StringPiece sign, edge_ptr_t edge) {
   }                                                                            \
   EDGES[KEY].push_back(edge);
 
-  REGISTER_EDGE(trg2edges_, trg_sign)
-  REGISTER_EDGE(src2edges_, src_sign)
+  REGISTER_EDGE(trg2edges_, edge->SrcSign().tostring())
+  REGISTER_EDGE(src2edges_, edge->TrgSign().tostring())
 #undef REGISTER_EDGE
 
   return status;
