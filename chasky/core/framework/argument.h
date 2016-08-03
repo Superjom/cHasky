@@ -36,6 +36,13 @@ public:
 
   void Assign(const Argument &other);
 
+  void CloneFrom(Argument &other) {
+    arg_def_ = other.arg_def_;
+    arg_field_->CloneFrom(*other.arg_field_);
+    valid_ = other.valid_;
+    signature_ = other.signature_;
+  }
+
   bool operator==(const Argument &other);
 
   // Create ArgumentField from arg_def_
@@ -96,6 +103,9 @@ public:
   // Human-readable long debug string.
   std::string DebugString() const;
 
+  // return true if dtype is a list.
+  static bool IsList(DataType dtype);
+
 protected:
   Argument &operator=(const Argument &other);
 
@@ -124,7 +134,11 @@ inline void Argument::Assign(const Argument &other) {
     arg_field_ = other.ArgField();
   } else {
     arg_field_ = std::make_shared<ArgumentField>();
-    arg_field_->CopyFrom(*other.ArgField(), arg_def_->is_ref());
+    if (arg_def_->is_ref()) {
+      arg_field_->CloneFrom(*other.ArgField());
+    } else {
+      arg_field_->CopyFrom(*other.ArgField());
+    }
   }
 }
 
