@@ -123,4 +123,8 @@ Status Argument::FromDef(const ArgumentDef *def) {
   }
   return status;
 }
+
+bool Argument::IsList(chasky::DataType dtype) {
+  return dtype == CH_MAT_FLOAT_LIST;
+}
 }
