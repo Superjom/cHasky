@@ -36,10 +36,10 @@ struct ArgumentField {
   ArgumentField() {}
 
   // Copy pointer
-  void CopyFrom(const ArgumentField &other, bool is_ref);
+  void CloneFrom(const ArgumentField &other);
 
   // Copy memory
-  void RealCopyFrom(const ArgumentField &other);
+  void CopyFrom(const ArgumentField &other);
 
   bool IsEmpty() const;
 
