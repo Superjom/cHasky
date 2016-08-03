@@ -7,7 +7,7 @@ class Node;
 class Edge;
 using edge_ptr_t = std::shared_ptr<Edge>;
 
-enum TaskType { FORWORD, BACKWARD };
+enum class TaskType { FORWORD, BACKWARD };
 
 // Generate edge's signature
 // @node1: source node's name
@@ -21,6 +21,14 @@ std::string GenEdgeKey(const std::string &source, const std::string &src_arg,
 // @node2: target node's name
 std::string GenEdgeKey(const std::string &input, const std::string &node2);
 
+// An Edge is a connection between two argument of different nodes, it can be
+// identified by "{node1:arg1}->{node2:arg2}", which means node2 has an input
+// called 'arg2', and its real value is copy/clone from node1's
+// output(activation) arg1.
+// An node should not start computation until all its edges' data are ready.
+// Edge will carry the source node's output(activation) to transfer data to
+// target node, it will also carry source node's gradient argument to make it
+// possible for target node to send back gradient.
 class Edge {
 public:
   // An edge is like "source_node.output_arg -> target_node.input_arg", it
@@ -34,7 +42,7 @@ public:
   void Consume(TaskType task) const {
     std::unique_lock<std::mutex> lock(mu_);
     forward_ready_cond_.wait(lock, [this, task] {
-      if (task == FORWORD)
+      if (task == TaskType::FORWORD)
         return forward_is_ready_;
       return backward_is_read_;
     });
@@ -43,8 +51,9 @@ public:
   // Set Edge ready and notify all the consumers that the edge is ready.
   void SetReady(TaskType task) const {
     forward_is_ready_ = true;
-    std::condition_variable &cond =
-        (task == FORWORD) ? forward_ready_cond_ : backward_ready_cond_;
+    std::condition_variable &cond = (task == TaskType::FORWORD)
+                                        ? forward_ready_cond_
+                                        : backward_ready_cond_;
     cond.notify_all();
   }
 
@@ -60,10 +69,10 @@ public:
   StringPiece Signature() const { return signature_; }
   StringPiece SrcSign() const { return src_sign_; }
   StringPiece TrgSign() const { return trg_sign_; }
-  Argument &Activation() { return activation_; }
-  Argument &Gradient() { return gradient_; }
-  const Argument &Activation() const { return activation_; }
-  const Argument &Gradient() const { return gradient_; }
+  Argument &Activation() { return *activation_; }
+  Argument &Gradient() { return *gradient_; }
+  const Argument &Activation() const { return *activation_; }
+  const Argument &Gradient() const { return *gradient_; }
 
 private:
   // format: "%s->%s" % (srcNode.name, destNode.name)
@@ -73,9 +82,9 @@ private:
   // format: "{trg_node}:{arg_name}"
   std::string trg_sign_;
   // forward product
-  Argument activation_;
+  ArgumentPtr activation_;
   // backward product
-  Argument gradient_;
+  ArgumentPtr gradient_;
 
   const Node *src_;
   const Node *trg_;

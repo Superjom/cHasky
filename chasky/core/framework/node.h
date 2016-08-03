@@ -24,6 +24,15 @@ public:
   // Create a node from definition
   static std::unique_ptr<Node> Create(const NodeDef &def, Graph *graph);
 
+  struct OutputArgument {
+    ArgumentPtr activation;
+    ArgumentPtr grad;
+
+    // TODO how to init gradient?
+    OutputArgument(const ArgumentDef* def) :
+      activation(std::make_shared<Argument>(def)) {}
+  };
+
   Node(Node &&other)
       : def_(std::move(other.def_)), func_def_(other.func_def_),
         cur_task_(other.cur_task_), func_(std::move(other.func_)),
@@ -72,8 +81,11 @@ private:
   TaskType cur_task_;
   // the corresponding function
   std::unique_ptr<Function> func_;
+
+  // each input is an input-node's output-argument
+  std::vector<ArgumentPtr> inputs_;
   // output arguments
-  std::vector<Argument> outputs_;
+  std::vector<OutputArgument> outputs_;
   // ExecContext exec_context_;
   Argument grad_;
 
@@ -81,6 +93,9 @@ private:
   std::vector<Edge *> inlinks_;
 
   std::thread service_thread_;
+
+  // model parameters
+  std::vector<ArgumentPtr> weights_;
 
   Graph *graph_;
 };

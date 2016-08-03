@@ -51,7 +51,7 @@ std::unique_ptr<Node> Node::Create(const NodeDef &def, Graph *graph) {
 }
 
 Status Node::Compute(chasky::TaskType task) {
-  if (task == FORWORD) {
+  if (task == TaskType::FORWORD) {
     ForwardCompute();
   } else {
     BackwardCompute();
@@ -63,11 +63,12 @@ Status Node::ForwardCompute() {
   // Prepare inputs
   std::vector<const Argument *> inputs;
   std::vector<Argument *> outputs;
+  // TODO fix this stage? every edge's arguments will change ? 
   for (const auto &edge : inlinks_) {
     inputs.push_back(&edge->Activation());
   }
   for (auto &output : outputs_) {
-    outputs.push_back(&output);
+    outputs.push_back(output.activation.get());
   }
 
   Status status = func_->ForwardCompute(inputs, &outputs, *func_def_);
