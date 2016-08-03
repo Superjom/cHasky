@@ -69,4 +69,14 @@ Status Graph::GetEdgeByTarget(const std::string &signature, edge_ptr_t *edge) {
   return status;
 }
 
+Status Graph::GetEdgesBySource(const std::string &signature,
+                               std::vector<edge_ptr_t> *edges) {
+  Status status;
+  auto it = src2edges_.find(signature);
+  CH_STEST_RETURN2(it != src2edges_.end(), error::OUT_OF_RANGE,
+                   "no key called %s exists in src2edges_", signature.c_str());
+  *edges = it->second;
+  return status;
+}
+
 } // namespace chasky
