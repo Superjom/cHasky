@@ -9,18 +9,6 @@ using edge_ptr_t = std::shared_ptr<Edge>;
 
 enum class TaskType { FORWORD, BACKWARD };
 
-// Generate edge's signature
-// @node1: source node's name
-// @node2: target node's name
-// @arg: source's argument's name
-std::string GenEdgeKey(const std::string &source, const std::string &src_arg,
-                       const std::string &target, const std::string &trg_arg);
-
-// Generate edge's signature
-// @input: format like "%s:%s" % (node1, arg)
-// @node2: target node's name
-std::string GenEdgeKey(const std::string &input, const std::string &node2);
-
 // An Edge is a connection between two argument of different nodes, it can be
 // identified by "{node1:arg1}->{node2:arg2}", which means node2 has an input
 // called 'arg2', and its real value is copy/clone from node1's

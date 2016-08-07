@@ -5,6 +5,7 @@
 #include "chasky/core/framework/function.h"
 #include "chasky/core/framework/node.h"
 #include "chasky/core/framework/graph.h"
+#include "chasky/core/framework/edge_utils.h"
 #include "chasky/core/framework/argument_def_builder.h"
 #include "chasky/core/framework/attr_value_util.h"
 namespace chasky {
