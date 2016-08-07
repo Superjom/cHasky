@@ -36,13 +36,13 @@ Status Graph::RegisterEdge(StringPiece sign, edge_ptr_t edge) {
   return status;
 }
 
-Status Graph::GetEdgeBySign(StringPiece sign, edge_ptr_t *edge) {
+Status Graph::GetEdgeBySign(StringPiece sign, Edge **edge) {
   Status status;
   std::string signature = sign.tostring();
   auto it = edges_.find(signature);
   CH_STEST_RETURN2(it != edges_.end(), error::OUT_OF_RANGE,
                    "no edges exists called [%s]", signature.c_str());
-  *edge = it->second;
+  *edge = it->second.get();
   return status;
 }
 

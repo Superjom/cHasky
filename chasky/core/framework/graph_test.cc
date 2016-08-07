@@ -79,6 +79,9 @@ TEST_F(GraphTest, RegisterEdge) {
 
   EXPECT_TRUE(graph_->GetEdgesBySource("node1:output3", &edges1).ok());
   EXPECT_EQ(edges1->size(), 1LU);
+
+  Edge *edge = nullptr;
+  EXPECT_TRUE(graph_->GetEdgeBySign(edge_def1.signature_(), &edge).ok());
 }
 
 } // namespace test

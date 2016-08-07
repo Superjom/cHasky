@@ -52,7 +52,7 @@ public:
 
   // Register an edge by signature like "{node}:{arg_name}".
   Status RegisterEdge(StringPiece sign, edge_ptr_t edge);
-  Status GetEdgeBySign(StringPiece sign, edge_ptr_t *edge);
+  Status GetEdgeBySign(StringPiece sign, Edge **edge);
 
   // getters
   const nodes_t &Nodes() const { return nodes_; }
