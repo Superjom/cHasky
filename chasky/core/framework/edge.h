@@ -1,6 +1,7 @@
 #ifndef CHASKY_CORE_FRAMEWORK_EDGE_H
 #define CHASKY_CORE_FRAMEWORK_EDGE_H
 #include "chasky/core/framework/argument.h"
+#include "chasky/core/framework/graph.pb.h"
 namespace chasky {
 
 class Node;
@@ -19,14 +20,24 @@ enum class TaskType { FORWORD, BACKWARD };
 // possible for target node to send back gradient.
 class Edge {
 public:
+  explicit Edge() {}
   // An edge is like "source_node.output_arg -> target_node.input_arg", it
   // identifies an argument to another.
   // NOTE Edge connects different nodes by Argument, an node will have multiple
   // edges if it has more than one argument.
-  Edge(const Node *src, const std::string &src_arg, const Node *trg,
-       const std::string &trg_arg);
+  explicit Edge(const Node *src, const std::string &src_arg, const Node *trg,
+                const std::string &trg_arg);
+
+  explicit Edge(const EdgeDef &def, const Node *src, const Node *trg)
+      : signature_(def.signature_()),
+        src_sign_(strings::Printf("%s:%s", def.src_node().c_str(),
+                                  def.src_arg().c_str())),
+        trg_sign_(strings::Printf("%s:%s", def.trg_node().c_str(),
+                                  def.trg_arg().c_str())),
+        src_(src), trg_(trg) {}
 
   // Consumers wait for activatioin/gradient ready.
+  // TODO exit when task is killed
   void Consume(TaskType task) const {
     std::unique_lock<std::mutex> lock(mu_);
     forward_ready_cond_.wait(lock, [this, task] {

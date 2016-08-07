@@ -19,12 +19,14 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/common/status.cc
   ${CMAKE_SOURCE_DIR}/chasky/common/string_piece.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument_field.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_def_builder.cc
   #${CMAKE_SOURCE_DIR}/chasky/core/framework/exec_context.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/node.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/edge.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/edge_utils.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/runtime/session.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/runtime/graph_builder.cc
@@ -43,6 +45,7 @@ set (TEST_SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/node_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_matrix_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN_test.cc
 )

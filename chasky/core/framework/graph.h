@@ -31,7 +31,7 @@ public:
 
   // Get all edges point from Source Node which identified by `signature`.
   Status GetEdgesBySource(const std::string &signature,
-                          std::vector<edge_ptr_t> *edges);
+                          std::vector<edge_ptr_t> **edges);
 
   // Register a parameter by name and definiton.
   // NOTE not thread-safe.
@@ -59,6 +59,8 @@ public:
   nodes_t *mutable_nodes() { return &nodes_; }
   const edges_t &Edges() const { return edges_; }
   edges_t *mutable_edges() { return &edges_; }
+  TaskType TaskType() const { return task_type_; }
+  enum TaskType *mutable_tasktype() { return &task_type_; }
 
 private:
   std::unordered_map<std::string, node_ptr_t> nodes_;
@@ -69,6 +71,8 @@ private:
   // Key are "%s:%s" % (node.name, param.name)
   // The parameters are registered by Nodes.
   std::unordered_map<std::string, std::shared_ptr<Argument>> params_;
+  // Mark current task, forward or backward.
+  enum TaskType task_type_;
 };
 
 } // namespace chasky
