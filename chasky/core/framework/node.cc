@@ -1,15 +1,95 @@
 #include "chasky/common/macros.h"
 #include "chasky/common/strings.h"
-#include "chasky/core/framework/graph.h"
 #include "chasky/core/framework/node.h"
 #include "chasky/core/framework/function_def_builder.h"
+#include "chasky/core/runtime/state.h"
 
 namespace chasky {
 
-Node::Node(const NodeDef &def, Graph *graph)
-    : def_(def), func_def_(nullptr), graph_(graph) {
+std::unique_ptr<Node> Node::Create(const NodeDef &def, PostBox *postbox,
+                                   EdgeLib *edge_lib) {
+  return std::unique_ptr<Node>{new Node(def, postbox, edge_lib)};
+}
+
+Node::Node(Node &&other)
+    : def_(other.def_), func_def_(other.func_def_), cur_task_(other.cur_task_),
+      func_(std::move(other.func_)) {}
+
+Status Node::ForwardCompute() {
+  Status status;
+  CH_CHECK_OK(CollectInArgItems());
+  CH_CHECK_OK(CollectOutArgItems());
+
+  CH_CHECK_OK(func_->ForwardCompute(inputs_, &outputs_, *func_def_));
+
+  CH_CHECK_OK(ReleaseActivations());
+
+  return status;
+}
+
+Status Node::BackwardCompute() { UN_IMPLEMENTED }
+
+Status Node::CollectInArgItems() {
+  Status status;
+  inputs_.clear();
+  const auto &node_name = def_.name();
+  int num_in_args_ready = 0;
+  for (const auto &arg_def : func_def_->inputs()) {
+    const auto &arg_name = arg_def.name();
+    auto arg_key = EdgeLib::CreateArgKey(node_name, arg_name);
+    auto callback = [&](Argument *arg) {
+      num_in_args_ready++;
+      inputs_.push_back(arg);
+      if (num_in_args_ready == func_def_->inputs_size()) {
+        in_args_ready_.notify_one();
+      }
+    };
+    postbox_->Consume(arg_key, callback);
+  }
+  return status;
+}
+
+Status Node::CollectOutArgItems() {
+  Status status;
+  outputs_.clear();
+  for (auto &arg : out_args_) {
+    outputs_.push_back(arg.get());
+  }
+  return status;
+}
+
+Status Node::ReleaseActivations() {
+  Status status;
+  const auto &node_name = def_.name();
+
+  for (size_t i = 0; i < func_def_->inputs_size(); i++) {
+    const auto &arg_def = func_def_->inputs(i);
+    const auto &arg_name = arg_def.name();
+    auto arg_key = EdgeLib::CreateArgKey(node_name, arg_name);
+    postbox_->Send(arg_key, outputs_[i]);
+  }
+  return status;
+}
+
+Status Node::RegisterArguments() {
+  Status status;
+  const auto &node_name = def_.name();
+  out_args_.clear();
+  for (size_t i = 0; i < func_def_->inputs_size(); i++) {
+    const auto &arg_def = func_def_->inputs(i);
+    const auto &arg_name = arg_def.name();
+    auto arg_key = EdgeLib::CreateArgKey(node_name, arg_name);
+    postbox_->Register(arg_key);
+    out_args_.emplace_back(new Argument{&arg_def});
+  }
+
+  return status;
+}
+
+Node::Node(const NodeDef &def, PostBox *postbox, EdgeLib *edge_lib)
+    : def_(def), func_def_(nullptr), postbox_(postbox), edge_lib_(edge_lib) {
   CHECK(!def_.name().empty());
-  CHECK(graph_ != nullptr);
+  // CHECK(graph_ != nullptr);
   DLOG(INFO) << "creating node " << def_.name();
   // extract information from signature
   std::string def_name;
@@ -29,7 +109,8 @@ Node::Node(const NodeDef &def, Graph *graph)
 
   CH_CHECK_OK(
       FunctionLibrary::Instance().LookUp(def_.signature(), &func_creator));
-  // init function's definition by filling attributes from node's definition.
+  // init function's definition by filling attributes from node's
+  // definition.
   // TODO much code here
   // TODO just add unittest
   CH_CHECK_OK(
@@ -40,97 +121,5 @@ Node::Node(const NodeDef &def, Graph *graph)
   func_ = (*func_creator)();
   DLOG(INFO) << "func is created";
   CH_CHECK_OK(func_->FromDef(*func_def_, def_.attr()));
-
-  CreateOutputArguments();
-  CreateModelParameters();
 }
-
-std::unique_ptr<Node> Node::Create(const NodeDef &def, Graph *graph) {
-  std::unique_ptr<Node> node(new Node(def, graph));
-  return node;
 }
-
-Status Node::Compute(chasky::TaskType task) {
-  if (task == TaskType::FORWORD) {
-    ForwardCompute();
-  } else {
-    BackwardCompute();
-  }
-  return Status();
-}
-
-Status Node::ForwardCompute() {
-  // Prepare inputs
-  std::vector<const Argument *> inputs;
-  std::vector<Argument *> outputs;
-  // TODO fix this stage? every edge's arguments will change ? 
-  for (const auto &edge : inlinks_) {
-    inputs.push_back(&edge->Activation());
-  }
-  for (auto &output : outputs_) {
-    outputs.push_back(output.activation.get());
-  }
-
-  Status status = func_->ForwardCompute(inputs, &outputs, *func_def_);
-  return status;
-}
-
-Status Node::BackwardCompute() {
-  // TODO
-  UN_IMPLEMENTED
-  return Status();
-}
-
-Status Node::ReleaseEdge(const Edge *edge) {
-  UN_IMPLEMENTED
-  return Status();
-}
-
-void Node::CreateOutputArguments() {
-  FunctionDef *func_def;
-  CH_CHECK_OK(
-      FunctionDefLibrary::Instance().LookUp(def_.def_name(), &func_def));
-
-  for (size_t i = 0; i < func_def->outputs_size(); i++) {
-    const auto &output_def = func_def->outputs(i);
-    DLOG(INFO) << "output_def:\t" << &output_def;
-    outputs_.emplace_back(&output_def);
-  }
-}
-
-void Node::CreateModelParameters() {
-  DLOG(INFO) << "CreateModelParameters\t"
-             << "create " << func_def_->params_size() << " parameters.";
-  CHECK(func_def_ != nullptr);
-  for (auto &def : func_def_->params()) {
-    auto arg_name =
-        strings::Printf("%s:%s", def_.name().c_str(), def.name().c_str());
-    CH_CHECK_OK(graph_->RegisterParameter(arg_name, def));
-  }
-}
-
-Status Node::StartService() {
-  UN_IMPLEMENTED
-  return Status();
-}
-
-Status Node::ConnectTo(Node *other, bool forward_or_bachward) {
-  auto status = Status();
-  Node *src = this;
-  Node *trg = other;
-
-  if (!forward_or_bachward) {
-    src = other;
-    trg = this;
-  }
-
-  return status;
-}
-
-Node::~Node() {
-  if (service_thread_.joinable()) {
-    service_thread_.join();
-  }
-}
-
-} // namespace chasky

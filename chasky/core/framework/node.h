@@ -2,16 +2,18 @@
 #define CHASKY_CORE_FRAMEWORK_NODE_H_
 #include <memory>
 #include <thread>
+#include "chasky/core/runtime/postbox.h"
 #include "chasky/core/framework/graph.pb.h"
 #include "chasky/core/framework/function.h"
 #include "chasky/core/framework/argument.h"
-#include "chasky/core/framework/edge.h"
+#include "chasky/core/runtime/edge_lib.h"
 namespace chasky {
 
 class Node;
-class Graph;
 
 using node_ptr_t = std::shared_ptr<Node>;
+
+enum class TaskType { FORWARD, BACKWARD };
 
 // Node is a node of compute graph. It is the carrier of the corresponding
 // function.
@@ -22,57 +24,38 @@ using node_ptr_t = std::shared_ptr<Node>;
 class Node {
 public:
   // Create a node from definition
-  static std::unique_ptr<Node> Create(const NodeDef &def, Graph *graph);
+  static std::unique_ptr<Node> Create(const NodeDef &def, PostBox *postbox,
+                                      EdgeLib *edge_lib);
 
-  struct OutputArgument {
-    ArgumentPtr activation;
-    ArgumentPtr grad;
+  Node(Node &&other);
 
-    // TODO how to init gradient?
-    OutputArgument(const ArgumentDef* def) :
-      activation(std::make_shared<Argument>(def)) {}
-  };
-
-  Node(Node &&other)
-      : def_(std::move(other.def_)), func_def_(other.func_def_),
-        cur_task_(other.cur_task_), func_(std::move(other.func_)),
-        grad_(std::move(other.grad_)),
-        service_thread_(std::move(other.service_thread_)),
-        graph_(other.graph_) {}
-
-  // Call ForwardCompute or BackwardCompute
-  Status Compute(TaskType task);
-  // Forward computation.
-  Status ForwardCompute();
-  // Backward computation.
-  Status BackwardCompute();
-  // Start a thread to offer function's computation service.
-  Status StartService();
-
-  const Function &GetFunction() const;
-  // const ExecContext &GetExecContext() const;
-
-  Function *mutable_function();
-  // ExecContext *mutable_exec_context();
-
-  // Connect this node to another node.
-  // @other: the target node.
-  // @forward_or_backward: connect other nodes as forward or backward end.
-  Status ConnectTo(Node *other, bool forward_or_bachward);
+  Status Compute(TaskType task_type);
 
   StringPiece Name() const { return def_.name(); }
 
-  ~Node();
-
 protected:
-  // Tell the edge's endpoints that the argument is ready.
-  Status ReleaseEdge(const std::string &edge);
-  Status ReleaseEdge(const Edge *edge);
-  void CreateOutputArguments();
-  void CreateModelParameters();
+  Status ForwardCompute();
 
-  // Create a node, including create the corresponding function's object.
-  Node(const NodeDef &def, Graph *graph);
+  Status BackwardCompute();
+
+  // Input arguments.
+  Status CollectInArgItems();
+  // Gradient arguments.
+  Status CollectOutArgItems();
+
+  // Tell others that this function's activation is ready.
+  Status ReleaseActivations();
+  // Tell others that this function's graidents is ready.
+  Status ReleaseGradients();
+
+  // Status PrepareInArguments();
+
+  // Status PrepareOutArguments();
+
+  // Register forward activation and backward gradient into postbox.
+  Status RegisterArguments();
+
+  Node(const NodeDef &def, PostBox *postbox, EdgeLib *edge_lib);
 
 private:
   NodeDef def_;
@@ -82,22 +65,20 @@ private:
   // the corresponding function
   std::unique_ptr<Function> func_;
 
-  // each input is an input-node's output-argument
-  std::vector<ArgumentPtr> inputs_;
-  // output arguments
-  std::vector<OutputArgument> outputs_;
-  // ExecContext exec_context_;
-  Argument grad_;
+  std::vector<PostBox::ArgItem *> in_arg_items_;
+  std::vector<PostBox::ArgItem *> out_arg_items_;
 
-  // NOTE All the input arguments should in order.
-  std::vector<Edge *> inlinks_;
+  // argument cache for Function
+  std::vector<const Argument *> inputs_;
+  std::vector<Argument *> outputs_;
 
-  std::thread service_thread_;
+  std::vector<std::unique_ptr<Argument>> out_args_;
 
-  // model parameters
-  std::vector<ArgumentPtr> weights_;
+  std::condition_variable in_args_ready_;
+  std::condition_variable out_args_ready_;
 
-  Graph *graph_;
+  PostBox *postbox_;
+  EdgeLib *edge_lib_;
 };
 
 } // namespace chasky
