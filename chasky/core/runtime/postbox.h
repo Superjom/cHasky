@@ -1,3 +1,6 @@
+#ifndef CHASKY_CORE_RUNTIME_POSTBOX_H_
+#define CHASKY_CORE_RUNTIME_POSTBOX_H_
+
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -23,12 +26,12 @@ public:
   static string CreateArgKey(const string &node_name, const string &arg_name);
 
   // Register an empty argument item.
-  Status Register(const string&key);
+  Status Register(const string &key);
 
   // Key should be created by CreateKey
   Status Send(const string &key, Argument *arg);
 
-  static Status ParseKey(const string &key, Edge *parsed_key);
+  static Status ParseKey(const string &key, EdgeDef *parsed_key);
 
   // Consumer's callback to deal with the received argument.
   typedef std::function<void(Argument *arg)> ReadyCallback;
@@ -44,7 +47,7 @@ public:
   class ArgItem {
   public:
     void SetReady(Argument *arg) {
-      // CHECK(arg != nullptr);
+      DLOG(INFO) << "set ready";
       arg_ = arg;
       is_ready_ = true;
       for (auto &callback : ready_callbacks_) {
@@ -76,3 +79,4 @@ private:
   std::unordered_map<string, ArgItem> args_;
 };
 }
+#endif

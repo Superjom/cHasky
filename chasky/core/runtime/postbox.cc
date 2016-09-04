@@ -17,22 +17,29 @@ string PostBox::CreateArgKey(const string &node_name, const string &arg_name) {
   return key;
 }
 
-Status PostBox::ParseKey(const string &key, Edge *parsed_key) {
+  Status PostBox::ParseKey(const string &key, EdgeDef *parsed_key) {
   return EdgeLib::ParseKey(key, parsed_key);
 }
 
 Status PostBox::Register(const string &key) {
-  Send(key, nullptr);
+  auto it = args_.find(key);
+  CHECK(it == args_.end());
+  args_[key] = ArgItem();
   args_[key].SetUnready();
   return Status();
 }
 
 Status PostBox::Send(const string &key, Argument *arg) {
   Status status;
-  Edge parsed_key;
+  EdgeDef parsed_key;
+  LOG(INFO) << "to parse key:\t" << key;
   CH_CHECK_OK(PostBox::ParseKey(key, &parsed_key));
 
-  string arg_key = CreateArgKey(parsed_key.trg_node, parsed_key.trg_arg);
+  LOG(INFO) << "to create arg key";
+
+  string arg_key = CreateArgKey(parsed_key.trg_node(), parsed_key.trg_arg());
+
+  LOG(INFO) << "arg_key:\t" << arg_key;
 
   auto it = args_.find(arg_key);
   CH_STEST_RETURN2(it != args_.end(), error::OUT_OF_RANGE,
