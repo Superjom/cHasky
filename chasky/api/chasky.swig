@@ -2,11 +2,11 @@
 
 %include "std_string.i"
 %{
-#include "chasky/api/chasky_api.h"
+#include "chasky/api/session.h"
 %}
 
 %ignore SessionPrivate;
 
-%include "chasky_api.h"
+%include "session.h"
 
 %rename(get_version) GetVersion;

@@ -1,15 +1,15 @@
 #include "chasky/common/macros.h"
+#include "chasky/core/framework/graph.h"
 #include "chasky/core/runtime/session.h"
+#include "chasky/core/framework/function.h"
 
 namespace chasky {
 
 Session::Session(const std::string &name) : name_(name) {}
 
-Status Session::CreateGraph(const GraphDef &def) {
+Status Session::CreateGraph(GraphDef &def) {
   Status status;
-
-  graph_builder_.reset(new GraphBuilder(def));
-  CH_CHECK_OK(graph_builder_->Build());
+  graph_ = Graph::Create(def, postbox_.get());
   return status;
 }
 
@@ -33,5 +33,10 @@ Status Session::DestroyGraph() {
 
   return status;
 }
+
+std::string FunctionLibDebugString() {
+  return FunctionLibrary::Instance().DebugString();
+}
+
 
 } // namespace chasky
