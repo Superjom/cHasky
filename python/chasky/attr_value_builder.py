@@ -23,6 +23,7 @@ class AttrValueBuilder(object):
             self.ListVal(x)
         else:
             raise UnImplementedError("unsupported type with value %s" % repr(x))
+        return self
 
     def StringVal(self, x):
         self.attr_value_.string_val = x

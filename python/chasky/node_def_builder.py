@@ -1,8 +1,7 @@
 import sys
-sys.path.append('../../build/protos/')
 #from graph_def_builder import GraphDefBuilder
-from chasky.core.framework.attr_value_pb2 import AttrValue
-from chasky.core.framework.graph_pb2 import NodeDef
+from core.framework.attr_value_pb2 import AttrValue
+from core.framework.graph_pb2 import NodeDef
 from attr_value_builder import AttrValueBuilder
 
 class NodeDefBuilder(object):
@@ -31,7 +30,10 @@ class NodeDefBuilder(object):
         return self
 
     def Func(self, x):
-        self.node_def_.func = x
+        '''
+        '''
+        # TODO change signature to function
+        self.node_def_.signature = x
         return self
 
     def Attr(self, key, value, is_dtype=False):

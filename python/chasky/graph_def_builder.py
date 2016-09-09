@@ -1,8 +1,10 @@
 import sys
-sys.path.append('../../build/protos/')
+sys.path.append('../')
 from chasky.core.framework.graph_pb2 import GraphDef
 from node_def_builder import NodeDefBuilder
 from attr_value_builder import AttrValueBuilder
+from edge_def_builder import EdgeDefBuilder
+
 
 class GraphDefBuilder(object):
     # record current graph
@@ -28,7 +30,11 @@ class GraphDefBuilder(object):
         @x: NodeDef
         '''
         x = self.def_.nodes.add()
-        return NodeDefBuilder(x) 
+        return NodeDefBuilder(x)
+
+    def Edge(self):
+        x = self.def_.edges.add()
+        return EdgeDefBuilder(x)
 
     def Finalize(self):
         return self.def_
