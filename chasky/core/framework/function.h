@@ -18,6 +18,8 @@ namespace chasky {
 // is like ANN's backward
 class FunctionInterface {
 public:
+  typedef ::google::protobuf::Map<::std::string, ::chasky::AttrValue>
+      extra_attr_t;
   // A Node will determine which function to use. And a function will init
   // itself according to function's definition(attributes).
   virtual Status InitFromProto(const FunctionDef &def) = 0;
@@ -39,7 +41,7 @@ public:
   // @previous_grad is previous functions gradient.
   // previous_grad += f'(x) * grad
   virtual Status
-  BackwardCompute(const std::vector<const Argument *>& x, const Argument &grad,
+  BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
                   const std::vector<Argument *> *previous_grad) = 0;
 };
 
@@ -73,10 +75,7 @@ public:
   // @attrs: node's attrs
   // The func's attributes is registered in `attrs`, this api should read
   // definition's field names and try to get value from `attrs`.
-  virtual Status
-  FromDef(const FunctionDef &def,
-          const ::google::protobuf::Map<::std::string, ::chasky::AttrValue>
-              &attrs) = 0;
+  virtual Status FromDef(const FunctionDef &def, const extra_attr_t &attrs) = 0;
 
   StringPiece Name() const { return name_; }
 
