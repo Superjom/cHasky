@@ -27,6 +27,7 @@ public:
 
   // Register an empty argument item.
   Status Register(const string &key);
+  Status Register(const string &key, Argument *ptr = nullptr);
 
   // Key should be created by CreateKey
   Status Send(const string &key, Argument *arg);

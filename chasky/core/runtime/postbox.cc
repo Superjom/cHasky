@@ -22,9 +22,13 @@ string PostBox::CreateArgKey(const string &node_name, const string &arg_name) {
 }
 
 Status PostBox::Register(const string &key) {
+Status PostBox::Register(const string &key, Argument *ptr) {
+  DLOG(INFO) << "register Argument [" << key << "] to postbox";
+  DLOG(INFO) << "args.size() " << args_.size();
   auto it = args_.find(key);
-  CHECK(it == args_.end());
+  CHECK(it == args_.end()) << "duplicate register key " << key;
   args_[key] = ArgItem();
+  args_[key].mutable_arg() = ptr;
   args_[key].SetUnready();
   return Status();
 }
