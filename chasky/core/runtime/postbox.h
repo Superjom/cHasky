@@ -69,6 +69,8 @@ public:
 
     Argument *Arg() { return arg_; }
 
+    Argument *&mutable_arg() { return arg_; }
+
   private:
     Argument *arg_;
     bool is_ready_ = false;
