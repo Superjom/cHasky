@@ -26,7 +26,6 @@ public:
   static string CreateArgKey(const string &node_name, const string &arg_name);
 
   // Register an empty argument item.
-  Status Register(const string &key);
   Status Register(const string &key, Argument *ptr = nullptr);
 
   // Key should be created by CreateKey
