@@ -73,4 +73,15 @@ Status PostBox::Abort() {
   return status;
 }
 
+std::string PostBox::DebugString() const {
+  std::stringstream ss;
+  ss << "\n===========================" << std::endl;
+  ss << "postbox " << args_.size() << " keys:" << std::endl;
+  for (auto &item : args_) {
+    ss << item.first << std::endl;
+  }
+  ss << "\n===========================" << std::endl;
+  return ss.str();
+}
+
 } // namespace chasky

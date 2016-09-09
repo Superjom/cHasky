@@ -44,6 +44,7 @@ public:
   // Abort all parameter's transfer.
   Status Abort();
 
+  std::string DebugString() const;
   class ArgItem {
   public:
     void SetReady(Argument *arg) {
