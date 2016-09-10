@@ -4,21 +4,29 @@
 #include "chasky/core/runtime/edge_lib.h"
 namespace chasky {
 
-string PostBox::CreateKey(const string &source_node, const string &source_arg,
-                          const string &target_node, const string &trg_arg) {
-  string key =
-      strings::Printf("%s:%s->%s:%s", source_node.c_str(), source_arg.c_str(),
-                      target_node.c_str(), trg_arg.c_str());
-  return key;
-}
+// string PostBox::CreateKey(const string &source_node, const string
+// &source_arg,
+//                           const string &target_node, const string &trg_arg) {
+//   string key =
+//       strings::Printf("%s:%s->%s:%s", source_node.c_str(),
+//       source_arg.c_str(),
+//                       target_node.c_str(), trg_arg.c_str());
+//   return key;
+// }
 
 string PostBox::CreateArgKey(const string &node_name, const string &arg_name) {
   string key = strings::Printf("%s:%s", node_name.c_str(), arg_name.c_str());
   return key;
 }
 
-  Status PostBox::ParseKey(const string &key, EdgeDef *parsed_key) {
-  return EdgeLib::ParseKey(key, parsed_key);
+Status PostBox::ParseKey(const string &key, string *node, string *arg) {
+  std::regex re("([0-9a-z_-]+):([0-9a-z_-]+)");
+  std::smatch match;
+  CHECK(std::regex_search(key.begin(), key.end(), match, re)) << key;
+  CHECK_EQ(match.size(), 3);
+  *node = match[1];
+  *arg = match[2];
+  return Status();
 }
 
 Status PostBox::Register(const string &key) {
@@ -35,13 +43,12 @@ Status PostBox::Register(const string &key, Argument *ptr) {
 
 Status PostBox::Send(const string &key, Argument *arg) {
   Status status;
-  EdgeDef parsed_key;
+  // EdgeDef parsed_key;
   LOG(INFO) << "to parse key:\t" << key;
-  CH_CHECK_OK(PostBox::ParseKey(key, &parsed_key));
+  string node_name, arg_name;
+  CH_CHECK_OK(PostBox::ParseKey(key, &node_name, &arg_name));
 
-  LOG(INFO) << "to create arg key";
-
-  string arg_key = CreateArgKey(parsed_key.trg_node(), parsed_key.trg_arg());
+  string arg_key = CreateArgKey(node_name, arg_name);
 
   LOG(INFO) << "arg_key:\t" << arg_key;
 

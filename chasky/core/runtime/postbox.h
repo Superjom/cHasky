@@ -18,8 +18,9 @@ using std::string;
 class PostBox {
 public:
   // Create an key(signature) for this send behavior.
-  static string CreateKey(const string &source_node, const string &source_arg,
-                          const string &target_node, const string &arg_name);
+  // static string CreateKey(const string &source_node, const string
+  // &source_arg,
+  //                         const string &target_node, const string &arg_name);
 
   // Create an key(signature) for an argument item.
   // Format like: {node_name}:{arg_name}
@@ -28,10 +29,10 @@ public:
   // Register an empty argument item.
   Status Register(const string &key, Argument *ptr = nullptr);
 
-  // Key should be created by CreateKey
+  // Key should be created by CreateArgKey
   Status Send(const string &key, Argument *arg);
 
-  static Status ParseKey(const string &key, EdgeDef *parsed_key);
+  static Status ParseKey(const string &key, string *node, string *arg);
 
   // Consumer's callback to deal with the received argument.
   typedef std::function<void(Argument *arg)> ReadyCallback;
