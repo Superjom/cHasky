@@ -46,8 +46,16 @@ public:
   Status Abort();
 
   std::string DebugString() const;
+
   class ArgItem {
   public:
+    ArgItem() {}
+
+    void SetLock(std::mutex *lock) {
+      CHECK(lock);
+      lock_ = lock;
+    }
+
     void SetReady(Argument *arg) {
       DLOG(INFO) << "set ready";
       arg_ = arg;
@@ -63,6 +71,7 @@ public:
     }
 
     void Consume(ReadyCallback &&callback) {
+      std::lock_guard<std::mutex> lock(*lock_);
       ready_callbacks_.push_back(callback);
     }
 
@@ -74,6 +83,7 @@ public:
 
   private:
     Argument *arg_;
+    std::mutex *lock_;
     bool is_ready_ = false;
     std::vector<ReadyCallback> ready_callbacks_;
   };
@@ -81,6 +91,7 @@ public:
 private:
   // key: argument's key like: {source_node_name}:{argument_name}
   std::unordered_map<string, ArgItem> args_;
+  std::mutex arg_item_lock_;
 };
 }
 #endif

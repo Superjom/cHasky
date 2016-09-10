@@ -36,6 +36,7 @@ Status PostBox::Register(const string &key, Argument *ptr) {
   auto it = args_.find(key);
   CHECK(it == args_.end()) << "duplicate register key " << key;
   args_[key] = ArgItem();
+  args_[key].SetLock(&arg_item_lock_);
   args_[key].mutable_arg() = ptr;
   args_[key].SetUnready();
   return Status();
