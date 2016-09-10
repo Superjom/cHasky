@@ -1,0 +1,9 @@
+syntax = "proto3";
+package chasky;
+
+import "chasky/core/framework/argument.proto";
+
+message DataProviderDef {
+  string name = 1;
+  repeated ArgumentDef outputs = 2;
+}
