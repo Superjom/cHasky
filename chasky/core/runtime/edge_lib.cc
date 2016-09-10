@@ -20,14 +20,15 @@ string EdgeLib::CreateKey(const EdgeDef &edge) {
 Status EdgeLib::ParseKey(const string &key, EdgeDef *edge) {
   Status status;
 
-  std::regex re("(\\w+):(\\w+)->(\\w+):(\\w+)");
+  std::regex re("([0-9a-z_-]+):([0-9a-z_-]+)->([0-9a-z_-]+):([0-9a-z_-]+)");
   std::smatch match;
-  CHECK(std::regex_search(key.begin(), key.end(), match, re));
+  CHECK(std::regex_search(key.begin(), key.end(), match, re)) << key;
   CHECK_EQ(match.size(), 5);
   edge->set_src_node(match[1]);
   edge->set_src_arg(match[2]);
   edge->set_trg_node(match[3]);
   edge->set_trg_arg(match[4]);
+  edge->set_signature_(key);
 
   return status;
 }
