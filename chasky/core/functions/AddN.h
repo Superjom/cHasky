@@ -17,10 +17,8 @@ namespace functions {
 // the function according to the corresponding function_def.
 template <typename T> class AddN : public Function {
 public:
-  virtual Status
-  FromDef(const FunctionDef &func_def,
-          const ::google::protobuf::Map<::std::string, ::chasky::AttrValue>
-              &attrs) override;
+  virtual Status FromDef(const FunctionDef &func_def,
+                         const Function::extra_attr_t &attrs) override;
 
   // Init following attributes from attributes of functioin's definition.
   //     dim_
@@ -38,9 +36,9 @@ public:
   //   current node's grad
   // @previous_grad: list
   //   each element is a previous node's grad
-  virtual Status BackwardCompute(const std::vector<const Argument *> x,
-                                 const Argument *grad,
-                                 const Argument *previous_grad) override;
+  Status BackwardCompute(const std::vector<const Argument *> &x,
+                         const Argument &grad,
+                         const std::vector<Argument *> *previous_grad) override;
 
   // TODO remove this api?
   virtual void CheckContext() override;

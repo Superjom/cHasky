@@ -28,13 +28,13 @@ public:
     return *this;
   }
 
-  NodeDefBuilder &Input(const std::string &x) {
-    *def_.add_input() = x;
-    return *this;
-  }
+  // NodeDefBuilder &Input(const std::string &x) {
+  //   *def_.add_input() = x;
+  //   return *this;
+  // }
 
   NodeDefBuilder &Attr(const std::string &name, const AttrValue &x) {
-    def_.mutable_attr()->at(name) = x;
+    (*def_.mutable_attr())[name] = x;
     return *this;
   }
 

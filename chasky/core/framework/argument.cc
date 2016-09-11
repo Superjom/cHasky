@@ -5,35 +5,94 @@
 using namespace std;
 
 namespace chasky {
-void ArgumentField::CopyFrom(const ArgumentField &other, bool is_ref) {
-  if (is_ref) {
-    uint64_val = other.uint64_val;
-    int64_val = other.int64_val;
-    float_mat_val = other.float_mat_val;
-  } else { // copy mode
-    UN_IMPLEMENTED
-  }
-}
-
-void ArgumentField::RealCopyFrom(const ArgumentField &other) {
-  // float_vec_val =
-  // std::make_shared<math::CpuFloatVector>(*other.float_vec_val);
-}
-
-bool ArgumentField::IsEmpty() const {
-  return float_val == nullptr && uint64_val == nullptr &&
-         float_mat_val == nullptr && float_mat_vals == nullptr &&
-         int64_vals == nullptr && uint64_vals == nullptr &&
-         float_vals == nullptr;
-}
-
 Argument::Argument(const Argument &other) : valid_(false) { Assign(other); }
 
-Status Argument::FromProto(const string &buffer) {
-  LOG(FATAL) << "NotImplemented";
+Status Argument::FromBuffer(const string &buffer) {
+  Status status;
+  CHECK(!ArgField()->IsEmpty());
+  CHECK(!buffer.empty());
+
+  return status;
 }
 
-void Argument::ToProto(string *buffer) const { LOG(FATAL) << "NotImplemented"; }
+Status Argument::SetList(std::vector<ArgumentPtr> &list) {
+  Status status;
+  // check all the input arguments have the same dtype
+  CHECK(!list.empty());
+  auto input_dtype = arg_def_->dtype();
+
+  for (auto &arg : list) {
+    CH_STEST_RETURN2(arg->ArgDef()->dtype() == input_dtype,
+                     error::INVALID_ARGUMENT,
+                     "All the input arguments should have the same dtype");
+    CH_CHECK_OK(AppendList(input_dtype, *arg));
+  }
+  return status;
+}
+
+// void Argument::DataToString(string *buffer) const {
+//   switch (arg_def_->dtype()) {
+//   case DataType::CH_MAT_FLOAT: {
+//     math::CpuFloatMatrix *mat;
+//     ArgField()->get(&mat);
+//     mat->ToBuffer(*buffer);
+//   } break;
+//   default:
+//     UN_IMPLEMENTED
+//   }
+// }
+
+Status Argument::Serialize(ArgumentDef *buffer) const {
+  Status status;
+
+  std::string buf;
+  switch (arg_def_->dtype()) {
+  case DataType::CH_MAT_FLOAT: {
+    math::CpuFloatMatrix *mat;
+    ArgField()->get(&mat);
+    mat->ToBuffer(buf);
+  } break;
+  default:
+    UN_IMPLEMENTED
+  }
+
+  *buffer = *arg_def_;
+  buffer->set_content(buf);
+  return status;
+}
+
+Status Argument::DeSerialize(const ArgumentDef &buffer) {
+  Status status;
+
+  *arg_def_ = buffer;
+  // leave content field empty to save memory
+  arg_def_->clear_content();
+
+  switch (arg_def_->dtype()) {
+  case DataType::CH_MAT_FLOAT: {
+    math::CpuFloatMatrix *mat;
+    ArgField()->get(&mat);
+    mat->FromBuffer(buffer.content());
+  } break;
+  default:
+    UN_IMPLEMENTED
+  }
+
+  return status;
+}
+
+Status Argument::AppendList(DataType dtype, Argument &arg) {
+  Status status;
+  if (dtype == CH_MAT_FLOAT_LIST) {
+    CH_STEST_RETURN2(arg_field_->float_mat_vals, error::NOT_INITED,
+                     "float_mat_vals is not inited");
+    CH_STEST_RETURN2(
+        arg_field_->float_vals, error::INVALID_ARGUMENT,
+        "arg's float matrix field is empty, should be inited first");
+    arg_field_->float_mat_vals->push_back(arg.ArgField()->float_mat_val);
+  }
+  return status;
+}
 
 const string &Argument::Name() const { return arg_def_->name(); }
 
@@ -65,6 +124,7 @@ DataType String2Dtype(StringPiece type) {
 // ref or copy ? should ref create an empty matrix?
 Status Argument::FromDef(const ArgumentDef *def) {
   Status status;
+  CHECK(def);
   DLOG(INFO) << "create Argument from def:\n" << def->DebugString();
   CH_STEST_RETURN2(def != nullptr, error::INVALID_ARGUMENT, "def is nullptr");
   CH_STEST_RETURN2(
@@ -118,4 +178,39 @@ Status Argument::FromDef(const ArgumentDef *def) {
   return status;
 }
 
+inline void Argument::Assign(const Argument &other) {
+  CHECK(arg_def_) << "arg_def_ should be inited before assign";
+  CHECK(other.arg_field_) << "can not copy from null arg";
+  DLOG(INFO) << "argument copy assign in ref mode? " << IsRef();
+  arg_def_ = const_cast<ArgumentDef *>(other.ArgDef());
+
+  if (IsRef()) {
+    arg_field_ = other.ArgField();
+  } else {
+    arg_field_ = std::make_shared<ArgumentField>();
+    if (arg_def_->is_ref()) {
+      arg_field_->CloneFrom(*other.ArgField());
+    } else {
+      DLOG(INFO) << "copy argument field";
+      CHECK(!other.ArgField()->IsEmpty());
+      arg_field_->CopyFrom(*other.ArgField());
+    }
+  }
+}
+
+bool Argument::IsList(chasky::DataType dtype) {
+  return dtype == CH_MAT_FLOAT_LIST;
+}
+
+std::string Argument::Description() const {
+  std::stringstream ss;
+  ss << std::endl;
+  ss << "Argument [" << arg_def_->name() << " ]" << std::endl;
+  ss << "    type: " << arg_def_->type() << " " << arg_def_->dtype()
+     << std::endl;
+  ss << "    shape: " << arg_def_->shape().width() << " "
+     << arg_def_->shape().height() << std::endl;
+  ss << std::endl;
+  return ss.str();
+}
 }

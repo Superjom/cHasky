@@ -133,5 +133,21 @@ TEST_F(CpuFloatMatrixTest, Serialize_DeSerialize) {
   }
 }
 
+TEST_F(CpuFloatMatrixTest, FromBuffer) {
+  auto shape = std::make_pair(20, 40);
+  CpuFloatMatrix mat(shape, true);
+  std::string buffer;
+  mat.ToBuffer(buffer);
+
+  CpuFloatMatrix mat1(shape, true);
+  mat1.FromBuffer(buffer);
+
+  for (size_t i = 0; i < 20; i++) {
+    for (size_t j = 0; j < 40; j++) {
+      EXPECT_EQ(mat1.Get(i, j), mat.Get(i, j));
+    }
+  }
+}
+
 } // namespace test
 } // namespace chasky

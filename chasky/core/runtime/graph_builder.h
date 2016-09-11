@@ -31,10 +31,9 @@ protected:
 
 private:
   GraphDef graph_def_;
-  std::unique_ptr<Graph> graph_;
+  graph_ptr_t graph_;
   // NOTE All the nodes should be alive until graph is destroyed
-  std::unordered_map<std::string, std::unique_ptr<Node> > nodes_;
+  std::unordered_map<std::string, std::unique_ptr<Node>> nodes_;
 };
-
 }
 #endif

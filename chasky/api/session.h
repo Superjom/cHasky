@@ -1,40 +1,50 @@
 #ifndef CHASKY_API_SESSION_H_
 #define CHASKY_API_SESSION_H_
+#include <string>
+#include <vector>
 #include <memory>
 #include <unordered_map>
-#include "chasky/core/framework/graph.pb.h"
-#include "chasky/core/framework/graph.h"
-#include "chasky/core/runtime/graph_builder.h"
+
+#include "chasky/core/framework/argument.pb.h"
+
 // Session implemention for python client
-namespace chasky {
 
-std::string GetVersion();
+#define VERSION "0.0.1"
 
+using namespace std;
+
+string GetVersion();
+
+struct SessionPrivate;
 // Session is an interface for python client to control computation graph's
 // exectuation. Including creating, destroying graph, start computation and
 // kill the session.
 // It hold all the resources for the graph, and manage their lifetime.
 class Session {
 public:
-  Session();
+  Session(){};
 
-  Session(const std::string &name);
+  // Session(const std::string &name);
 
-  Status CreateGraph(const GraphDef &def);
+  bool CreateGraph(const std::string &str_buf);
 
-  Status StartExec();
+  bool StartExec();
 
-  Status KillExec();
+  bool Compute(std::vector<std::string> &inputs);
+
+  bool KillExec();
   // @name: graph's name
-  Status DestroyGraph();
+  bool DestroyGraph();
 
 private:
   std::string name_;
-  //std::unique_ptr<Graph> graph_;
-  std::unique_ptr<GraphBuilder> graph_builder_;
+  // std::unique_ptr<Graph> graph_;
+  SessionPrivate *session_;
+  // std::unique_ptr<Graph> graph_;
 };
+
+std::string FunctionLibDebugString();
 
 // Return 0 for success, -1 for fail
 // int CreateGraph(GraphDef *def);
-// }
 #endif

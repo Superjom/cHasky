@@ -30,37 +30,32 @@ Status GraphBuilder::CreateNodes() {
 // NOTE Should be called after CreateNodes
 Status GraphBuilder::ConnectNodes() {
   CHECK(!nodes_.empty()) << "should create nodes first.";
-  const size_t BUF_SIZE = 100;
-  char node1_name[BUF_SIZE];
-  char node2_name[BUF_SIZE];
-  char arg_name[BUF_SIZE];
-  auto status = Status();
+  Status status;
 
-  for (const auto &node_def : graph_def_.nodes()) {
-    std::string cur_node_name = node_def.name();
-    for (const std::string &input : node_def.input()) {
-      std::sscanf(input.c_str(), "%s:%s", node1_name, arg_name);
-      snprintf(node2_name, cur_node_name.size(), "%s", cur_node_name.c_str());
-      auto node1 = graph_->Nodes().find(node1_name);
-      auto node2 = graph_->Nodes().find(node_def.name());
-#define TEST_NODE_EXISTS(NODE)                                                 \
+  for (auto &e : *graph_def_.mutable_edges()) {
+    auto src_node = graph_->Nodes().find(e.src_node());
+    auto trg_node = graph_->Nodes().find(e.trg_node());
+
+#define TEST_NODE_EXISTS(NODE, NODE_NAME)                                      \
   if (NODE == graph_->Nodes().end()) {                                         \
-    status.Update(Status(                                                      \
-        error::OUT_OF_RANGE,                                                   \
-        strings::Printf("node %s is not created, but called.", NODE##_name))); \
+    status.Update(                                                             \
+        Status(error::OUT_OF_RANGE,                                            \
+               strings::Printf("node [%s] is not created, but called.",        \
+                               NODE_NAME.c_str())));                           \
   }
-      TEST_NODE_EXISTS(node1);
-      TEST_NODE_EXISTS(node2);
-
+    TEST_NODE_EXISTS(src_node, e.src_node());
+    TEST_NODE_EXISTS(trg_node, e.trg_node());
 #undef TEST_NODE_EXISTS
 
-      // TODO CHECK node exists
-      auto edge = std::unique_ptr<Edge>(
-          new Edge(node1->second.get(), node2->second.get(), arg_name));
-      // TODO change tostring to StringPiece, implement hash function
-      graph_->mutable_edges()->insert(std::make_pair(edge->Signature().tostring(), std::move(edge)));
-    }
+    auto edge = std::make_shared<Edge>(src_node->second.get(), e.src_arg(),
+                                       trg_node->second.get(), e.trg_arg());
+    *e.mutable_signature_() = edge->Signature().tostring();
+    graph_->RegisterEdge(edge->Signature(), edge);
+    // graph_->mutable_edges()->insert(
+    //     std::make_pair(edge->Signature().tostring(), std::move(edge)));
   }
+
   return status;
 }
-}
+
+} // namespace chasky

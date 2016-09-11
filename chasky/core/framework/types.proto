@@ -11,6 +11,9 @@ enum DataType {
   CH_UINT64 = 3;
   CH_STRING = 4;
 
+  // a placeholder for functions that works for any datatype.
+  CH_COMMON = 8;
+
   // All matrixs
   CH_MAT_FLOAT = 11;
 

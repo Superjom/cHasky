@@ -44,10 +44,12 @@ Status FunctionLibrary::LookUp(const string &name,
 
 string FunctionLibrary::DebugString() const {
   string res;
-  strings::Appendf(&res, "FunctionLibrary with %lu creators\n", Size());
+  strings::Appendf(&res, "\n=================================\n");
+  strings::Appendf(&res, "FunctionLibrary with %lu creators:\n\n", Size());
   for (auto item : op_library_) {
     strings::Appendf(&res, "key: [%s]", item.first.c_str());
   }
+  strings::Appendf(&res, "\n=================================\n");
   return res;
 }
 

@@ -1,52 +1,51 @@
 #ifndef CHASKY_CORE_FRAMEWORK_GRAPH_H_
 #define CHASKY_CORE_FRAMEWORK_GRAPH_H_
 #include <unordered_map>
+
 #include "chasky/core/framework/node.h"
 #include "chasky/core/framework/graph.pb.h"
+#include "chasky/core/runtime/edge_lib.h"
+#include "chasky/core/runtime/node_lib.h"
+#include "chasky/core/runtime/parameter_lib.h"
+#include "chasky/core/framework/data_provider.h"
+
 namespace chasky {
+using std::string;
 
 class Graph {
 public:
-  typedef std::unordered_map<std::string, std::unique_ptr<Node>> nodes_t;
-  typedef std::unordered_map<std::string, std::unique_ptr<Edge>> edges_t;
-  typedef std::unordered_map<std::string, std::shared_ptr<Argument>> args_t;
-
-  static std::unique_ptr<Graph> Create();
-
-  // Get a parameter by name
-  std::shared_ptr<Argument> Param(const std::string &name);
-
-  // Register a parameter by name and definiton.
-  // NOTE not thread-safe.
-  Status RegisterParameter(const std::string &name, const ArgumentDef &def) {
-    Status status;
-    auto it = params_.find(name);
-    if (it != params_.end()) {
-      status.Update(error::INVALID_ARGUMENT,
-                    strings::Printf("duplicate register parameter called %s",
-                                    name.c_str()));
-    } else if (!params_.insert({name, std::make_shared<Argument>(&def)})
-                    .second) {
-      status.Update(error::UNKNOWN,
-                    strings::Printf("parameter %s insert error", name.c_str()));
-    }
-    return status;
+  static std::shared_ptr<Graph> Create(GraphDef &def, PostBox *postbox) {
+    return std::unique_ptr<Graph>(new Graph(def, postbox));
   }
 
-  // getters
-  const nodes_t &Nodes() const { return nodes_; }
-  nodes_t *mutable_nodes() { return &nodes_; }
-  const edges_t &Edges() const { return edges_; }
-  edges_t *mutable_edges() { return &edges_; }
+  Status StartExec();
+
+  Status Compute(std::vector<ArgumentDef> &inputs);
+
+  string DebugString() const;
+
+  void ServiceThreadJoin();
+
+  ~Graph();
+
+protected:
+  Graph(GraphDef &def, PostBox *postbox);
+
+  Status CreateNodes();
+
+  Status ConnectNodes();
 
 private:
-  std::unordered_map<std::string, std::unique_ptr<Node>> nodes_;
-  std::unordered_map<std::string, std::unique_ptr<Edge>> edges_;
-  // Model parameters, shared by all nodes in a graph.
-  // Key are "%s:%s" % (node.name, param.name)
-  // The parameters are registered by Nodes.
-  std::unordered_map<std::string, std::shared_ptr<Argument>> params_;
+  EdgeLib edge_lib_;
+  NodeLib node_lib_;
+  ParameterLib param_lib_;
+  GraphDef def_;
+  PostBox *postbox_;
+  std::unique_ptr<DataProvider> data_provider_;
+
+  std::unique_ptr<std::thread> service_thread_;
 };
 
 } // namespace chasky
+
 #endif

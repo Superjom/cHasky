@@ -12,63 +12,12 @@
 #include "chasky/core/common/eigen_matrix.h"
 #include "chasky/core/framework/kernel.h"
 #include "chasky/core/framework/argument.pb.h"
+#include "chasky/core/framework/argument_field.h"
 namespace chasky {
 using std::string;
 
-#define TYPE_GETTER(NAME, TYPE)                                                \
-  std::shared_ptr<TYPE> NAME;                                                  \
-  bool get(TYPE **x) {                                                         \
-    *x = NAME.get();                                                           \
-    return *x != nullptr;                                                      \
-  }                                                                            \
-  bool is_valid(TYPE *x) const { return NAME.get() != nullptr; }               \
-  void reset(std::shared_ptr<TYPE> x) { NAME = x; }                            \
-  void create_##NAME() { NAME.reset(new TYPE); };
-// Special methods for matrix
-#define TYPE_GETTER_MATRIX(NAME, TYPE)                                         \
-  void create_##NAME(const ArgumentDef::Shape &shape) {                        \
-    reset(std::make_shared<TYPE>(                                              \
-        std::make_pair(shape.width(), shape.height())));                       \
-  }
-
-// Storage of all kinds of data types, each Argument will have an ArgumentField
-// to store its value.
-// ArgumentField only support local memory storage.
-struct ArgumentField {
-  ArgumentField() {}
-
-  // Copy pointer
-  void CopyFrom(const ArgumentField &other, bool is_ref);
-
-  // Copy memory
-  void RealCopyFrom(const ArgumentField &other);
-
-  bool IsEmpty() const;
-
-  // single argument
-  TYPE_GETTER(string_val, std::string);
-  TYPE_GETTER(int64_val, int64_t);
-  TYPE_GETTER(uint64_val, uint64_t);
-  TYPE_GETTER(float_val, float);
-  TYPE_GETTER(float_mat_val, math::CpuFloatMatrix);
-  TYPE_GETTER_MATRIX(float_mat_val, math::CpuFloatMatrix);
-  // diffent types of raw array
-  TYPE_GETTER(string_vals, std::vector<std::string>);
-  TYPE_GETTER(int64_vals, std::vector<int64_t>);
-  TYPE_GETTER(uint64_vals, std::vector<uint64_t>);
-  TYPE_GETTER(float_vals, std::vector<float>);
-  // Use shapred_ptr to pass in arguments from other functions's output.
-  TYPE_GETTER(float_mat_vals,
-              std::vector<std::shared_ptr<math::CpuFloatMatrix>>)
-  // To support variadic number of arguments.
-  // TYPE_GETTER(float_vec_list, std::vector<math::CpuFloatVector>);
-}; // struct Argument
-#undef TYPE_GETTER
-
-typedef std::shared_ptr<ArgumentField> ArgFldPtr;
-
-// #define ARGUMENT_TYPE_GETTER(NAME, TYPE)                                       \
-//   std::shared_ptr<TYPE> NAME##() { return arg_field_->##NAME; }
+class Argument;
+using ArgumentPtr = std::shared_ptr<Argument>;
 
 class Argument {
 public:
@@ -87,17 +36,39 @@ public:
 
   void Assign(const Argument &other);
 
+  void CloneFrom(Argument &other) {
+    arg_def_ = other.arg_def_;
+    arg_field_->CloneFrom(*other.arg_field_);
+    valid_ = other.valid_;
+    signature_ = other.signature_;
+  }
+
   bool operator==(const Argument &other);
 
   // Create ArgumentField from arg_def_
   Status FromDef(const ArgumentDef *def);
 
-  // Init from protobuf buffer.
-  Status FromProto(const std::string &buffer);
+  // Init from protobuf buffer, with serialized content.
+  Status FromBuffer(const std::string &buffer);
+
+  // Set list-field from a list of arguments.
+  // NOTE all the input arguments should be the same dtype.
+  Status SetList(std::vector<ArgumentPtr> &list);
 
   // Serialize the argument to protobuf string. Can be used to save model
   // parameters to file.
-  void ToProto(std::string *buffer) const;
+  // void DataToString(std::string *buffer) const;
+
+  // Serialize the argument to a ArgumentDef protobuf buffer.
+  Status Serialize(ArgumentDef *buffer) const;
+
+  // Set argument from a serialized protobuf buffer.
+  Status DeSerialize(const ArgumentDef &buffer);
+
+  // Append an Argument to this.list field.
+  // @dtype: list field's dtype
+  // @arg: the argument to push_back to the list field
+  Status AppendList(DataType dtype, Argument &arg);
 
   const string &Name() const;
 
@@ -110,6 +81,7 @@ public:
   //     float *x;
   //     arg.ArgField()->Get(&x);
   const ArgFldPtr ArgField() const { return arg_field_; }
+  ArgFldPtr ArgField() { return arg_field_; }
 
   // set to zero vector or matrix
   void SetZero();
@@ -128,11 +100,17 @@ public:
   void SetValid(bool x) { valid_ = x; }
   bool Valid() const { return valid_; }
 
+  void SetSignature(const std::string &x) { signature_ = x; }
+  const std::string &Signature() const { return signature_; }
+
   // Human-readable short debug string.
   std::string Description() const;
 
   // Human-readable long debug string.
   std::string DebugString() const;
+
+  // return true if dtype is a list.
+  static bool IsList(DataType dtype);
 
 protected:
   Argument &operator=(const Argument &other);
@@ -147,23 +125,10 @@ private:
   ArgFldPtr arg_field_;
 
   bool valid_;
+
+  // Format like "{node}:{arg_name}".
+  std::string signature_;
 };
-
-typedef std::shared_ptr<Argument> ArgumentPtr;
-
-inline void Argument::Assign(const Argument &other) {
-  CHECK(arg_def_) << "arg_def_ should be inited before assign";
-  CHECK(other.ArgField()) << "can not copy from null arg";
-  DLOG(INFO) << "argument copy assign in ref mode? " << IsRef();
-  arg_def_ = const_cast<ArgumentDef *>(other.ArgDef());
-
-  if (IsRef()) {
-    arg_field_ = other.ArgField();
-  } else {
-    arg_field_ = std::make_shared<ArgumentField>();
-    arg_field_->CopyFrom(*other.ArgField(), arg_def_->is_ref());
-  }
-}
 
 inline bool Argument::operator==(const Argument &other) {
   return ArgField() == other.ArgField();

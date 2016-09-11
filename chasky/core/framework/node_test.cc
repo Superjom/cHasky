@@ -5,6 +5,7 @@
 #include "chasky/core/framework/function.h"
 #include "chasky/core/framework/node.h"
 #include "chasky/core/framework/graph.h"
+#include "chasky/core/framework/edge_utils.h"
 #include "chasky/core/framework/argument_def_builder.h"
 #include "chasky/core/framework/attr_value_util.h"
 namespace chasky {
@@ -15,14 +16,15 @@ using std::string;
 TEST(Edge, GenEdgeKey) {
   string node1 = "src";
   string node2 = "trg";
-  string arg = "arg1";
+  string arg1 = "arg1";
+  string arg2 = "arg2";
 
-  string signature = "src:arg1->trg";
+  string signature = "src:arg1->trg:arg2";
 
-  ASSERT_EQ(GenEdgeKey(node1, node2, arg), signature);
+  ASSERT_EQ(GenEdgeKey(node1, arg1, node2, arg2), signature);
 
-  string input = strings::Printf("%s:%s", node1.c_str(), arg.c_str());
-  ASSERT_EQ(GenEdgeKey(input, node2), signature);
+  // string input = strings::Printf("%s:%s", node1.c_str(), arg.c_str());
+  // ASSERT_EQ(GenEdgeKey(input, node2), signature);
 }
 
 REGISTER_FUNC_DEF(

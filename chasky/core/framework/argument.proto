@@ -9,11 +9,13 @@ message ArgumentDef {
   Shape shape = 4;
   string doc = 5;
   // Serialized content for Argument/Parameter
-  repeated bytes content = 6;
+  bytes content = 6;
+  // Whether to randomize the argument's matrix.
+  bool to_random = 7;
   // Reference or not
   // If the argument is passed as refernece, then the value
   // can be changed by this layer.
-  bool is_ref = 7;
+  bool is_ref = 8;
   // Should inspect from type
   DataType dtype = 1;
 

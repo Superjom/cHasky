@@ -34,6 +34,8 @@ public:
 
   const char *data() const { return start_; }
 
+  const char *c_str() const { return data(); }
+
   size_t size() const { return len_; }
 
   StringPiece substr(size_t start, size_t len) const;

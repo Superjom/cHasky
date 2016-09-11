@@ -31,22 +31,22 @@ public:
   }
 
   virtual Status
-  FromDef(const FunctionDef &def,
+  FromDef(FunctionDef &def,
           const ::google::protobuf::Map<::std::string, ::chasky::AttrValue>
               &attrs) override {
     LOG(INFO) << "init function";
     return Status();
   }
 
-  virtual Status ForwardCompute(const std::vector<const Argument *> &args,
-                                const std::vector<Argument *> *activations,
-                                const FunctionDef &def) override {
+  virtual Status
+  ForwardCompute(const std::vector<const Argument *> &args,
+                 const std::vector<ArgumentPtr> *activations) override {
     return Status();
   }
 
-  virtual Status BackwardCompute(const std::vector<const Argument *> x,
-                                 const Argument *grad,
-                                 const Argument *previous_grad) override {
+  virtual Status
+  BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
+                  const std::vector<Argument *> *previous_grad) override {
     return Status();
   }
 };
