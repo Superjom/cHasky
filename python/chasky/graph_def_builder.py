@@ -24,6 +24,10 @@ class GraphDefBuilder(object):
         self.def_.name = x
         return self
 
+    def DataProvider(self, x):
+        self.def_.data_provider = x
+        return self
+
     def Node(self):
         '''
         Add a node to graph

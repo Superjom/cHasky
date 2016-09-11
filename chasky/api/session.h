@@ -1,14 +1,19 @@
 #ifndef CHASKY_API_SESSION_H_
 #define CHASKY_API_SESSION_H_
 #include <string>
+#include <vector>
 #include <memory>
 #include <unordered_map>
+
+#include "chasky/core/framework/argument.pb.h"
 
 // Session implemention for python client
 
 #define VERSION "0.0.1"
 
-std::string GetVersion();
+using namespace std;
+
+string GetVersion();
 
 struct SessionPrivate;
 // Session is an interface for python client to control computation graph's
@@ -17,13 +22,15 @@ struct SessionPrivate;
 // It hold all the resources for the graph, and manage their lifetime.
 class Session {
 public:
-  Session() {};
+  Session(){};
 
   // Session(const std::string &name);
 
   bool CreateGraph(const std::string &str_buf);
 
   bool StartExec();
+
+  bool Compute(std::vector<std::string> &inputs);
 
   bool KillExec();
   // @name: graph's name
@@ -32,7 +39,7 @@ public:
 private:
   std::string name_;
   // std::unique_ptr<Graph> graph_;
-  SessionPrivate* session_;
+  SessionPrivate *session_;
   // std::unique_ptr<Graph> graph_;
 };
 

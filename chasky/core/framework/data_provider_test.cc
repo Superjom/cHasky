@@ -21,7 +21,10 @@ public:
                              .Doc("data input x")
                              .Finalize();
 
-    def_ = DataProviderDefBuilder().Field(input_arg_def).Finalize();
+    def_ = DataProviderDefBuilder()
+               .Name("data_provider")
+               .Field(input_arg_def)
+               .Finalize();
 
     data_provider_ = DataProvider::Create(def_, &postbox_, &edge_lib_);
   }

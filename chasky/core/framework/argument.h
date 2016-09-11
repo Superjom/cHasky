@@ -48,8 +48,8 @@ public:
   // Create ArgumentField from arg_def_
   Status FromDef(const ArgumentDef *def);
 
-  // Init from protobuf buffer.
-  Status FromProto(const std::string &buffer);
+  // Init from protobuf buffer, with serialized content.
+  Status FromBuffer(const std::string &buffer);
 
   // Set list-field from a list of arguments.
   // NOTE all the input arguments should be the same dtype.
@@ -57,7 +57,13 @@ public:
 
   // Serialize the argument to protobuf string. Can be used to save model
   // parameters to file.
-  void ToProto(std::string *buffer) const;
+  // void DataToString(std::string *buffer) const;
+
+  // Serialize the argument to a ArgumentDef protobuf buffer.
+  Status Serialize(ArgumentDef *buffer) const;
+
+  // Set argument from a serialized protobuf buffer.
+  Status DeSerialize(const ArgumentDef &buffer);
 
   // Append an Argument to this.list field.
   // @dtype: list field's dtype
@@ -123,24 +129,6 @@ private:
   // Format like "{node}:{arg_name}".
   std::string signature_;
 };
-
-inline void Argument::Assign(const Argument &other) {
-  CHECK(arg_def_) << "arg_def_ should be inited before assign";
-  CHECK(other.ArgField()) << "can not copy from null arg";
-  DLOG(INFO) << "argument copy assign in ref mode? " << IsRef();
-  arg_def_ = const_cast<ArgumentDef *>(other.ArgDef());
-
-  if (IsRef()) {
-    arg_field_ = other.ArgField();
-  } else {
-    arg_field_ = std::make_shared<ArgumentField>();
-    if (arg_def_->is_ref()) {
-      arg_field_->CloneFrom(*other.ArgField());
-    } else {
-      arg_field_->CopyFrom(*other.ArgField());
-    }
-  }
-}
 
 inline bool Argument::operator==(const Argument &other) {
   return ArgField() == other.ArgField();

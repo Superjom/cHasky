@@ -2,11 +2,13 @@
 #define CHASKY_CORE_FRAMEWORK_NODE_H_
 #include <memory>
 #include <thread>
+
 #include "chasky/core/runtime/postbox.h"
 #include "chasky/core/framework/graph.pb.h"
 #include "chasky/core/framework/function.h"
 #include "chasky/core/framework/argument.h"
 #include "chasky/core/runtime/edge_lib.h"
+
 namespace chasky {
 
 class Node;
@@ -33,6 +35,17 @@ public:
 
   StringPiece Name() const { return def_.name(); }
 
+  // Start the running threads.
+  Status StartService();
+
+  ~Node();
+
+  void ServiceThreadJoin() {
+    if (service_thread_ && service_thread_->joinable()) {
+      service_thread_->join();
+    }
+  }
+
 protected:
   Status ForwardCompute();
 
@@ -42,6 +55,8 @@ protected:
   Status CollectInArgItems();
   // Gradient arguments.
   Status CollectOutArgItems();
+
+  Status CollectParameters();
 
   // Tell others that this function's activation is ready.
   Status ReleaseActivations();
@@ -55,7 +70,15 @@ protected:
   // Register forward activation and backward gradient into postbox.
   Status RegisterArguments();
 
+  // Register model parameters to global library.
+  Status RegisterParameters();
+
   Node(const NodeDef &def, PostBox *postbox, EdgeLib *edge_lib);
+
+  std::thread &ServiceThread() const {
+    CHECK(service_thread_.get()) << "service is not started";
+    return *service_thread_;
+  }
 
 private:
   NodeDef def_;
@@ -71,14 +94,18 @@ private:
   // argument cache for Function
   std::vector<const Argument *> inputs_;
   std::vector<Argument *> outputs_;
+  std::vector<ArgumentPtr> params_;
 
   std::vector<ArgumentPtr> out_args_;
 
   std::condition_variable in_args_ready_;
   std::condition_variable out_args_ready_;
+  std::mutex cond_lock_;
 
   PostBox *postbox_;
   EdgeLib *edge_lib_;
+
+  std::unique_ptr<std::thread> service_thread_;
 };
 
 } // namespace chasky

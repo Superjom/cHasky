@@ -50,8 +50,9 @@ Status GraphBuilder::ConnectNodes() {
     auto edge = std::make_shared<Edge>(src_node->second.get(), e.src_arg(),
                                        trg_node->second.get(), e.trg_arg());
     *e.mutable_signature_() = edge->Signature().tostring();
-    graph_->mutable_edges()->insert(
-        std::make_pair(edge->Signature().tostring(), std::move(edge)));
+    graph_->RegisterEdge(edge->Signature(), edge);
+    // graph_->mutable_edges()->insert(
+    //     std::make_pair(edge->Signature().tostring(), std::move(edge)));
   }
 
   return status;

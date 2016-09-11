@@ -13,6 +13,11 @@ public:
     return *this;
   }
 
+  GraphDefBuilder &SetDataProvider(DataProviderDef &x) {
+    *def_.mutable_data_provider() = x;
+    return *this;
+  }
+
   GraphDefBuilder &AddNode(const NodeDef &x) {
     *(def_.add_nodes()) = x;
     return *this;

@@ -19,7 +19,8 @@ protected:
   DataProvider(const DataProviderDef &def, PostBox *postbox, EdgeLib *edge_lib);
 
 private:
-  std::vector<Argument> outputs_;
+  DataProviderDef def_;
+  std::vector<ArgumentPtr> outputs_;
   PostBox *postbox_;
   EdgeLib *edge_lib_;
 };

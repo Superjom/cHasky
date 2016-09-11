@@ -38,15 +38,25 @@ string EdgeLib::CreateArgKey(const string &node, const string &arg) {
 }
 
 Status EdgeLib::Register(const string &key) {
+  DLOG(INFO) << "register edge to EdgeLib: " << key;
   Status status;
-  std::unique_ptr<EdgeDef> edge(new EdgeDef);
-  CH_CHECK_OK(ParseKey(key, edge.get()));
-  edges_[key] = std::move(edge);
+  std::unique_ptr<EdgeDef> _edge(new EdgeDef);
+  CH_CHECK_OK(ParseKey(key, _edge.get()));
+  DLOG(INFO) << strings::Printf("register edge [%s] to edges_", key.c_str());
+  edges_[key] = std::move(_edge);
+  DLOG(INFO) << strings::Printf("finish registering edge [%s] to edges_",
+                                key.c_str());
   // CH_STEST_RETURN2(edges_.insert({key, edge}).second, error::UNKNOWN,
   //                  "insert record failed");
   // register by source
+  auto &edge = edges_[key];
   string source_key = CreateArgKey(edge->src_node(), edge->src_arg());
   string target_key = CreateArgKey(edge->trg_node(), edge->trg_arg());
+
+  DLOG(INFO) << strings::Printf("register edge [%s] to src_edges_",
+                                source_key.c_str());
+  DLOG(INFO) << strings::Printf("register edge [%s] to trg_edges_",
+                                target_key.c_str());
 
 #define REGISTER_EDGE(EDGES, KEY, VAL)                                         \
   CH_STEST_RETURN2(EDGES.count(KEY) == 0, error::INVALID_ARGUMENT,             \

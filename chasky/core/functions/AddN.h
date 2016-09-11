@@ -17,10 +17,8 @@ namespace functions {
 // the function according to the corresponding function_def.
 template <typename T> class AddN : public Function {
 public:
-  virtual Status
-  FromDef(const FunctionDef &func_def,
-          const ::google::protobuf::Map<::std::string, ::chasky::AttrValue>
-              &attrs) override;
+  virtual Status FromDef(const FunctionDef &func_def,
+                         const Function::extra_attr_t &attrs) override;
 
   // Init following attributes from attributes of functioin's definition.
   //     dim_

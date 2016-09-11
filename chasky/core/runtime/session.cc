@@ -9,15 +9,18 @@ Session::Session(const std::string &name) : name_(name) {}
 
 Status Session::CreateGraph(GraphDef &def) {
   Status status;
-  graph_ = Graph::Create(def, postbox_.get());
+  graph_ = Graph::Create(def, &postbox_);
   return status;
 }
 
 Status Session::StartExec() {
   Status status;
-  UN_IMPLEMENTED;
-
+  CH_CHECK_OK(graph_->StartExec());
   return status;
+}
+
+Status Session::Compute(std::vector<ArgumentDef> &inputs) {
+  return graph_->Compute(inputs);
 }
 
 Status Session::KillExec() {
@@ -29,7 +32,6 @@ Status Session::KillExec() {
 
 Status Session::DestroyGraph() {
   Status status;
-  UN_IMPLEMENTED;
 
   return status;
 }
@@ -37,6 +39,5 @@ Status Session::DestroyGraph() {
 std::string FunctionLibDebugString() {
   return FunctionLibrary::Instance().DebugString();
 }
-
 
 } // namespace chasky

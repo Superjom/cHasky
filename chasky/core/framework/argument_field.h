@@ -58,6 +58,8 @@ struct ArgumentField {
   // Use shapred_ptr to pass in arguments from other functions's output.
   TYPE_GETTER(float_mat_vals,
               std::vector<std::shared_ptr<math::CpuFloatMatrix>>)
+
+  void FromBuffer(const std::string &buffer, DataType dtype);
   // To support variadic number of arguments.
   // TYPE_GETTER(float_vec_list, std::vector<math::CpuFloatVector>);
 }; // struct Argument

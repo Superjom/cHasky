@@ -32,8 +32,7 @@ public:
   // A real function will determine the type fields of arguments to use
   // according to function's definition.
   virtual Status ForwardCompute(const std::vector<const Argument *> &args,
-                                const std::vector<Argument *> *activations,
-                                const FunctionDef &def) = 0;
+                                const std::vector<ArgumentPtr> *activations) = 0;
 
   // @grad is this function's gradient. gradient * f'(x) will be the former
   // function's gradient
@@ -43,6 +42,11 @@ public:
   virtual Status
   BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
                   const std::vector<Argument *> *previous_grad) = 0;
+
+  virtual const FunctionDef &Def() { return def_; }
+
+private:
+  FunctionDef def_;
 };
 
 // Base class for all funcs
@@ -75,19 +79,21 @@ public:
   // @attrs: node's attrs
   // The func's attributes is registered in `attrs`, this api should read
   // definition's field names and try to get value from `attrs`.
-  virtual Status FromDef(const FunctionDef &def, const extra_attr_t &attrs) = 0;
+  virtual Status FromDef(FunctionDef &def, const extra_attr_t &attrs) = 0;
 
   StringPiece Name() const { return name_; }
 
-  const FunctionDef &Def() const { return def_; }
+  // const FunctionDef &Def() const { return *def_; }
 
   // const ExecContext &exec_context() { return *exec_context_; }
   // ExecContext *mutable_exec_context() { return exec_context_; }
 
+protected:
+  FunctionDef *def_;
+
 private:
   // ExecContext *exec_context_;
   StringPiece name_;
-  FunctionDef def_;
 };
 
 class FunctionLibrary {

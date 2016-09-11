@@ -23,31 +23,43 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_def_builder.cc
   #${CMAKE_SOURCE_DIR}/chasky/core/framework/exec_context.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/node.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/edge.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/edge_utils.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/edge_lib.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/node_lib.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/parameter_lib.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/postbox.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/data_provider.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/framework/node.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/framework/edge.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/framework/edge_utils.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/runtime/session.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/graph_builder.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/runtime/graph_builder.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/NullFunc.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/IdenticalFunc.cc
   )
 
 set (TEST_SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/common/strings_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/common/stat_test.cc
-  ${CMAKE_SOURCE_DIR}/chasky/test/test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/common/string_piece_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_matrix_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_vector_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/status_test.cc
-  ${CMAKE_SOURCE_DIR}/chasky/common/string_piece_test.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/test/test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_def_builder_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_test.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/node_test.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph_test.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_matrix_test.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN_test.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/framework/node_test.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/framework/graph_test.cc
+  # ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/framework/data_provider_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/postbox_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/runtime/session_test.cc
 )
 
 set (PROTOS_FILES
@@ -56,6 +68,7 @@ set (PROTOS_FILES
   ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/attr_value.pb.cc
   ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/types.pb.cc
   ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/graph.pb.cc
+  ${CMAKE_SOURCE_DIR}/build/protos/chasky/core/framework/data_provider.pb.cc
 )
 
 set (SWIG_FILES
@@ -79,18 +92,18 @@ target_link_libraries (chaskytest
   "${LOCAL_LIB}/libprotobuf.a"
   )
 
-add_library(_chasky SHARED ${SOURCE_FILES}
+add_library(_chasky_engine SHARED ${SOURCE_FILES}
   ${PROTOS_FILES}
   ${SWIG_FILES}
   )
 
-target_link_libraries (_chasky
+target_link_libraries (_chasky_engine
   "${LOCAL_LIB}/libgtest.a"
   "${LOCAL_LIB}/libgtest_main.a"
   "${LOCAL_LIB}/libglog.a"
   "${LOCAL_LIB}/libprotobuf.a"
   )
-set_target_properties(_chasky
+set_target_properties(_chasky_engine
         PROPERTIES PREFIX ""
                    SUFFIX ".so"
         )

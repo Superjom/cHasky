@@ -18,7 +18,7 @@ protected:
 
 TEST_F(PostBoxTest, init) {}
 
-TEST_F(PostBoxTest, Send) { postbox.Send("node2:arg1->node1:arg1", nullptr); }
+TEST_F(PostBoxTest, Send) { postbox.Send("node1:arg1", nullptr); }
 
 TEST_F(PostBoxTest, Consume) {
   bool flag = false;
@@ -30,10 +30,9 @@ TEST_F(PostBoxTest, Consume) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-  postbox.Send("node2:arg1->node1:arg1", nullptr);
+  postbox.Send("node1:arg1", nullptr);
 
   ASSERT_TRUE(flag);
 }
-
 }
 }

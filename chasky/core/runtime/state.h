@@ -27,6 +27,10 @@ public:
     return *x;
   }
 
+  void Kill() { UpdateStatus(Status{error::KILLED, "Killed"}); }
+
+  bool KeepRunning() const { return keep_running_; }
+
   // Update the status with an returned one. If the status is failure, kill the
   // task.
   void UpdateStatus(const Status &other) {

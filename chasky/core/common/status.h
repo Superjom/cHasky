@@ -13,7 +13,8 @@ enum Code {
   INVALID_ARGUMENT = 2,
   OUT_OF_RANGE = 3,
   NOT_INITED = 4,
-  UNIMPLEMENTED = 5
+  UNIMPLEMENTED = 5,
+  KILLED = 6
 };
 } // namespace error
 

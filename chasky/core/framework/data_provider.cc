@@ -17,7 +17,12 @@ Status DataProvider::Fill(const std::vector<ArgumentDef> &data) {
   CHECK_EQ(outputs_.size(), data.size());
 
   for (size_t i = 0; i < outputs_.size(); i++) {
-    outputs_[i].DeSerialize(data[i]);
+    CHECK(outputs_[i]);
+    outputs_[i]->DeSerialize(data[i]);
+    // release argument to postbox
+    auto key = PostBox::CreateArgKey(def_.name(), def_.outputs(i).name());
+    DLOG(INFO) << "register data to postbox " << outputs_[i]->Description();
+    CH_CHECK_OK(postbox_->Send(key, outputs_[i]));
   }
 
   return status;
@@ -25,14 +30,16 @@ Status DataProvider::Fill(const std::vector<ArgumentDef> &data) {
 
 DataProvider::DataProvider(const DataProviderDef &def, PostBox *postbox,
                            EdgeLib *edge_lib)
-    : postbox_(postbox), edge_lib_(edge_lib) {
+    : postbox_(postbox), edge_lib_(edge_lib), def_(def) {
+  CHECK(!def_.name().empty()) << "should set data provider's name";
   CHECK(outputs_.empty());
   CHECK(postbox_);
   CHECK(edge_lib_);
 
   for (const auto &arg_def : def.outputs()) {
-    outputs_.emplace_back(&arg_def);
-    CH_CHECK_OK(postbox_->Register(arg_def.name(), &outputs_.back()));
+    outputs_.emplace_back(std::make_shared<Argument>(&arg_def));
+    auto key = PostBox::CreateArgKey(def_.name(), arg_def.name());
+    CH_CHECK_OK(postbox_->Register(key, outputs_.back()));
   }
 }
 

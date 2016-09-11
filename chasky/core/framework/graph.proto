@@ -5,12 +5,16 @@ package chasky;
 import "chasky/core/framework/types.proto";
 import "chasky/core/framework/function.proto";
 import "chasky/core/framework/attr_value.proto";
+import "chasky/core/framework/data_provider.proto";
 
 message GraphDef {
   // Name of the Graph
   string name = 1;
 
-  repeated NodeDef nodes = 2;
+
+  DataProviderDef data_provider = 2;
+
+  repeated NodeDef nodes = 3;
   // Each input is "node:src_ouput" with "node" being a string name and
   // src_output being the name of node's output
   // repeated string input = 6;

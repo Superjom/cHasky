@@ -45,6 +45,16 @@ public:
     mat_ = _other.MatPtr();
     return *this;
   }
+
+  self_type &operator=(const self_type &other) {
+    if (!other.mat_) {
+      mat_ = nullptr;
+    } else {
+      DLOG(INFO) << "copy mat from " << other.DebugString();
+      mat_ = std::make_shared<eigen_matrix_t>(*other.mat_);
+    }
+    return *this;
+  }
   // TODO add real copy from method to copy memory
 
   virtual void MultWith(const base_matrix_t &other, float ratio1 = 1.,
@@ -79,6 +89,18 @@ public:
 
   virtual void CopyFrom(base_matrix_t &other) override {
     mat_ = std::make_shared<eigen_matrix_t>(*other.MatPtr());
+  }
+
+  void FromBuffer(const std::string &buffer) {
+    size_t buffer_size = Shape().first * Shape().second * sizeof(float);
+    CHECK_EQ(buffer.size(), buffer_size);
+    memcpy(mat_->data(), buffer.c_str(), buffer_size);
+  }
+
+  void ToBuffer(std::string &buffer) {
+    size_t buffer_size = Shape().first * Shape().second * sizeof(float);
+    buffer.resize(buffer_size);
+    memcpy(&buffer[0], mat_->data(), buffer_size);
   }
 
   virtual const Type *Data() const override { return mat_->data(); }

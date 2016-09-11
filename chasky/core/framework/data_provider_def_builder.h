@@ -10,6 +10,11 @@ class DataProviderDefBuilder {
 public:
   explicit DataProviderDefBuilder() {}
 
+  DataProviderDefBuilder &Name(const std::string &x) {
+    def_.set_name(x);
+    return *this;
+  }
+
   DataProviderDefBuilder &Field(const ArgumentDef &x) {
     *def_.add_outputs() = x;
     return *this;
