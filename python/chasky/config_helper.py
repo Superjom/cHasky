@@ -2,10 +2,25 @@ import sys
 
 import functions
 from graph_def_builder import GraphDefBuilder
+from argument_def_builder import ArgumentDefBuilder
 
 
 def CreateGraph(name):
     GraphDefBuilder.Instance(name)
+
+
+def Field(self, name, type, shape, doc=''):
+    return ArgumentDefBuilder().Name(name).Type(type).Shape(
+        *shape).Doc(doc).Finalize()
+
+
+def DataProvider(name, fields):
+    '''
+    provider data for model
+    '''
+    def = GraphDefBuilder.Instance().data_provider
+    for field in fields:
+        def.outputs.add() = field
 
 
 def Node(name, func):
