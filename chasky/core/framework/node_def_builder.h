@@ -34,7 +34,7 @@ public:
   }
 
   NodeDefBuilder &Attr(const std::string &name, const AttrValue &x) {
-    def_.mutable_attr()->at(name) = x;
+    (*def_.mutable_attr())[name] = x;
     return *this;
   }
 
