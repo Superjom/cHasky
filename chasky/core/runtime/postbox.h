@@ -27,10 +27,10 @@ public:
   static string CreateArgKey(const string &node_name, const string &arg_name);
 
   // Register an empty argument item.
-  Status Register(const string &key, Argument *ptr = nullptr);
+  Status Register(const string &key, ArgumentPtr ptr = nullptr);
 
   // Key should be created by CreateArgKey
-  Status Send(const string &key, Argument *arg);
+  Status Send(const string &key, ArgumentPtr arg);
 
   static Status ParseKey(const string &key, string *node, string *arg);
 
@@ -56,12 +56,11 @@ public:
       lock_ = lock;
     }
 
-    void SetReady(Argument *arg) {
-      DLOG(INFO) << "set ready";
+    void SetReady(ArgumentPtr arg) {
       arg_ = arg;
       is_ready_ = true;
       for (auto &callback : ready_callbacks_) {
-        callback(arg);
+        callback(arg.get());
       }
     }
 
@@ -77,12 +76,12 @@ public:
 
     bool IsReady() const { return is_ready_; }
 
-    Argument *Arg() { return arg_; }
+    ArgumentPtr Arg() { return arg_; }
 
-    Argument *&mutable_arg() { return arg_; }
+    void SetArgument(ArgumentPtr x) { arg_ = x; }
 
   private:
-    Argument *arg_;
+    ArgumentPtr arg_;
     std::mutex *lock_;
     bool is_ready_ = false;
     std::vector<ReadyCallback> ready_callbacks_;

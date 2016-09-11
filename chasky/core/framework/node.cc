@@ -20,7 +20,7 @@ Status Node::ForwardCompute() {
   CH_CHECK_OK(CollectInArgItems());
   CH_CHECK_OK(CollectOutArgItems());
 
-  CH_CHECK_OK(func_->ForwardCompute(inputs_, &outputs_, *func_def_));
+  CH_CHECK_OK(func_->ForwardCompute(inputs_, &out_args_));
 
   CH_CHECK_OK(ReleaseActivations());
 
@@ -53,6 +53,7 @@ Status Node::CollectOutArgItems() {
   Status status;
   outputs_.clear();
   for (auto &arg : out_args_) {
+    CHECK(arg);
     outputs_.push_back(arg.get());
   }
   return status;
@@ -66,7 +67,7 @@ Status Node::ReleaseActivations() {
     const auto &arg_def = func_def_->inputs(i);
     const auto &arg_name = arg_def.name();
     auto arg_key = EdgeLib::CreateArgKey(node_name, arg_name);
-    postbox_->Send(arg_key, outputs_[i]);
+    postbox_->Send(arg_key, out_args_[i]);
   }
   return status;
 }
@@ -79,8 +80,11 @@ Status Node::RegisterArguments() {
     const auto &arg_def = func_def_->inputs(i);
     const auto &arg_name = arg_def.name();
     auto arg_key = EdgeLib::CreateArgKey(node_name, arg_name);
-    postbox_->Register(arg_key);
-    out_args_.emplace_back(new Argument{&arg_def});
+    DLOG(INFO) << "register Argument " << arg_key << " to postbox";
+    // postbox_->Register(arg_key);
+    out_args_.emplace_back(std::make_shared<Argument>(&arg_def));
+    DLOG(INFO) << "Node create output argument "
+               << out_args_.back()->Description();
   }
 
   return status;

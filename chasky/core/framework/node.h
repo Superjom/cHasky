@@ -72,7 +72,7 @@ private:
   std::vector<const Argument *> inputs_;
   std::vector<Argument *> outputs_;
 
-  std::vector<std::unique_ptr<Argument>> out_args_;
+  std::vector<ArgumentPtr> out_args_;
 
   std::condition_variable in_args_ready_;
   std::condition_variable out_args_ready_;

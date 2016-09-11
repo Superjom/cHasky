@@ -29,20 +29,19 @@ Status PostBox::ParseKey(const string &key, string *node, string *arg) {
   return Status();
 }
 
-Status PostBox::Register(const string &key) {
-Status PostBox::Register(const string &key, Argument *ptr) {
+Status PostBox::Register(const string &key, ArgumentPtr ptr) {
   DLOG(INFO) << "register Argument [" << key << "] to postbox";
   DLOG(INFO) << "args.size() " << args_.size();
   auto it = args_.find(key);
   CHECK(it == args_.end()) << "duplicate register key " << key;
   args_[key] = ArgItem();
   args_[key].SetLock(&arg_item_lock_);
-  args_[key].mutable_arg() = ptr;
+  args_[key].SetArgument(ptr);
   args_[key].SetUnready();
   return Status();
 }
 
-Status PostBox::Send(const string &key, Argument *arg) {
+Status PostBox::Send(const string &key, ArgumentPtr arg) {
   Status status;
   // EdgeDef parsed_key;
   LOG(INFO) << "to parse key:\t" << key;
@@ -66,6 +65,7 @@ Status PostBox::Consume(const string &key, ReadyCallback &&callback) {
   Status status;
   auto it = args_.find(key);
   CHECK(it != args_.end());
+  CHECK(!args_.empty());
 
   auto &arg_item = it->second;
   if (arg_item.IsReady()) {
