@@ -1,7 +1,11 @@
+#include <regex>
+
+#include "chasky/core/runtime/state.h"
 #include "chasky/common/strings.h"
 #include "chasky/core/common/status.h"
 #include "chasky/core/runtime/postbox.h"
 #include "chasky/core/runtime/edge_lib.h"
+
 namespace chasky {
 
 // string PostBox::CreateKey(const string &source_node, const string
@@ -50,7 +54,7 @@ Status PostBox::Send(const string &key, ArgumentPtr arg) {
 
   string arg_key = CreateArgKey(node_name, arg_name);
 
-  LOG(INFO) << "arg_key:\t" << arg_key;
+  LOG(INFO) << "arg " << arg_key << " is ready";
 
   auto it = args_.find(arg_key);
   CH_STEST_RETURN2(it != args_.end(), error::OUT_OF_RANGE,
@@ -62,24 +66,35 @@ Status PostBox::Send(const string &key, ArgumentPtr arg) {
 }
 
 Status PostBox::Consume(const string &key, ReadyCallback &&callback) {
+  DLOG(INFO) << "consuming argument " << key;
   Status status;
-  auto it = args_.find(key);
-  CHECK(it != args_.end());
   CHECK(!args_.empty());
+  DLOG(INFO) << "to find " << key << " in args_";
+  DLOG(INFO) << "args_.size " << args_.size();
+  decltype(args_)::iterator it;
+  it = args_.find(key);
+  CHECK(it != args_.end()) << "key " << key << " not found";
 
   auto &arg_item = it->second;
   if (arg_item.IsReady()) {
-    callback(nullptr);
+    DLOG(INFO) << "arg_item " << key << " is ready, callback";
+    callback(arg_item.Arg().get());
     return status;
   }
 
+  DLOG(INFO) << "find key " << key;
+
   arg_item.Consume(std::move(callback));
+
+  DLOG(INFO) << "succcessfully consume Argument " << key;
+
   return status;
 }
 
 Status PostBox::Abort() {
   Status status;
   for (auto &item : args_) {
+    RuntimeState::Instance().Kill();
     item.second.SetReady(nullptr);
   }
   return status;

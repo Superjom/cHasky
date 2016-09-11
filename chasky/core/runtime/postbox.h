@@ -59,9 +59,13 @@ public:
     void SetReady(ArgumentPtr arg) {
       arg_ = arg;
       is_ready_ = true;
+      std::lock_guard<std::mutex> lock(*lock_);
       for (auto &callback : ready_callbacks_) {
         callback(arg.get());
       }
+      ready_callbacks_.clear();
+      // avoid loop 
+      SetUnready();
     }
 
     void SetUnready() {
@@ -91,6 +95,7 @@ private:
   // key: argument's key like: {source_node_name}:{argument_name}
   std::unordered_map<string, ArgItem> args_;
   std::mutex arg_item_lock_;
+  std::mutex args_lock_;
 };
 }
 #endif
