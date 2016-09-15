@@ -4,6 +4,16 @@ using namespace std;
 
 namespace chasky {
 
+bool Function::ParseSignature(const std::string &sign, std::string *name,
+                                     DataType *dtype) {
+  auto pieces = strings::Split(sign, ':');
+  if (pieces.size() != 2)
+    return false;
+  *name = pieces[0];
+  *dtype = static_cast<DataType>(std::stoi(pieces[1]));
+  return true;
+}
+
 void ArgumentCreateFloat(Argument *arg, ArgumentDef::Shape &shape) {
   size_t width = shape.width();
   arg->ArgField()->float_vals = make_shared<vector<float>>(width);

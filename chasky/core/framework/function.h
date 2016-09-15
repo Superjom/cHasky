@@ -65,14 +65,7 @@ public:
   // Parse signature and extract different infomation fields.
   // Return true if successfully parsed, else false.
   static bool ParseSignature(const std::string &sign, std::string *name,
-                             DataType *dtype) {
-    auto pieces = strings::Split(sign, ':');
-    if (pieces.size() != 2)
-      return false;
-    *name = pieces[0];
-    *dtype = static_cast<DataType>(std::stoi(pieces[1]));
-    return true;
-  }
+                             DataType *dtype);
 
   // Create an func from definition
   // @def: func's definition
