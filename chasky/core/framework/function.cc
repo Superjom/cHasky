@@ -4,18 +4,6 @@ using namespace std;
 
 namespace chasky {
 
-/*void Function::SetExecContext(ExecContext *context) {
-  exec_context_ = context;
-  // CHECK(CheckInput());
-  }*/
-
-/*
-FunctionLibrary &Instance() {
-  static FunctionLibrary *library = new FunctionLibrary();
-  return *library;
-}
-*/
-
 void ArgumentCreateFloat(Argument *arg, ArgumentDef::Shape &shape) {
   size_t width = shape.width();
   arg->ArgField()->float_vals = make_shared<vector<float>>(width);
