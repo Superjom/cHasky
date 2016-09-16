@@ -15,7 +15,7 @@ class Node;
 
 using node_ptr_t = std::shared_ptr<Node>;
 
-enum class TaskType { FORWARD, BACKWARD };
+// enum class TaskType { FORWARD, BACKWARD };
 
 // Node is a node of compute graph. It is the carrier of the corresponding
 // function.
@@ -63,11 +63,10 @@ protected:
   // Tell others that this function's graidents is ready.
   Status ReleaseGradients();
 
-  // Status PrepareInArguments();
-
-  // Status PrepareOutArguments();
-
-  // Register forward activation and backward gradient into postbox.
+  // Register forward activation and backward gradient into postbox. The forward
+  // activations are registered by key like format "{node_name}:{arg_name}", the
+  // backward arguments' keys are like "{node_name}:{arg_name}_backward"
+  // NOTE this method should be called before ForwardCompute and BackwardCompute
   Status RegisterArguments();
 
   // Register model parameters to global library.
@@ -88,15 +87,16 @@ private:
   // the corresponding function
   std::unique_ptr<Function> func_;
 
-  std::vector<PostBox::ArgItem *> in_arg_items_;
-  std::vector<PostBox::ArgItem *> out_arg_items_;
+  // std::vector<PostBox::ArgItem *> in_arg_items_;
+  // std::vector<PostBox::ArgItem *> out_arg_items_;
 
   // argument cache for Function
-  std::vector<const Argument *> inputs_;
-  std::vector<Argument *> outputs_;
+  // std::vector<const Argument *> inputs_;
+  // std::vector<Argument *> outputs_;
   std::vector<ArgumentPtr> params_;
 
-  std::vector<ArgumentPtr> out_args_;
+  std::vector<ArgumentPtr> *out_args_;
+  // std::vector<ArgumentPtr> grad_args_;
 
   std::condition_variable in_args_ready_;
   std::condition_variable out_args_ready_;

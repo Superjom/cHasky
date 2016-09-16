@@ -56,7 +56,7 @@ Status Node::ForwardCompute() {
   CH_CHECK_OK(CollectInArgItems());
   CH_CHECK_OK(CollectOutArgItems());
 
-  CH_CHECK_OK(func_->ForwardCompute(inputs_, &out_args_));
+  CH_CHECK_OK(func_->ForwardCompute());
 
   CH_CHECK_OK(ReleaseActivations());
 
@@ -67,13 +67,13 @@ Status Node::BackwardCompute() { UN_IMPLEMENTED }
 
 Status Node::CollectInArgItems() {
   Status status;
-  inputs_.clear();
+  func_->CompItem().inputs.clear();
   const auto &node_name = def_.name();
   int num_in_args_ready = 0;
   CHECK(postbox_);
 
-  auto callback = [&](Argument *arg) {
-    inputs_.push_back(arg);
+  auto callback = [&](ArgumentPtr arg) {
+    func_->CompItem().inputs.push_back(arg);
     if (++num_in_args_ready == func_def_->inputs_size()) {
       std::unique_lock<std::mutex> lock(cond_lock_);
       in_args_ready_.notify_one();
@@ -83,7 +83,7 @@ Status Node::CollectInArgItems() {
   for (const auto &arg_def : func_def_->inputs()) {
     // find source of the argument in need.
     const auto &arg_name = arg_def.name();
-    auto arg_key = EdgeLib::CreateArgKey(node_name, arg_name);
+    auto arg_key = PostBox::CreateArgKey(node_name, arg_name, FORWARD);
     std::string source_arg_key;
     CH_CHECK_OK(edge_lib_->RetriveByTarget(arg_key, &source_arg_key));
 
@@ -92,19 +92,18 @@ Status Node::CollectInArgItems() {
     std::unique_lock<std::mutex> lock(cond_lock_);
     in_args_ready_.wait(
         lock, [&] { return num_in_args_ready == func_def_->inputs_size(); });
-    DLOG(INFO) << "received Argument " << source_arg_key << " "
-               << inputs_.back();
+    DLOG(INFO) << "received Argument " << source_arg_key;
   }
   return status;
 }
 
 Status Node::CollectOutArgItems() {
   Status status;
-  outputs_.clear();
-  for (auto &arg : out_args_) {
-    CHECK(arg);
-    outputs_.push_back(arg.get());
-  }
+  // outputs_.clear();
+  // for (auto &arg : *out_args_) {
+  //   CHECK(arg);
+  //   outputs_.push_back(arg.get());
+  // }
   return status;
 }
 
@@ -128,8 +127,8 @@ Status Node::ReleaseActivations() {
   for (size_t i = 0; i < func_def_->inputs_size(); i++) {
     const auto &arg_def = func_def_->outputs(i);
     const auto &arg_name = arg_def.name();
-    auto arg_key = EdgeLib::CreateArgKey(node_name, arg_name);
-    postbox_->Send(arg_key, out_args_[i]);
+    auto arg_key = PostBox::CreateArgKey(node_name, arg_name, BACKWARD);
+    postbox_->Send(arg_key, out_args_->at(i));
   }
   return status;
 }
@@ -137,27 +136,32 @@ Status Node::ReleaseActivations() {
 Status Node::RegisterArguments() {
   Status status;
   const auto &node_name = def_.name();
-  out_args_.clear();
+  out_args_ = &func_->CompItem().outputs;
+  out_args_->clear();
   for (size_t i = 0; i < func_def_->outputs_size(); i++) {
     const auto &arg_def = func_def_->outputs(i);
     const auto &arg_name = arg_def.name();
-    auto arg_key = EdgeLib::CreateArgKey(node_name, arg_name);
-    DLOG(INFO) << "register Argument " << arg_key << " to postbox";
-    // postbox_->Register(arg_key);
-    out_args_.emplace_back(std::make_shared<Argument>(&arg_def));
+    auto forward_arg_key = PostBox::CreateArgKey(node_name, arg_name, FORWARD);
+    DLOG(INFO) << "register forward Argument " << forward_arg_key
+               << " to postbox";
+    out_args_->emplace_back(std::make_shared<Argument>(&arg_def));
     DLOG(INFO) << "Node create output argument "
-               << out_args_.back()->Description();
-
+               << out_args_->back()->Description();
     DLOG(INFO) << "input arg " << i << " " << arg_def.DebugString();
-
-    CHECK_EQ(arg_def.shape().width(), out_args_.back()->Shape().width());
-    CHECK_EQ(arg_def.shape().height(), out_args_.back()->Shape().height());
+    CHECK_EQ(arg_def.shape().width(), out_args_->back()->Shape().width());
+    CHECK_EQ(arg_def.shape().height(), out_args_->back()->Shape().height());
     CHECK_GT(arg_def.shape().height(), 0UL);
     CHECK_GT(arg_def.shape().width(), 0UL);
+    CH_CHECK_OK(postbox_->Register(forward_arg_key, out_args_->back()));
 
-    // CHECK(out_args_.back()->ArgField()->float_mat_val);
-    // register resource to postbox
-    CH_CHECK_OK(postbox_->Register(arg_key, out_args_.back()));
+    auto backward_arg_key =
+        PostBox::CreateArgKey(node_name, arg_name, BACKWARD);
+    func_->CompItem().output_grads.emplace_back(
+        std::make_shared<Argument>(&arg_def));
+    DLOG(INFO) << "register backward Argument " << backward_arg_key
+               << " to postbox";
+    CH_CHECK_OK(postbox_->Register(backward_arg_key,
+                                   func_->CompItem().output_grads.back()));
   }
 
   return status;
