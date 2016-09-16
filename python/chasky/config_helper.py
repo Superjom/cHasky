@@ -9,25 +9,31 @@ def CreateGraph(name):
     GraphDefBuilder.Instance(name)
 
 
-def Field(self, name, type, shape, doc=''):
+def Field(name, type, shape, doc=''):
     return ArgumentDefBuilder().Name(name).Type(type).Shape(
         *shape).Doc(doc).Finalize()
 
 
-def DataProvider(name, fields):
+def DataProvider(name, *fields):
     '''
     provider data for model
     '''
-    def = GraphDefBuilder.Instance().data_provider
+    defi = GraphDefBuilder.Instance().Finalize().data_provider
+    defi.name = name
     for field in fields:
-        def.outputs.add() = field
+        fi = defi.outputs.add()
+        fi.name = field.name
+        fi.type = field.type
+        fi.shape.width = field.shape.width
+        fi.shape.height = field.shape.height
+        fi.doc = field.doc
 
 
 def Node(name, func):
     '''
     func: <functions>
     '''
-    func_name, attrs = func()
+    func_name, attrs = func
     node_def = GraphDefBuilder.Instance().Node()\
         .Name(name) \
         .Func(func_name)

@@ -4,7 +4,8 @@ import unittest
 from chasky import functions
 import chasky.chasky_engine as engine
 from chasky.config_helper import Node, Edge, \
-    CreateGraph, GraphStringBuffer, GraphDebugString
+    CreateGraph, GraphStringBuffer, GraphDebugString, DataProvider, \
+    Field
 
 
 class VersionTest(unittest.TestCase):
@@ -21,9 +22,10 @@ class SessionTest(unittest.TestCase):
 
     def test_create_graph(self):
         CreateGraph("graph1")
-        Node("node1", functions.NullFunc)
-        Node("node2", functions.NullFunc)
-        Node("node3", functions.NullFunc)
+        DataProvider("data_provider", Field("fea", "float_mat", [20, 30], "features"))
+        Node("node1", functions.IdenticalFunc(20, 30))
+        Node("node2", functions.IdenticalFunc(20, 30))
+        Node("node3", functions.IdenticalFunc(20, 30))
         Edge("node1", "output", "node2", "input")
 
         debug_str = GraphDebugString()
