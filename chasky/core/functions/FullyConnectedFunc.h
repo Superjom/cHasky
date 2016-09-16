@@ -47,6 +47,7 @@ public:
       def.mutable_shape()->set_width(dim_);
       def.mutable_shape()->set_height(batch_size_);
     }
+
     return status;
   }
 
@@ -55,30 +56,51 @@ public:
     return status;
   }
 
-  virtual Status
-  ForwardCompute(const std::vector<const Argument *> &args,
-                 const std::vector<ArgumentPtr> *activation) override {
+  virtual Status ForwardCompute() override {
     Status status;
-    for (size_t i = 0; i < args.size(); i++) {
-      if (!args[i]) {
-        DLOG(WARNING) << "input nullptr, stop service";
-        return status;
-      }
+    CHECK_EQ(Inputs().size(), 1UL);
+    CHECK_EQ(Outputs().size(), 1UL);
+    if (!Inputs()[0]) {
+      DLOG(WARNING) << "input nullptr, stop service";
+      return status;
     }
+    // no bias, just weight in the first version.
+    CHECK_EQ(params_->size(), 1UL);
 
-    CHECK_EQ(args.size(), activation->size());
-    CHECK_EQ(args.size(), 1UL);
+    auto &input = *Inputs()[0]->ArgField()->float_mat_val->MatPtr();
+    auto &weight = *params_->at(0)->ArgField()->float_mat_val->MatPtr();
+    auto &activation = *Output(0)->ArgField()->float_mat_val->MatPtr();
 
-
+    activation = input * weight;
 
     return status;
   }
 
-  Status
-  BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
-                  const std::vector<Argument *> *previous_grad) override {
+  Status BackwardCompute() override {
 
     Status status;
+
+    CHECK_EQ(OutputGrads().size(), 1UL);
+    CHECK_EQ(Inputs().size(), 1UL);
+    CHECK_EQ(InputGrads().size(), 1UL);
+    CHECK_EQ(params_->size(), 1UL);
+
+    auto inputT = Input(0)->ArgField()->float_mat_val->MatPtr()->transpose();
+    auto &outputGrad = *OutputGrad(0)->ArgField()->float_mat_val->MatPtr();
+    auto &weight = *params_->at(0)->ArgField()->float_mat_val->MatPtr();
+
+    // Calculate the weight's grad for current Node.
+    if (!WeightGrads().empty()) {
+      CHECK_EQ(WeightGrads().size(), 1UL);
+      auto &weightGrad = *WeightGrad(0)->ArgField()->float_mat_val->MatPtr();
+      weightGrad = inputT * outputGrad;
+    }
+
+    // Calculate the previous Node's grad.
+    auto &preGrad = *InputGrad(0)->ArgField()->float_mat_val->MatPtr();
+    auto weightT = weight.transpose();
+
+    preGrad = outputGrad * weightT;
     return status;
   }
 
@@ -87,6 +109,8 @@ public:
 private:
   int64_t dim_, batch_size_;
   std::string activate_type_;
+  // Save forward computation's output.
+  Argument *activation_;
 };
 
 } // namespace functions
