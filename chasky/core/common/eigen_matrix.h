@@ -65,6 +65,19 @@ public:
     *mat_ = (*mat_ * ratio1) * (*other_mat * ratio2);
   }
 
+  virtual void DotWith(const base_matrix_t &other,
+                       base_matrix_t *target) override {
+    // TODO add check target is subclass of base matrix
+    auto other_mat = other.MatPtr();
+    auto target_p = dynamic_cast<self_type *>(target);
+    *target_p->MatPtr() = mat_->cwiseProduct(*target_p->MatPtr());
+  }
+
+  self_type Transpose() {
+    auto mat_T = std::make_shared<eigen_matrix_t>(mat_->transpose());
+    return self_type(mat_T);
+  }
+
   virtual void AddWith(const base_matrix_t &other, float ratio1 = 1.,
                        float ratio2 = 1.) override {
     auto other_mat = other.MatPtr();
