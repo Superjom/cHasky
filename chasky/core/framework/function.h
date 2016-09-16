@@ -55,6 +55,12 @@ public:
   // void SetExecContext(ExecContext *context);
   Function() {}
 
+  // Set model's parameters before function's compuatation.
+  void SetModelParameters(std::vector<ArgumentPtr> *params) {
+    CHECK(params);
+    params_ = params;
+  }
+
   virtual void CheckContext() = 0;
 
   // Function registerer must use signature as key.

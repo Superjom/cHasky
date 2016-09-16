@@ -165,10 +165,14 @@ Status Node::RegisterArguments() {
 
 Status Node::RegisterParameters() {
   Status status;
+  params_.clear();
   const auto &node_name = def_.name();
   for (auto &arg_def : func_def_->params()) {
     auto arg_key = PostBox::CreateArgKey(node_name, arg_def.name());
-    CH_CHECK_OK(ParameterLib::Instance().RegisterCreate(arg_key, arg_def));
+    ArgumentPtr ptr;
+    CH_CHECK_OK(
+        ParameterLib::Instance().RegisterCreate(arg_key, arg_def, &ptr));
+    params_.emplace_back(std::move(ptr));
   }
   return status;
 }
@@ -211,6 +215,8 @@ Node::Node(const NodeDef &def, PostBox *postbox, EdgeLib *edge_lib)
   CH_CHECK_OK(RegisterArguments());
 
   CH_CHECK_OK(RegisterParameters());
+
+  func_->SetModelParameters(&params_);
 }
 
 Node::~Node() {
