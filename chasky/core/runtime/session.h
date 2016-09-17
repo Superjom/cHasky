@@ -25,6 +25,7 @@ public:
 
   Status StartExec();
 
+  // Compute a batch task.
   Status Compute(std::vector<ArgumentDef> &inputs);
 
   Status KillExec();
@@ -45,6 +46,9 @@ private:
   std::string name_;
   std::shared_ptr<Graph> graph_;
   PostBox postbox_;
+  // Use condition_variable to tell main thread whether batch task is finished.
+  std::mutex batch_finish_lock_;
+  std::condition_variable batch_finish_cond_;
   // std::unique_ptr<GraphBuilder> graph_builder_;
 };
 

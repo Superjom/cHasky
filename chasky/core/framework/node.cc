@@ -41,6 +41,12 @@ Status Node::StartService() {
       // RuntimeState::Instance().UpdateStatus(status);
       // if (RuntimeState::Instance().KeepRunning())
       //   break;
+
+      // Remind
+      if (def_.is_end()) {
+        auto msg_key = PostBox::CreateArgKey("session", "batch_finish_flag");
+        postbox_->Send(msg_key, nullptr);
+      }
     }
     LOG(INFO) << "Node " << def_.name() << " quit service!";
   };
@@ -74,6 +80,13 @@ Status Node::CollectInArgItems() {
 
   auto callback = [&](ArgumentPtr arg) {
     func_->CompItem().inputs.push_back(arg);
+    if (arg) {
+      DLOG(INFO) << Name() << " get in arg " << arg->Description();
+      if (arg->ArgField()->float_mat_val) {
+        DLOG(INFO) << arg->ArgField()->float_mat_val->DebugString();
+      }
+    }
+
     if (++num_in_args_ready == func_def_->inputs_size()) {
       std::unique_lock<std::mutex> lock(cond_lock_);
       in_args_ready_.notify_one();
