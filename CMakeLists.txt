@@ -40,6 +40,8 @@ set (SOURCE_FILES
   # ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/functions/NullFunc.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/functions/IdenticalFunc.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/FullyConnectedFunc.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/RMSElossFunc.cc
   )
 
 set (TEST_SOURCE_FILES
@@ -49,7 +51,6 @@ set (TEST_SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_matrix_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/eigen_vector_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/common/status_test.cc
-  # ${CMAKE_SOURCE_DIR}/chasky/test/test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/attr_value_util_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/function_def_builder_test.cc
   ${CMAKE_SOURCE_DIR}/chasky/core/framework/argument_test.cc

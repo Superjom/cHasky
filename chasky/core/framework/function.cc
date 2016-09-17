@@ -5,7 +5,7 @@ using namespace std;
 namespace chasky {
 
 bool Function::ParseSignature(const std::string &sign, std::string *name,
-                                     DataType *dtype) {
+                              DataType *dtype) {
   auto pieces = strings::Split(sign, ':');
   if (pieces.size() != 2)
     return false;

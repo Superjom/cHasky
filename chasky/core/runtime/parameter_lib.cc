@@ -3,7 +3,7 @@
 namespace chasky {
 
 Status ParameterLib::RegisterCreate(const string &key, const ArgumentDef &def,
-                                    ArgumentPtr **param) {
+                                    ArgumentPtr *param) {
   Status status;
   auto it = params_.find(key);
   CH_STEST_RETURN2(it == params_.end(), error::INVALID_ARGUMENT,
@@ -15,9 +15,7 @@ Status ParameterLib::RegisterCreate(const string &key, const ArgumentDef &def,
                    error::OUT_OF_RANGE,
                    "failed to insert param [%s] to library", key.c_str());
 
-  if (param != nullptr) {
-    *param = &params_[key];
-  }
+  *param = new_param;
   return status;
 }
 

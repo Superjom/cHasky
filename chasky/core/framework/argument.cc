@@ -140,8 +140,7 @@ Status Argument::FromDef(const ArgumentDef *def) {
                    "def.type is not set");
   arg_def_.set_dtype(String2Dtype(arg_def_.type()));
 
-  DLOG(INFO) << "init from type " << arg_def_.type() << " "
-             << arg_def_.dtype();
+  DLOG(INFO) << "init from type " << arg_def_.type() << " " << arg_def_.dtype();
 
   CHECK(arg_field_);
   CHECK(arg_field_->IsEmpty());
@@ -206,8 +205,7 @@ std::string Argument::Description() const {
   std::stringstream ss;
   ss << std::endl;
   ss << "Argument [" << arg_def_.name() << " ]" << std::endl;
-  ss << "    type: " << arg_def_.type() << " " << arg_def_.dtype()
-     << std::endl;
+  ss << "    type: " << arg_def_.type() << " " << arg_def_.dtype() << std::endl;
   ss << "    shape: " << arg_def_.shape().width() << " "
      << arg_def_.shape().height() << std::endl;
   ss << std::endl;

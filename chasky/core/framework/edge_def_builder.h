@@ -29,6 +29,11 @@ public:
     return *this;
   }
 
+  EdgeDefBuilder &Mode(TaskType mode) {
+    def_.set_mode(mode);
+    return *this;
+  }
+
   EdgeDef &Finalize() { return def_; }
 
 private:

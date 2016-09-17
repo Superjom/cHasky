@@ -7,6 +7,11 @@ import "chasky/core/framework/function.proto";
 import "chasky/core/framework/attr_value.proto";
 import "chasky/core/framework/data_provider.proto";
 
+enum TaskType {
+  FORWARD = 0;
+  BACKWARD = 1;
+}
+
 message GraphDef {
   // Name of the Graph
   string name = 1;
@@ -51,7 +56,9 @@ message EdgeDef {
   string trg_node = 3;
   // target node's argument
   string trg_arg = 4;
+  // FORWARD or BACKWARD
+  TaskType mode = 5;
   // edge's signature, format like "{src_node}:{src_arg}->{trg_node}:{trg_arg}
   // will generate automatically.
-  string signature_ = 5;
+  string signature_ = 6;
 }

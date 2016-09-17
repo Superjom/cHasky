@@ -22,7 +22,7 @@ class NodeDefBuilder(object):
         self.node_def_.is_source = is_source
         return self
 
-    def setIsEnd(self, is_end):
+    def SetIsEnd(self, is_end):
         '''
         @is_end: bool
         '''

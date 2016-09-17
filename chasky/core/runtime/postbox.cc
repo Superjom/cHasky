@@ -18,18 +18,22 @@ namespace chasky {
 //   return key;
 // }
 
-string PostBox::CreateArgKey(const string &node_name, const string &arg_name) {
-  string key = strings::Printf("%s:%s", node_name.c_str(), arg_name.c_str());
+string PostBox::CreateArgKey(const string &node_name, const string &arg_name,
+                             TaskType mode) {
+  string key =
+      strings::Printf("%s:%s:%d", node_name.c_str(), arg_name.c_str(), mode);
   return key;
 }
 
-Status PostBox::ParseKey(const string &key, string *node, string *arg) {
-  std::regex re("([0-9a-z_-]+):([0-9a-z_-]+)");
+Status PostBox::ParseKey(const string &key, string *node, string *arg,
+                         TaskType *mode) {
+  std::regex re("([0-9a-z_-]+):([0-9a-z_-]+):([0-9]+)");
   std::smatch match;
   CHECK(std::regex_search(key.begin(), key.end(), match, re)) << key;
-  CHECK_EQ(match.size(), 3);
+  CHECK_EQ(match.size(), 4);
   *node = match[1];
   *arg = match[2];
+  *mode = (TaskType)std::stoi(match[3]);
   return Status();
 }
 
@@ -47,10 +51,10 @@ Status PostBox::Register(const string &key, ArgumentPtr ptr) {
 
 Status PostBox::Send(const string &key, ArgumentPtr arg) {
   Status status;
-  // EdgeDef parsed_key;
-  LOG(INFO) << "to parse key:\t" << key;
+
   string node_name, arg_name;
-  CH_CHECK_OK(PostBox::ParseKey(key, &node_name, &arg_name));
+  TaskType mode;
+  CH_CHECK_OK(PostBox::ParseKey(key, &node_name, &arg_name, &mode));
 
   string arg_key = CreateArgKey(node_name, arg_name);
 
@@ -69,8 +73,8 @@ Status PostBox::Consume(const string &key, ReadyCallback &&callback) {
   DLOG(INFO) << "consuming argument " << key;
   Status status;
   CHECK(!args_.empty());
-  DLOG(INFO) << "to find " << key << " in args_";
-  DLOG(INFO) << "args_.size " << args_.size();
+  // DLOG(INFO) << "to find " << key << " in args_";
+  // DLOG(INFO) << "args_.size " << args_.size();
   decltype(args_)::iterator it;
   it = args_.find(key);
   CHECK(it != args_.end()) << "key " << key << " not found";
@@ -78,16 +82,12 @@ Status PostBox::Consume(const string &key, ReadyCallback &&callback) {
   auto &arg_item = it->second;
   if (arg_item.IsReady()) {
     DLOG(INFO) << "arg_item " << key << " is ready, callback";
-    callback(arg_item.Arg().get());
+    callback(arg_item.Arg());
     return status;
   }
 
-  DLOG(INFO) << "find key " << key;
-
   arg_item.Consume(std::move(callback));
-
   DLOG(INFO) << "succcessfully consume Argument " << key;
-
   return status;
 }
 

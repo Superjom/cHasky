@@ -18,6 +18,7 @@ Status DataProvider::Fill(const std::vector<ArgumentDef> &data) {
 
   for (size_t i = 0; i < outputs_.size(); i++) {
     CHECK(outputs_[i]);
+    DLOG(INFO) << "fill " << i << "th argument";
     outputs_[i]->DeSerialize(data[i]);
     // release argument to postbox
     auto key = PostBox::CreateArgKey(def_.name(), def_.outputs(i).name());

@@ -23,8 +23,15 @@ public:
   //                         const string &target_node, const string &arg_name);
 
   // Create an key(signature) for an argument item.
-  // Format like: {node_name}:{arg_name}
-  static string CreateArgKey(const string &node_name, const string &arg_name);
+  // Format like: {node_name}:{arg_name}_{mode}
+  // mode:
+  //     - f(forward)
+  //     - b(bckword)
+  static string CreateArgKey(const string &node_name, const string &arg_name,
+                             TaskType mode = FORWARD);
+
+  static Status ParseKey(const string &key, string *node, string *arg,
+                         TaskType *mode);
 
   // Register an empty argument item.
   Status Register(const string &key, ArgumentPtr ptr = nullptr);
@@ -32,10 +39,8 @@ public:
   // Key should be created by CreateArgKey
   Status Send(const string &key, ArgumentPtr arg);
 
-  static Status ParseKey(const string &key, string *node, string *arg);
-
   // Consumer's callback to deal with the received argument.
-  typedef std::function<void(Argument *arg)> ReadyCallback;
+  typedef std::function<void(ArgumentPtr arg)> ReadyCallback;
 
   // Consumer consume an argument, and register its callback. Consumer's thread
   // will be blocked until the argument is ready.
@@ -61,10 +66,10 @@ public:
       is_ready_ = true;
       std::lock_guard<std::mutex> lock(*lock_);
       for (auto &callback : ready_callbacks_) {
-        callback(arg.get());
+        callback(arg);
       }
       ready_callbacks_.clear();
-      // avoid loop 
+      // avoid loop
       SetUnready();
     }
 

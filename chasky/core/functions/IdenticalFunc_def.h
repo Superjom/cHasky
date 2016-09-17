@@ -21,7 +21,7 @@ REGISTER_FUNC_DEF(
         .Attr(AttrDefBuilder()
                   .Name("dim")
                   .Type("int64")
-                  .Doc("matrix dimentiion")
+                  .Doc("matrix dimention")
                   .Finalize())
         .Attr(AttrDefBuilder()
                   .Name("batch_size")

@@ -26,6 +26,8 @@ public:
 
   void ServiceThreadJoin();
 
+  GraphDef &Def() { return def_; }
+
   ~Graph();
 
 protected:

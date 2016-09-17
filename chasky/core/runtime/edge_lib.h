@@ -13,17 +13,18 @@
 
 namespace chasky {
 using std::string;
-
+// EdgeLib is a dictionary of edges. Edges are stored like "key :
+// representation". Because computation have two mode: forward and backward.
 class EdgeLib {
 public:
-  static string CreateKey(const string &src_node, const string &src_arg,
-                          const string &trg_node, const string &trg_arg);
+  // create edge's key in edge_lib
+  // src_arg: source argument's key
+  // trg_arg: target argument's key
+  static string CreateKey(const string &src_arg, const string &trg_arg);
+
   static string CreateKey(const EdgeDef &edge);
 
   static Status ParseKey(const string &key, EdgeDef *parsed_key);
-
-  static string CreateArgKey(const string &node, const string &arg);
-
   // Register an edge by key create by CreateKey
   Status Register(const string &key);
   // Retrive args' key by source point.
@@ -43,13 +44,6 @@ private:
   // trg's edges
   std::unordered_map<string, string> trg_edges_;
 };
-
-// struct Edge {
-//   string src_node;
-//   string src_arg;
-//   string trg_node;
-//   string trg_arg;
-// };
 
 typedef EdgeDef *edge_raw_ptr_t;
 typedef std::shared_ptr<EdgeDef> edge_ptr_t;
