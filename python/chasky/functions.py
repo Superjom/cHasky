@@ -21,3 +21,7 @@ def FullyConnectedFunc(dim, activation_type="sigmoid", batch_size=None):
     return "FullyConnectedFunc:11", dict(dim=dim,
                                          batch_size=batch_size,
                                          activation_type=activation_type, )
+
+
+def RMSElossFunc():
+    return "RMSElossFunc:11", dict()
