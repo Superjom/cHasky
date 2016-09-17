@@ -2,19 +2,20 @@
 #include "chasky/core/runtime/parameter_lib.h"
 namespace chasky {
 
-Status ParameterLib::RegisterCreate(const string &key, const ArgumentDef &def) {
+Status ParameterLib::RegisterCreate(const string &key, const ArgumentDef &def,
+                                    ArgumentPtr *param) {
   Status status;
   auto it = params_.find(key);
-  if (it != params_.end()) {
-    status.Update(
-        error::INVALID_ARGUMENT,
-        strings::Printf("duplicate register parameter called %s", key.c_str()));
-  } else if (!params_.insert(
-                         std::make_pair(key, std::make_shared<Argument>(&def)))
-                  .second) {
-    status.Update(error::UNKNOWN,
-                  strings::Printf("parameter %s insert error", key.c_str()));
-  }
+  CH_STEST_RETURN2(it == params_.end(), error::INVALID_ARGUMENT,
+                   "duplicate register parameter [%s]", key.c_str());
+
+  auto new_param = std::make_shared<Argument>(&def);
+
+  CH_STEST_RETURN2(params_.insert(std::make_pair(key, new_param)).second,
+                   error::OUT_OF_RANGE,
+                   "failed to insert param [%s] to library", key.c_str());
+
+  *param = new_param;
   return status;
 }
 

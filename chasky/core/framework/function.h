@@ -24,24 +24,9 @@ public:
   // itself according to function's definition(attributes).
   virtual Status InitFromProto(const FunctionDef &def) = 0;
 
-  // Forward computation
-  // args: input arguments. If inputs are matrixs, then all their shape should
-  // be the same.
-  // activation: function's activation output
-  // def: function's definition
-  // A real function will determine the type fields of arguments to use
-  // according to function's definition.
-  virtual Status ForwardCompute(const std::vector<const Argument *> &args,
-                                const std::vector<ArgumentPtr> *activations) = 0;
+  virtual Status ForwardCompute() = 0;
 
-  // @grad is this function's gradient. gradient * f'(x) will be the former
-  // function's gradient
-  // @x is this function's forword input.
-  // @previous_grad is previous functions gradient.
-  // previous_grad += f'(x) * grad
-  virtual Status
-  BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
-                  const std::vector<Argument *> *previous_grad) = 0;
+  virtual Status BackwardCompute() = 0;
 
   virtual const FunctionDef &Def() { return def_; }
 
@@ -52,8 +37,25 @@ private:
 // Base class for all funcs
 class Function : public FunctionInterface {
 public:
+  struct ComputationItem {
+    std::vector<ArgumentPtr> inputs;
+    std::vector<ArgumentPtr> input_grads;
+    std::vector<ArgumentPtr> outputs;
+    std::vector<ArgumentPtr> output_grads;
+    // weight's grad to update weight parameter.
+    std::vector<ArgumentPtr> weight_grads;
+  };
+
   // void SetExecContext(ExecContext *context);
   Function() {}
+
+  // Set model's parameters before function's compuatation.
+  void SetModelParameters(std::vector<ArgumentPtr> *params) {
+    CHECK(params);
+    params_ = params;
+  }
+
+  ComputationItem &CompItem() { return comp_item_; }
 
   virtual void CheckContext() = 0;
 
@@ -65,14 +67,7 @@ public:
   // Parse signature and extract different infomation fields.
   // Return true if successfully parsed, else false.
   static bool ParseSignature(const std::string &sign, std::string *name,
-                             DataType *dtype) {
-    auto pieces = strings::Split(sign, ':');
-    if (pieces.size() != 2)
-      return false;
-    *name = pieces[0];
-    *dtype = static_cast<DataType>(std::stoi(pieces[1]));
-    return true;
-  }
+                             DataType *dtype);
 
   // Create an func from definition
   // @def: func's definition
@@ -83,16 +78,48 @@ public:
 
   StringPiece Name() const { return name_; }
 
-  // const FunctionDef &Def() const { return *def_; }
+  ArgumentPtr Input(size_t i) {
+    CHECK_LT(i, comp_item_.inputs.size());
+    return comp_item_.inputs[i];
+  }
 
-  // const ExecContext &exec_context() { return *exec_context_; }
-  // ExecContext *mutable_exec_context() { return exec_context_; }
+  ArgumentPtr Output(size_t i) {
+    CHECK_LT(i, comp_item_.outputs.size());
+    return comp_item_.outputs[i];
+  }
+
+  ArgumentPtr InputGrad(size_t i) {
+    CHECK_LT(i, InputGrads().size());
+    return InputGrads()[i];
+  }
+
+  ArgumentPtr OutputGrad(size_t i) {
+    CHECK_LT(i, OutputGrads().size());
+    return OutputGrads()[i];
+  }
+
+  ArgumentPtr &WeightGrad(size_t i) {
+    CHECK_LT(i, WeightGrads().size());
+    return WeightGrads()[i];
+  }
+
+  std::vector<ArgumentPtr> &Inputs() { return comp_item_.inputs; }
+
+  std::vector<ArgumentPtr> &Outputs() { return comp_item_.outputs; }
+
+  std::vector<ArgumentPtr> &InputGrads() { return comp_item_.input_grads; }
+
+  std::vector<ArgumentPtr> &OutputGrads() { return comp_item_.output_grads; }
+
+  std::vector<ArgumentPtr> &WeightGrads() { return comp_item_.weight_grads; }
 
 protected:
   FunctionDef *def_;
+  // model parameters
+  std::vector<ArgumentPtr> *params_;
+  ComputationItem comp_item_;
 
 private:
-  // ExecContext *exec_context_;
   StringPiece name_;
 };
 

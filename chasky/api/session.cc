@@ -11,9 +11,10 @@ struct SessionPrivate {
 };
 
 bool ::Session::CreateGraph(const std::string &str_buf) {
-  LOG(INFO) << "api get def:\t" << str_buf;
+  LOG(INFO) << "api get str def:\t" << str_buf;
   session_ = new SessionPrivate;
   auto buf = chasky::str2buf<chasky::GraphDef>(str_buf);
+  DLOG(INFO) << "api def protobuf:\t" << buf.DebugString();
   session_->session = std::make_shared<chasky::Session>(buf.name());
   return session_->session->CreateGraph(buf).ok();
 }
@@ -21,10 +22,11 @@ bool ::Session::CreateGraph(const std::string &str_buf) {
 bool ::Session::StartExec() { return session_->session->StartExec().ok(); }
 
 bool ::Session::Compute(std::vector<std::string> &inputs) {
-  std::vector<chasky::ArgumentDef> args;
-  for (auto &buf : inputs) {
-    args.push_back(chasky::str2buf<chasky::ArgumentDef>(buf));
+  std::vector<chasky::ArgumentDef> args(inputs.size());
+  for (size_t i = 0; i < inputs.size(); i++) {
+    *args[i].mutable_content() = inputs[i];
   }
+  session_->session->Compute(args);
   return true;
 }
 

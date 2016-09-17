@@ -19,7 +19,7 @@ Status Argument::SetList(std::vector<ArgumentPtr> &list) {
   Status status;
   // check all the input arguments have the same dtype
   CHECK(!list.empty());
-  auto input_dtype = arg_def_->dtype();
+  auto input_dtype = arg_def_.dtype();
 
   for (auto &arg : list) {
     CH_STEST_RETURN2(arg->ArgDef()->dtype() == input_dtype,
@@ -46,7 +46,7 @@ Status Argument::Serialize(ArgumentDef *buffer) const {
   Status status;
 
   std::string buf;
-  switch (arg_def_->dtype()) {
+  switch (arg_def_.dtype()) {
   case DataType::CH_MAT_FLOAT: {
     math::CpuFloatMatrix *mat;
     ArgField()->get(&mat);
@@ -56,19 +56,23 @@ Status Argument::Serialize(ArgumentDef *buffer) const {
     UN_IMPLEMENTED
   }
 
-  *buffer = *arg_def_;
+  *buffer = arg_def_;
   buffer->set_content(buf);
   return status;
 }
 
 Status Argument::DeSerialize(const ArgumentDef &buffer) {
   Status status;
+  // CHECK(arg_def_.IsInitialized());
 
-  *arg_def_ = buffer;
+  DLOG(INFO) << "buffer: " << buffer.DebugString();
+  DLOG(INFO) << "to copy buffer";
+  arg_def_ = buffer;
   // leave content field empty to save memory
-  arg_def_->clear_content();
+  arg_def_.clear_content();
 
-  switch (arg_def_->dtype()) {
+  DLOG(INFO) << "fill argument's mat";
+  switch (arg_def_.dtype()) {
   case DataType::CH_MAT_FLOAT: {
     math::CpuFloatMatrix *mat;
     ArgField()->get(&mat);
@@ -94,9 +98,9 @@ Status Argument::AppendList(DataType dtype, Argument &arg) {
   return status;
 }
 
-const string &Argument::Name() const { return arg_def_->name(); }
+const string &Argument::Name() const { return arg_def_.name(); }
 
-const ArgumentDef::Shape &Argument::Shape() const { return arg_def_->shape(); }
+const ArgumentDef::Shape &Argument::Shape() const { return arg_def_.shape(); }
 
 // A helper class to create argument according to ArgDef
 class Def2Arg {
@@ -127,21 +131,16 @@ Status Argument::FromDef(const ArgumentDef *def) {
   CHECK(def);
   DLOG(INFO) << "create Argument from def:\n" << def->DebugString();
   CH_STEST_RETURN2(def != nullptr, error::INVALID_ARGUMENT, "def is nullptr");
-  CH_STEST_RETURN2(
-      arg_def_ == nullptr || arg_def_ == def, error::INVALID_ARGUMENT,
-      "duplicate set arg's definition. arg_def_ is already set to \n%s",
-      arg_def_->DebugString().c_str());
 
-  arg_def_ = const_cast<ArgumentDef *>(def);
+  arg_def_ = *def;
   // if (IsRef())
   //   return Status();
 
-  CH_STEST_RETURN2(!arg_def_->type().empty(), error::INVALID_ARGUMENT,
+  CH_STEST_RETURN2(!arg_def_.type().empty(), error::INVALID_ARGUMENT,
                    "def.type is not set");
-  arg_def_->set_dtype(String2Dtype(arg_def_->type()));
+  arg_def_.set_dtype(String2Dtype(arg_def_.type()));
 
-  DLOG(INFO) << "init from type " << arg_def_->type() << " "
-             << arg_def_->dtype();
+  DLOG(INFO) << "init from type " << arg_def_.type() << " " << arg_def_.dtype();
 
   CHECK(arg_field_);
   CHECK(arg_field_->IsEmpty());
@@ -179,16 +178,16 @@ Status Argument::FromDef(const ArgumentDef *def) {
 }
 
 inline void Argument::Assign(const Argument &other) {
-  CHECK(arg_def_) << "arg_def_ should be inited before assign";
+  CHECK(arg_def_.IsInitialized()) << "arg_def_ should be inited before assign";
   CHECK(other.arg_field_) << "can not copy from null arg";
   DLOG(INFO) << "argument copy assign in ref mode? " << IsRef();
-  arg_def_ = const_cast<ArgumentDef *>(other.ArgDef());
+  arg_def_ = *other.ArgDef();
 
   if (IsRef()) {
     arg_field_ = other.ArgField();
   } else {
     arg_field_ = std::make_shared<ArgumentField>();
-    if (arg_def_->is_ref()) {
+    if (arg_def_.is_ref()) {
       arg_field_->CloneFrom(*other.ArgField());
     } else {
       DLOG(INFO) << "copy argument field";
@@ -205,11 +204,10 @@ bool Argument::IsList(chasky::DataType dtype) {
 std::string Argument::Description() const {
   std::stringstream ss;
   ss << std::endl;
-  ss << "Argument [" << arg_def_->name() << " ]" << std::endl;
-  ss << "    type: " << arg_def_->type() << " " << arg_def_->dtype()
-     << std::endl;
-  ss << "    shape: " << arg_def_->shape().width() << " "
-     << arg_def_->shape().height() << std::endl;
+  ss << "Argument [" << arg_def_.name() << " ]" << std::endl;
+  ss << "    type: " << arg_def_.type() << " " << arg_def_.dtype() << std::endl;
+  ss << "    shape: " << arg_def_.shape().width() << " "
+     << arg_def_.shape().height() << std::endl;
   ss << std::endl;
   return ss.str();
 }

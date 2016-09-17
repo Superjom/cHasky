@@ -38,17 +38,9 @@ public:
     return Status();
   }
 
-  virtual Status
-  ForwardCompute(const std::vector<const Argument *> &args,
-                 const std::vector<ArgumentPtr> *activations) override {
-    return Status();
-  }
+  virtual Status ForwardCompute() override { return Status(); }
 
-  virtual Status
-  BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
-                  const std::vector<Argument *> *previous_grad) override {
-    return Status();
-  }
+  virtual Status BackwardCompute() override { return Status(); }
 };
 
 REGISTER_FUNC(demo_func, CH_FLOAT, DemoFunc);

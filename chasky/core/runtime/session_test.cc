@@ -43,6 +43,7 @@ public:
     auto node_def_3 =
         NodeDefBuilder()
             .Name("node-3")
+            .SetIsEnd(true)
             .Signature("IdenticalFunc:11")
             .Attr("dim", AttrValueBuilder().Value(dim).Finalize())
             .Attr("batch_size", AttrValueBuilder().Value(batch_size).Finalize())
@@ -106,11 +107,11 @@ TEST_F(SessionTest, data_provider) {
 
   // Data provider fill data batch
   ArgumentDef batch_def = ArgumentDefBuilder()
-                          .Name("data")
-                          .Type("float_mat")
-                          .Shape(dim, batch_size)
-                          .Doc("a batch of data")
-                          .Finalize();
+                              .Name("data")
+                              .Type("float_mat")
+                              .Shape(dim, batch_size)
+                              .Doc("a batch of data")
+                              .Finalize();
   Argument data(&batch_def);
   std::vector<ArgumentDef> args;
   args.push_back(batch_def);
@@ -118,7 +119,7 @@ TEST_F(SessionTest, data_provider) {
   DLOG(INFO) << "send batch of data to data provider";
   ASSERT_TRUE(session->Compute(args).ok());
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   session->DestroyGraph();
 }
 

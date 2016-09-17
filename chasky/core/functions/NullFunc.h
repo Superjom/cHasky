@@ -25,17 +25,19 @@ public:
     return status;
   }
 
-  virtual Status
-  ForwardCompute(const std::vector<const Argument *> &args,
-                 const std::vector<ArgumentPtr> *activation) override {
+  // virtual Status
+  // ForwardCompute(const std::vector<const Argument *> &args,
+  //                const std::vector<ArgumentPtr> *activation) override {
+  virtual Status ForwardCompute() override {
     Status status;
     return status;
   }
 
-  Status
-  BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
-                  const std::vector<Argument *> *previous_grad) override {
-
+  // Status
+  // BackwardCompute(const std::vector<const Argument *> &x, const Argument
+  // &grad,
+  //                 const std::vector<Argument *> *previous_grad) override {
+  Status BackwardCompute() override {
     Status status;
     return status;
   }

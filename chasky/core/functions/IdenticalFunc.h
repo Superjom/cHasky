@@ -52,31 +52,21 @@ public:
     return status;
   }
 
-  virtual Status
-  ForwardCompute(const std::vector<const Argument *> &args,
-                 const std::vector<ArgumentPtr> *activation) override {
+  virtual Status ForwardCompute() override {
     Status status;
-    for (size_t i = 0; i < args.size(); i++) {
-      if (!args[i]) {
-        DLOG(WARNING) << "input nullptr, stop service";
-        return status;
-      }
+    CHECK_EQ(Inputs().size(), 1UL);
+    CHECK_EQ(Outputs().size(), 1UL);
+    if (!Inputs()[0]) {
+      DLOG(WARNING) << "input nullptr, stop service";
+      return status;
     }
 
-    CHECK_EQ(args.size(), activation->size());
-    for (size_t i = 0; i < args.size(); i++) {
-      CHECK(activation);
-      DLOG(INFO) << "assign " << i << " th output";
-      DLOG(INFO) << "arg: " << args[i]->Description();
-      activation->at(i)->Assign(*args[i]);
-    }
+    *Outputs()[0]->ArgField()->float_mat_val->MatPtr() =
+        *Inputs()[0]->ArgField()->float_mat_val->MatPtr();
     return status;
   }
 
-  Status
-  BackwardCompute(const std::vector<const Argument *> &x, const Argument &grad,
-                  const std::vector<Argument *> *previous_grad) override {
-
+  Status BackwardCompute() override {
     Status status;
     return status;
   }

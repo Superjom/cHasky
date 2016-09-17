@@ -4,3 +4,5 @@
 // #include "chasky/core/functions/AddN_def.h"
 #include "chasky/core/functions/NullFunc_def.h"
 #include "chasky/core/functions/IdenticalFunc_def.h"
+#include "chasky/core/functions/FullyConnectedFunc_def.h"
+#include "chasky/core/functions/RMSElossFunc_def.h"

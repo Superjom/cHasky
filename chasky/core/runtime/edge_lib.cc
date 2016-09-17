@@ -1,40 +1,38 @@
 #include <sstream>
 #include <regex>
 
+#include "chasky/core/framework/graph.pb.h"
 #include "chasky/core/common/status.h"
 #include "chasky/core/runtime/edge_lib.h"
+#include "chasky/core/runtime/postbox.h"
 namespace chasky {
 
-string EdgeLib::CreateKey(const string &src_node, const string &src_arg,
-                          const string &trg_node, const string &trg_arg) {
-  return strings::Printf("%s:%s->%s:%s", src_node.c_str(), src_arg.c_str(),
-                         trg_node.c_str(), trg_arg.c_str());
+string EdgeLib::CreateKey(const string &src_arg, const string &trg_arg) {
+  return strings::Printf("%s->%s", src_arg.c_str(), trg_arg.c_str());
 }
 
 string EdgeLib::CreateKey(const EdgeDef &edge) {
-  return strings::Printf("%s:%s->%s:%s", edge.src_node().c_str(),
-                         edge.src_arg().c_str(), edge.trg_node().c_str(),
-                         edge.trg_arg().c_str());
+  return strings::Printf("%s:%s:%d->%s:%s:%d", edge.src_node().c_str(),
+                         edge.src_arg().c_str(), edge.mode(),
+                         edge.trg_node().c_str(), edge.trg_arg().c_str(),
+                         edge.mode());
 }
 
 Status EdgeLib::ParseKey(const string &key, EdgeDef *edge) {
   Status status;
 
-  std::regex re("([0-9a-z_-]+):([0-9a-z_-]+)->([0-9a-z_-]+):([0-9a-z_-]+)");
+  std::regex re("([0-9a-z_-]+):([0-9a-z_-]+):([0-9]+)->([0-9a-z_-]+):([0-9a-z_-"
+                "]+):([0-9]+)");
   std::smatch match;
   CHECK(std::regex_search(key.begin(), key.end(), match, re)) << key;
-  CHECK_EQ(match.size(), 5);
+  CHECK_EQ(match.size(), 7);
   edge->set_src_node(match[1]);
   edge->set_src_arg(match[2]);
-  edge->set_trg_node(match[3]);
-  edge->set_trg_arg(match[4]);
+  edge->set_trg_node(match[4]);
+  edge->set_trg_arg(match[5]);
   edge->set_signature_(key);
-
+  edge->set_mode((TaskType)std::stoi(match[6].str()));
   return status;
-}
-
-string EdgeLib::CreateArgKey(const string &node, const string &arg) {
-  return strings::Printf("%s:%s", node.c_str(), arg.c_str());
 }
 
 Status EdgeLib::Register(const string &key) {
@@ -42,16 +40,18 @@ Status EdgeLib::Register(const string &key) {
   Status status;
   std::unique_ptr<EdgeDef> _edge(new EdgeDef);
   CH_CHECK_OK(ParseKey(key, _edge.get()));
-  DLOG(INFO) << strings::Printf("register edge [%s] to edges_", key.c_str());
+  // DLOG(INFO) << strings::Printf("register edge [%s] to edges_", key.c_str());
   edges_[key] = std::move(_edge);
-  DLOG(INFO) << strings::Printf("finish registering edge [%s] to edges_",
-                                key.c_str());
+  // DLOG(INFO) << strings::Printf("finish registering edge [%s] to edges_",
+  //                               key.c_str());
   // CH_STEST_RETURN2(edges_.insert({key, edge}).second, error::UNKNOWN,
   //                  "insert record failed");
   // register by source
   auto &edge = edges_[key];
-  string source_key = CreateArgKey(edge->src_node(), edge->src_arg());
-  string target_key = CreateArgKey(edge->trg_node(), edge->trg_arg());
+  string source_key =
+      PostBox::CreateArgKey(edge->src_node(), edge->src_arg(), edge->mode());
+  string target_key =
+      PostBox::CreateArgKey(edge->trg_node(), edge->trg_arg(), edge->mode());
 
   DLOG(INFO) << strings::Printf("register edge [%s] to src_edges_",
                                 source_key.c_str());

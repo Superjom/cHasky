@@ -22,7 +22,7 @@ class NodeDefBuilder(object):
         self.node_def_.is_source = is_source
         return self
 
-    def setIsEnd(self, is_end):
+    def SetIsEnd(self, is_end):
         '''
         @is_end: bool
         '''
@@ -46,6 +46,7 @@ class NodeDefBuilder(object):
             distinguish between real int and DataType
         '''
         attr = self.node_def_.attr[key]
+        print 'attr value', value
         attr_builder = AttrValueBuilder(attr).Value(value, is_dtype)
         return self
 

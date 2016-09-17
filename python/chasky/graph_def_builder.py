@@ -17,6 +17,10 @@ class GraphDefBuilder(object):
                                     if name else GraphDefBuilder.cur_graph
         return GraphDefBuilder.cur_graph
 
+    @staticmethod
+    def Destroy():
+        GraphDefBuilder.cur_graph = None
+
     def __init__(self):
         self.def_ = GraphDef()
 

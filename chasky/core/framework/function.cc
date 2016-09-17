@@ -4,17 +4,15 @@ using namespace std;
 
 namespace chasky {
 
-/*void Function::SetExecContext(ExecContext *context) {
-  exec_context_ = context;
-  // CHECK(CheckInput());
-  }*/
-
-/*
-FunctionLibrary &Instance() {
-  static FunctionLibrary *library = new FunctionLibrary();
-  return *library;
+bool Function::ParseSignature(const std::string &sign, std::string *name,
+                              DataType *dtype) {
+  auto pieces = strings::Split(sign, ':');
+  if (pieces.size() != 2)
+    return false;
+  *name = pieces[0];
+  *dtype = static_cast<DataType>(std::stoi(pieces[1]));
+  return true;
 }
-*/
 
 void ArgumentCreateFloat(Argument *arg, ArgumentDef::Shape &shape) {
   size_t width = shape.width();

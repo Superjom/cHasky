@@ -16,6 +16,8 @@ public:
   // Multiply `this` with `other`: this = (this * ratio1) * (other * ratio2)
   virtual void MultWith(const BaseMatrix &other, float ratio1,
                         float ratio2) = 0;
+  // Multiply `this` with `other` elementwise, and assign result to target.
+  virtual void DotWith(const BaseMatrix &other, BaseMatrix *target) = 0;
   // Add `this` with `other` : this = (this * ratio1) + (other * ratio2)
   virtual void AddWith(const BaseMatrix &other, float ratio1, float ratio2) = 0;
 

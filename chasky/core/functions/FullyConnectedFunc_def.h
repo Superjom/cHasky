@@ -1,5 +1,5 @@
-#ifndef CHASKY_CORE_FUNCTIONS_IDENTICAL_FUNC_DEF_H_
-#define CHASKY_CORE_FUNCTIONS_IDENTICAL_FUNC_DEF_H_
+#ifndef CHASKY_CORE_FUNCTIONS_FULLY_CONNECTED_FUNC_DEF_H_
+#define CHASKY_CORE_FUNCTIONS_FULLY_CONNECTED_FUNC_DEF_H_
 
 #include "chasky/core/common/register.h"
 #include "chasky/core/framework/argument_def_builder.h"
@@ -10,12 +10,10 @@ namespace chasky {
 namespace functions {
 
 REGISTER_FUNC_DEF(
-    IdenticalFunc,
+    FullyConnectedFunc,
     FunctionDefBuilder()
-        .Name("IdenticalFunc")
-        // data type of input_list should be detemined in the runtime.
+        .Name("FullyConnectedFunc")
         .Input(ArgumentDefBuilder().Name("input").Type("float_mat").Finalize())
-        // data type of output should be detemined in the runtime.
         .Output(
             ArgumentDefBuilder().Name("output").Type("float_mat").Finalize())
         .Attr(AttrDefBuilder()

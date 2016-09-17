@@ -10,7 +10,7 @@ class ArgumentDefBuilder(object):
         return self
 
     def Type(self, x):
-        self.def_.name = x
+        self.def_.type = x
         return self
 
     def Shape(self, width, height):

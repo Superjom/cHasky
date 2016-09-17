@@ -21,8 +21,8 @@ void ArgumentField::CopyFrom(const ArgumentField &other) {
     *int64_val = *other.int64_val;
   }
   if (other.float_mat_val) {
-    DLOG(INFO) << "to copy float_mat_val ...";
-    DLOG(INFO) << "other.mat " << other.float_mat_val.get();
+    // DLOG(INFO) << "to copy float_mat_val ...";
+    // DLOG(INFO) << "other.mat " << other.float_mat_val.get();
     if (!float_mat_val) {
       float_mat_val =
           std::make_shared<math::CpuFloatMatrix>(*other.float_mat_val);

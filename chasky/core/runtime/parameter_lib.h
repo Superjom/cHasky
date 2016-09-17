@@ -22,8 +22,12 @@ public:
     static std::shared_ptr<ParameterLib> p = std::make_shared<ParameterLib>();
     return *p;
   }
-  // Register an parameter by name and def.
-  Status RegisterCreate(const string &key, const ArgumentDef &def);
+  // // Register an parameter by name and def.
+  // Status RegisterCreate(const string &key, const ArgumentDef &def);
+  // Register an parameter by name and def and return the parameter by assigning
+  // param.
+  Status RegisterCreate(const string &key, const ArgumentDef &def,
+                        ArgumentPtr *param);
   // Retrieve a parameter by name.
   Status Retrieve(const string &key, ArgumentPtr *param) const;
   // Save all parameter in the library to a directory, each parameter to a file
@@ -33,6 +37,8 @@ public:
   Status LoadFrom(const string &dir);
   // Human-readable debug information.
   string DebugString() const;
+  // Update the model parameters.
+  Status IncUpdate(const string &key, Argument &grad);
 
 private:
   std::unordered_map<string, ArgumentPtr> params_;

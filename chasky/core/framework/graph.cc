@@ -6,6 +6,7 @@ Graph::Graph(GraphDef &def, PostBox *postbox)
     : data_provider_(
           DataProvider::Create(def.data_provider(), postbox, &edge_lib_)),
       node_lib_(postbox, &edge_lib_), postbox_(postbox), def_(def) {
+  DLOG(INFO) << "graph's definition is " << def.DebugString();
   CH_CHECK_OK(CreateNodes());
   CH_CHECK_OK(ConnectNodes());
 }
@@ -62,10 +63,19 @@ Status Graph::ConnectNodes() {
     auto sign = EdgeLib::CreateKey(e);
     DLOG(INFO) << "connect " << sign;
     e.set_signature_(sign);
-    edge_lib_.Register(sign);
-  }
-  DLOG(INFO) << "finish connecting nodes ...";
+    CH_CHECK_OK(edge_lib_.Register(sign));
 
+    // reverse edge
+    auto reverse_e = e;
+    auto src_arg_key = PostBox::CreateArgKey(reverse_e.trg_node(),
+                                             reverse_e.trg_arg(), BACKWARD);
+    auto trg_arg_key = PostBox::CreateArgKey(reverse_e.src_node(),
+                                             reverse_e.src_arg(), BACKWARD);
+    auto reverse_key = EdgeLib::CreateKey(src_arg_key, trg_arg_key);
+    CH_CHECK_OK(edge_lib_.Register(reverse_key));
+  }
+
+  DLOG(INFO) << "finish connecting nodes ...";
   return status;
 }
 
