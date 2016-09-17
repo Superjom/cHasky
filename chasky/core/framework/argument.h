@@ -23,13 +23,13 @@ class Argument {
 public:
   // A default constructor used for new
   explicit Argument()
-      : arg_def_(nullptr), arg_field_{std::make_shared<ArgumentField>()},
+      : arg_field_{std::make_shared<ArgumentField>()},
         valid_(false) {}
   // Init and allocate parameter from Argument Def
   explicit Argument(const ArgumentDef *def)
-      : arg_def_(const_cast<ArgumentDef *>(def)),
+      : arg_def_(*def),
         arg_field_(std::make_shared<ArgumentField>()), valid_(false) {
-    CH_CHECK_OK(FromDef(arg_def_));
+    CH_CHECK_OK(FromDef(&arg_def_));
   }
 
   explicit Argument(const Argument &other);
@@ -74,7 +74,7 @@ public:
 
   const ArgumentDef::Shape &Shape() const;
 
-  const ArgumentDef *ArgDef() const { return arg_def_; }
+  const ArgumentDef *ArgDef() const { return &arg_def_; }
 
   // The fields can be accessed by DataType like:
   //     Argument arg;
@@ -93,7 +93,7 @@ public:
   // and manange the memory, if reference, it will not
   // just copy a pointer from others, otherwise, it will create a ArgumentField,
   // copy content from others and manange ArgumentField's memory
-  bool IsRef() const { return arg_def_->is_ref(); }
+  bool IsRef() const { return arg_def_.is_ref(); }
 
   bool IsCopied() const { return !IsRef(); };
 
@@ -117,7 +117,7 @@ protected:
 
 private:
   // Just a pointer to other's def, need not free the memory.
-  ArgumentDef *arg_def_;
+  ArgumentDef arg_def_;
   // If the argument is a reference, arg_field_ will just be a pointer and need
   // not memory management.
   // If the arguemnt is a copy, It will create its own ArgumentField and manage
@@ -133,6 +133,9 @@ private:
 inline bool Argument::operator==(const Argument &other) {
   return ArgField() == other.ArgField();
 }
+
+
+DataType String2Dtype(StringPiece type);
 
 } // namespace chasky
 #endif
