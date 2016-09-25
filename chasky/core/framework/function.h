@@ -37,6 +37,8 @@ private:
 // Base class for all funcs
 class Function : public FunctionInterface {
 public:
+  // A data structure that contains every parameter that forward/backward
+  // computation needs. Just make computation's interface more simple.
   struct ComputationItem {
     std::vector<ArgumentPtr> inputs;
     std::vector<ArgumentPtr> input_grads;
