@@ -5,13 +5,42 @@
  */
 #ifndef CHASKY_CORE_FUNCTIONS_FULLY_CONNECTED_FUNC_H_
 #define CHASKY_CORE_FUNCTIONS_FULLY_CONNECTED_FUNC_H_
+#include "chasky/core/common/register.h"
+#include "chasky/core/framework/argument_def_builder.h"
+#include "chasky/core/framework/attr_value_util.h"
 #include "chasky/core/framework/function.h"
 #include "chasky/core/functions/function_def.h"
+#include "chasky/core/framework/function_def_builder.h"
 
 namespace chasky {
 namespace functions {
 
-template <typename T> class FullyConnectedFunc : public Function {
+// fully_connected_func is a fully connected hidden layer in neural networks.
+// The mathematical formula is: fully_connected_func(x) ~ Wx, W is a matrix
+// which is model parameter.
+// It has two attributes:
+//   1. dim: dimention of input vector
+//   2. batch_size: batch size of the input records
+REGISTER_FUNC_DEF(
+    fully_connected_func,
+    FunctionDefBuilder()
+        .Name("fully_connected_func")
+        .Input(ArgumentDefBuilder().Name("input").Type("float_mat").Finalize())
+        .Output(
+            ArgumentDefBuilder().Name("output").Type("float_mat").Finalize())
+        .Attr(AttrDefBuilder()
+                  .Name("dim")
+                  .Type("int64")
+                  .Doc("matrix dimention")
+                  .Finalize())
+        .Attr(AttrDefBuilder()
+                  .Name("batch_size")
+                  .Type("int64")
+                  .Doc("size of the input batch")
+                  .Finalize())
+        .Finalize());
+
+template <typename T> class fully_connected_func : public Function {
 public:
   virtual Status FromDef(FunctionDef &func_def,
                          const Function::extra_attr_t &attrs) override {
@@ -47,7 +76,6 @@ public:
       def.mutable_shape()->set_width(dim_);
       def.mutable_shape()->set_height(batch_size_);
     }
-
     return status;
   }
 
@@ -77,9 +105,7 @@ public:
   }
 
   Status BackwardCompute() override {
-
     Status status;
-
     CHECK_EQ(OutputGrads().size(), 1UL);
     CHECK_EQ(Inputs().size(), 1UL);
     CHECK_EQ(InputGrads().size(), 1UL);

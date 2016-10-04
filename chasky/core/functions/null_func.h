@@ -11,7 +11,18 @@
 namespace chasky {
 namespace functions {
 
-template <typename T> class NullFunc : public Function {
+REGISTER_FUNC_DEF(
+    null,
+    FunctionDefBuilder()
+        .Name("null")
+        // data type of input_list should be detemined in the runtime.
+        .Input(ArgumentDefBuilder().Name("input").Type("float_mat").Finalize())
+        // data type of output should be detemined in the runtime.
+        .Output(
+            ArgumentDefBuilder().Name("output").Type("float_mat").Finalize())
+        .Finalize());
+
+template <typename T> class null_func : public Function {
 public:
   virtual Status FromDef(FunctionDef &func_def,
                          const Function::extra_attr_t &attrs) override {
@@ -25,18 +36,11 @@ public:
     return status;
   }
 
-  // virtual Status
-  // ForwardCompute(const std::vector<const Argument *> &args,
-  //                const std::vector<ArgumentPtr> *activation) override {
   virtual Status ForwardCompute() override {
     Status status;
     return status;
   }
 
-  // Status
-  // BackwardCompute(const std::vector<const Argument *> &x, const Argument
-  // &grad,
-  //                 const std::vector<Argument *> *previous_grad) override {
   Status BackwardCompute() override {
     Status status;
     return status;
