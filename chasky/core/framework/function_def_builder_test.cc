@@ -16,13 +16,13 @@ TEST(FunctionDefBuilder, init) {
 
       .Input(NewArgumentDefBuilder()
                  .Name("input1")
-                 .Type("float_vec")
+                 .Type("float_mat")
                  .Doc("a float vector")
                  .Finalize())
 
       .Output(NewArgumentDefBuilder()
                   .Name("output1")
-                  .Type("float_vec")
+                  .Type("float_mat")
                   .Doc("a float vector")
                   .Finalize());
 

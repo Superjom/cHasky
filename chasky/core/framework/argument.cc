@@ -1,11 +1,25 @@
 #include <vector>
 #include <unordered_map>
 #include <glog/logging.h>
+
 #include "chasky/core/framework/argument.h"
+#include "chasky/core/framework/argument_def_builder.h"
+
 using namespace std;
 
 namespace chasky {
 Argument::Argument(const Argument &other) : valid_(false) { Assign(other); }
+
+Argument::Argument(const std::string name, const std::string dtype,
+                   uint64_t width, uint64_t height)
+    : arg_field_(std::make_shared<ArgumentField>()), valid_(false) {
+  auto def = ArgumentDefBuilder()
+                 .Name(name)
+                 .Shape(width, height)
+                 .Type(dtype)
+                 .Finalize();
+  CH_CHECK_OK(FromDef(&def));
+}
 
 Status Argument::FromBuffer(const string &buffer) {
   Status status;
@@ -29,18 +43,6 @@ Status Argument::SetList(std::vector<ArgumentPtr> &list) {
   }
   return status;
 }
-
-// void Argument::DataToString(string *buffer) const {
-//   switch (arg_def_->dtype()) {
-//   case DataType::CH_MAT_FLOAT: {
-//     math::CpuFloatMatrix *mat;
-//     ArgField()->get(&mat);
-//     mat->ToBuffer(*buffer);
-//   } break;
-//   default:
-//     UN_IMPLEMENTED
-//   }
-// }
 
 Status Argument::Serialize(ArgumentDef *buffer) const {
   Status status;

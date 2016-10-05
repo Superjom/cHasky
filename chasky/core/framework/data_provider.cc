@@ -39,8 +39,12 @@ DataProvider::DataProvider(const DataProviderDef &def, PostBox *postbox,
 
   for (const auto &arg_def : def.outputs()) {
     outputs_.emplace_back(std::make_shared<Argument>(&arg_def));
+    // register forward argument
     auto key = PostBox::CreateArgKey(def_.name(), arg_def.name());
     CH_CHECK_OK(postbox_->Register(key, outputs_.back()));
+    // register backward argument, with nothing to do
+    key = PostBox::CreateArgKey(def_.name(), arg_def.name(), BACKWARD);
+    CH_CHECK_OK(postbox_->Register(key, nullptr));
   }
 }
 

@@ -18,34 +18,32 @@ public:
     return std::unique_ptr<Graph>(new Graph(def, postbox));
   }
 
-  Status StartExec();
-
+  // Let graph to study one batch of records.
   Status Compute(std::vector<ArgumentDef> &inputs);
 
   string DebugString() const;
 
-  void ServiceThreadJoin();
-
   GraphDef &Def() { return def_; }
 
-  ~Graph();
+  // ~Graph();
 
 protected:
   Graph(GraphDef &def, PostBox *postbox);
 
   Status CreateNodes();
-
   Status ConnectNodes();
 
 private:
+  GraphDef def_;
+  PostBox *postbox_;
   EdgeLib edge_lib_;
   NodeLib node_lib_;
   ParameterLib param_lib_;
-  GraphDef def_;
-  PostBox *postbox_;
   std::unique_ptr<DataProvider> data_provider_;
-
-  std::unique_ptr<std::thread> service_thread_;
+  // nodes' forward compu
+  std::vector<std::string> nodes_fwd_cpt_order_;
+  // nodes' backward computation order
+  std::vector<std::string> nodes_bwd_cpt_order_;
 };
 
 } // namespace chasky

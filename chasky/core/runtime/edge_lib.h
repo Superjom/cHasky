@@ -28,9 +28,11 @@ public:
   // Register an edge by key create by CreateKey
   Status Register(const string &key);
   // Retrive args' key by source point.
-  Status RetriveBySource(const string &key, string *arg_sign);
+  Status RetriveBySource(const string &key,
+                         std::vector<string> const **arg_sign) const;
   // Retrive args' key by target point.
-  Status RetriveByTarget(const string &key, string *arg_sign);
+  Status RetriveByTarget(const string &key,
+                         std::vector<string> const **arg_sign) const;
 
   string DebugString() const;
 
@@ -40,9 +42,9 @@ private:
   // key to edges
   std::unordered_map<string, std::unique_ptr<EdgeDef>> edges_;
   // src's edges
-  std::unordered_map<string, string> src_edges_;
+  std::unordered_map<string, std::vector<string>> src_edges_;
   // trg's edges
-  std::unordered_map<string, string> trg_edges_;
+  std::unordered_map<string, std::vector<string>> trg_edges_;
 };
 
 typedef EdgeDef *edge_raw_ptr_t;

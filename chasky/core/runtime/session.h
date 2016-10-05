@@ -23,12 +23,12 @@ public:
 
   Status CreateGraph(GraphDef &def);
 
-  Status StartExec();
+  // Status StartExec();
 
   // Compute a batch task.
   Status Compute(std::vector<ArgumentDef> &inputs);
 
-  Status KillExec();
+  // Status KillExec();
   // @name: graph's name
   Status DestroyGraph();
 
@@ -36,11 +36,11 @@ public:
 
   PostBox &postbox() { return postbox_; }
 
-  ~Session() {
-    DLOG(INFO) << "session desc ...";
-    postbox_.Abort();
-    graph_->ServiceThreadJoin();
-  }
+  // ~Session() {
+  //   DLOG(INFO) << "session desc ...";
+  //   postbox_.Abort();
+  //   graph_->ServiceThreadJoin();
+  // }
 
 private:
   std::string name_;

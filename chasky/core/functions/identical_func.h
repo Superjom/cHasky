@@ -78,6 +78,7 @@ public:
   }
 
   virtual Status ForwardCompute() override {
+    DLOG(INFO) << "in forward function";
     Status status;
     CHECK_EQ(Inputs().size(), 1UL);
     CHECK_EQ(Outputs().size(), 1UL);
@@ -85,7 +86,8 @@ public:
       DLOG(WARNING) << "input nullptr, stop service";
       return status;
     }
-
+    CHECK(Outputs()[0]) << "output is null1";
+    CHECK(Outputs()[0]->ArgField()) << "output is null";
     *Outputs()[0]->ArgField()->float_mat_val->MatPtr() =
         *Inputs()[0]->ArgField()->float_mat_val->MatPtr();
     return status;

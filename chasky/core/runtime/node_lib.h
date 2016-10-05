@@ -24,7 +24,12 @@ public:
 
   bool IsEmpty() const { return nodes_.empty(); }
 
+  size_t Size() const { return nodes_.size(); }
+
   std::unordered_map<string, std::unique_ptr<Node>> &Nodes() { return nodes_; }
+  const std::unordered_map<string, std::unique_ptr<Node>> &Nodes() const {
+    return nodes_;
+  }
   // Human-readable debug information.
   string DebugString() const;
 

@@ -11,7 +11,7 @@ struct SessionPrivate {
 };
 
 bool ::Session::CreateGraph(const std::string &str_buf) {
-  LOG(INFO) << "api get str def:\t" << str_buf;
+  DLOG(INFO) << "api get str def:\t" << str_buf;
   session_ = new SessionPrivate;
   auto buf = chasky::str2buf<chasky::GraphDef>(str_buf);
   DLOG(INFO) << "api def protobuf:\t" << buf.DebugString();
@@ -19,7 +19,7 @@ bool ::Session::CreateGraph(const std::string &str_buf) {
   return session_->session->CreateGraph(buf).ok();
 }
 
-bool ::Session::StartExec() { return session_->session->StartExec().ok(); }
+bool ::Session::StartExec() { return true; }
 
 bool ::Session::Compute(std::vector<std::string> &inputs) {
   std::vector<chasky::ArgumentDef> args(inputs.size());
@@ -30,7 +30,7 @@ bool ::Session::Compute(std::vector<std::string> &inputs) {
   return true;
 }
 
-bool ::Session::KillExec() { return session_->session->KillExec().ok(); }
+bool ::Session::KillExec() { return true; }
 
 bool ::Session::DestroyGraph() {
   return session_->session->DestroyGraph().ok();

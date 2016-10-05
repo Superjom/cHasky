@@ -23,16 +23,18 @@ class Argument {
 public:
   // A default constructor used for new
   explicit Argument()
-      : arg_field_{std::make_shared<ArgumentField>()},
-        valid_(false) {}
+      : arg_field_{std::make_shared<ArgumentField>()}, valid_(false) {}
   // Init and allocate parameter from Argument Def
   explicit Argument(const ArgumentDef *def)
-      : arg_def_(*def),
-        arg_field_(std::make_shared<ArgumentField>()), valid_(false) {
+      : arg_def_(*def), arg_field_(std::make_shared<ArgumentField>()),
+        valid_(false) {
     CH_CHECK_OK(FromDef(&arg_def_));
   }
 
   explicit Argument(const Argument &other);
+
+  explicit Argument(const std::string name, const std::string dtype,
+                    uint64_t width = 0, uint64_t height = 0);
 
   void Assign(const Argument &other);
 
@@ -133,7 +135,6 @@ private:
 inline bool Argument::operator==(const Argument &other) {
   return ArgField() == other.ArgField();
 }
-
 
 DataType String2Dtype(StringPiece type);
 

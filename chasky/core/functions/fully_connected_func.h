@@ -29,14 +29,19 @@ REGISTER_FUNC_DEF(
         .Output(
             ArgumentDefBuilder().Name("output").Type("float_mat").Finalize())
         .Attr(AttrDefBuilder()
-                  .Name("dim")
+                  .Name("input_dim")
                   .Type("int64")
-                  .Doc("matrix dimention")
+                  .Doc("input's dimention")
                   .Finalize())
         .Attr(AttrDefBuilder()
                   .Name("batch_size")
                   .Type("int64")
                   .Doc("size of the input batch")
+                  .Finalize())
+        .Attr(AttrDefBuilder()
+                  .Name("output_dim")
+                  .Type("int64")
+                  .Doc("matrix dimention")
                   .Finalize())
         .Finalize());
 
@@ -47,11 +52,16 @@ public:
     Status status;
     DLOG(INFO) << "IdenticalFunc init from def";
 
-    auto it = attrs.find("dim");
+    auto it = attrs.find("input_dim");
     CH_STEST_RETURN2(it != attrs.end(), error::INVALID_ARGUMENT,
                      "attribute dim is needed in node definition");
-    dim_ = it->second.int64_val();
-    DLOG(INFO) << "set attr dim to " << dim_;
+    input_dim_ = it->second.int64_val();
+    DLOG(INFO) << "set attr dim to " << input_dim_;
+
+    it = attrs.find("output_dim");
+    CH_STEST_RETURN2(it != attrs.end(), error::INVALID_ARGUMENT,
+                     "attribute output_dim is needed in node definition");
+    output_dim_ = it->second.int64_val();
 
     it = attrs.find("batch_size");
     CH_STEST_RETURN2(it != attrs.end(), error::INVALID_ARGUMENT,
@@ -59,7 +69,8 @@ public:
     batch_size_ = it->second.int64_val();
     DLOG(INFO) << "set attr batch_size to " << batch_size_;
 
-    CHECK_GT(dim_, 0UL);
+    CHECK_GT(input_dim_, 0UL);
+    CHECK_GT(output_dim_, 0UL);
     CHECK_GT(batch_size_, 0UL);
 
     it = attrs.find("activation_type");
@@ -68,12 +79,13 @@ public:
     activate_type_ = it->second.string_val();
 
     def_ = &func_def;
+    // TODO ? something wrong here ?
     for (auto &def : *def_->mutable_inputs()) {
-      def.mutable_shape()->set_width(dim_);
+      def.mutable_shape()->set_width(input_dim_);
       def.mutable_shape()->set_height(batch_size_);
     }
     for (auto &def : *def_->mutable_outputs()) {
-      def.mutable_shape()->set_width(dim_);
+      def.mutable_shape()->set_width(output_dim_);
       def.mutable_shape()->set_height(batch_size_);
     }
     return status;
@@ -99,7 +111,12 @@ public:
     auto &weight = *params_->at(0)->ArgField()->float_mat_val->MatPtr();
     auto &activation = *Output(0)->ArgField()->float_mat_val->MatPtr();
 
-    activation = input * weight;
+    DLOG(INFO) << "input " << input;
+    DLOG(INFO) << "weight " << weight;
+
+    activation = weight * input;
+
+    DLOG(INFO) << "activation " << activation;
 
     return status;
   }
@@ -133,7 +150,7 @@ public:
   virtual void CheckContext() override {}
 
 private:
-  int64_t dim_, batch_size_;
+  int64_t input_dim_, output_dim_, batch_size_;
   std::string activate_type_;
   // Save forward computation's output.
   Argument *activation_;

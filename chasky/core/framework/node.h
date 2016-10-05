@@ -35,26 +35,34 @@ public:
 
   StringPiece Name() const { return def_.name(); }
 
-  // Start the running threads.
-  Status StartService();
+  NodeDef &Definition() { return def_; }
 
-  ~Node();
-
-  void ServiceThreadJoin() {
-    if (service_thread_ && service_thread_->joinable()) {
-      service_thread_->join();
-    }
-  }
+  // ~Node();
 
 protected:
   Status ForwardCompute();
 
   Status BackwardCompute();
 
-  // Input arguments.
-  Status CollectInArgItems();
-  // Gradient arguments.
-  Status CollectOutArgItems();
+  // Collect input arguments from postbox.
+  Status CollectInputArguments();
+  // Collect output arguments from postbox.
+  Status CollectOutputArguments();
+  // Collect input's gradient arguments.
+  Status CollectInputGradArguments();
+  // Collect gradient of this node and source nodes which point to this.
+  Status CollectOutputGradArguments();
+
+  typedef std::function<std::string(const std::string &node_name,
+                                    const std::string &arg_name)> key_creator_t;
+  // @direction:
+  //    0 : direct
+  //    1 : forward
+  //    -1 : backward
+  Status CollectArguments(
+      std::vector<ArgumentPtr> *args,
+      const google::protobuf::RepeatedPtrField<ArgumentDef> &arg_defs,
+      int direction, key_creator_t key_creator);
 
   Status CollectParameters();
 
@@ -74,11 +82,6 @@ protected:
 
   Node(const NodeDef &def, PostBox *postbox, EdgeLib *edge_lib);
 
-  std::thread &ServiceThread() const {
-    CHECK(service_thread_.get()) << "service is not started";
-    return *service_thread_;
-  }
-
 private:
   NodeDef def_;
   FunctionDef *func_def_;
@@ -86,26 +89,11 @@ private:
   TaskType cur_task_;
   // the corresponding function
   std::unique_ptr<Function> func_;
-
-  // std::vector<PostBox::ArgItem *> in_arg_items_;
-  // std::vector<PostBox::ArgItem *> out_arg_items_;
-
-  // argument cache for Function
-  // std::vector<const Argument *> inputs_;
-  // std::vector<Argument *> outputs_;
   std::vector<ArgumentPtr> params_;
-
-  std::vector<ArgumentPtr> *out_args_;
-  // std::vector<ArgumentPtr> grad_args_;
-
-  std::condition_variable in_args_ready_;
-  std::condition_variable out_args_ready_;
-  std::mutex cond_lock_;
+  // std::vector<ArgumentPtr> *out_args_;
 
   PostBox *postbox_;
   EdgeLib *edge_lib_;
-
-  std::unique_ptr<std::thread> service_thread_;
 };
 
 } // namespace chasky

@@ -59,40 +59,44 @@ Status EdgeLib::Register(const string &key) {
                                 target_key.c_str());
 
 #define REGISTER_EDGE(EDGES, KEY, VAL)                                         \
-  CH_STEST_RETURN2(EDGES.count(KEY) == 0, error::INVALID_ARGUMENT,             \
-                   "a key called %s has been registered.", KEY.c_str());       \
-  EDGES[KEY] = VAL;
-  REGISTER_EDGE(src_edges_, source_key, target_key);
+  if (EDGES.count(KEY) == 0)                                                   \
+    EDGES.emplace(std::make_pair(KEY, std::vector<std::string>()));            \
+  EDGES[KEY].push_back(VAL);
+
   REGISTER_EDGE(trg_edges_, target_key, source_key);
+  REGISTER_EDGE(src_edges_, source_key, target_key);
 #undef REGISTER_EDGE
 
   return status;
 }
 
-Status EdgeLib::RetriveBySource(const string &key, string *arg_sign) {
+Status EdgeLib::RetriveBySource(const string &key,
+                                std::vector<string> const **arg_sign) const {
   Status status;
   auto it = src_edges_.find(key);
   CH_STEST_RETURN2(it != src_edges_.end(), error::OUT_OF_RANGE,
                    "no source key called %s", key.c_str());
-  *arg_sign = it->second;
+  *arg_sign = &it->second;
   return status;
 }
 
-Status EdgeLib::RetriveByTarget(const string &key, string *arg_sign) {
+Status EdgeLib::RetriveByTarget(const string &key,
+                                std::vector<string> const **arg_sign) const {
   Status status;
   auto it = trg_edges_.find(key);
   CH_STEST_RETURN2(it != src_edges_.end(), error::OUT_OF_RANGE,
-                   "no source key called %s", key.c_str());
-  *arg_sign = it->second;
+                   "no target key called %s", key.c_str());
+  *arg_sign = &it->second;
   return status;
 }
 
 string EdgeLib::DebugString() const {
   std::stringstream ss;
-  ss << "EdgeLib:";
+  ss << "\nEdgeLib:" << std::endl;
   for (const auto &item : edges_) {
     ss << item.first << std::endl;
   }
+  ss << "-------------------------\n";
   return ss.str();
 }
 

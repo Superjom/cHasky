@@ -34,7 +34,8 @@ public:
                          TaskType *mode);
 
   // Register an empty argument item.
-  Status Register(const string &key, ArgumentPtr ptr = nullptr);
+  Status Register(const string &key, ArgumentPtr ptr = nullptr,
+                  bool set_ready = false);
 
   // Key should be created by CreateArgKey
   Status Send(const string &key, ArgumentPtr arg);
@@ -46,6 +47,13 @@ public:
   // will be blocked until the argument is ready.
   // key's format is {node_name}:{arg_name}
   Status Consume(const string &key, ReadyCallback &&callback);
+
+  // Consumer consume an argument without wait, return error::NOT_INITED if
+  // argument is not ready.
+  Status Consume(const string &key, ArgumentPtr *arg);
+
+  // force consume the argument, no regard of the ready status.
+  Status ForceConsume(const string&key, ArgumentPtr*arg);
 
   // Abort all parameter's transfer.
   Status Abort();
@@ -70,11 +78,15 @@ public:
       }
       ready_callbacks_.clear();
       // avoid loop
-      SetUnready();
+      // SetUnready();
+    }
+
+    void SetReady() {
+      is_ready_ = true;
     }
 
     void SetUnready() {
-      arg_ = nullptr;
+      // arg_ = nullptr;
       is_ready_ = false;
     }
 

@@ -1,7 +1,10 @@
 #ifndef CHASKY_CORE_FRAMEWORK_ARGUMENT_DEF_BUILDER_H_
 #define CHASKY_CORE_FRAMEWORK_ARGUMENT_DEF_BUILDER_H_
 #include <string>
+
 #include "chasky/core/framework/argument.pb.h"
+#include "chasky/core/framework/argument.h"
+
 namespace chasky {
 // A helper class to help specifying an argument's ArgumentDef
 class ArgumentDefBuilder {
@@ -15,6 +18,7 @@ public:
 
   ArgumentDefBuilder &Type(const std::string &x) {
     def_.set_type(x);
+    def_.set_dtype(String2Dtype(x));
     return *this;
   }
 
@@ -46,6 +50,5 @@ inline ArgumentDefBuilder NewArgumentDefBuilder() {
   ArgumentDefBuilder x;
   return x;
 }
-
 }
 #endif

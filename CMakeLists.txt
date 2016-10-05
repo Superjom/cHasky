@@ -7,7 +7,7 @@ include_directories(
   /System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7)
 
 SET(GCC_COVERAGE_LINK_FLAGS    "-lprotobuf")
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -framework Python")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -framework Python")
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
 
 # common source files
@@ -38,10 +38,11 @@ set (SOURCE_FILES
   ${CMAKE_SOURCE_DIR}/chasky/core/runtime/session.cc
   # ${CMAKE_SOURCE_DIR}/chasky/core/runtime/graph_builder.cc
   # ${CMAKE_SOURCE_DIR}/chasky/core/functions/AddN.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/functions/NullFunc.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/functions/IdenticalFunc.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/functions/FullyConnectedFunc.cc
-  ${CMAKE_SOURCE_DIR}/chasky/core/functions/RMSElossFunc.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/null_func.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/identical_func.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/fully_connected_func.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/fully_connected_func_test.cc
+  ${CMAKE_SOURCE_DIR}/chasky/core/functions/rmse_loss_func.cc
   )
 
 set (TEST_SOURCE_FILES

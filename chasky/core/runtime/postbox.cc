@@ -37,7 +37,7 @@ Status PostBox::ParseKey(const string &key, string *node, string *arg,
   return Status();
 }
 
-Status PostBox::Register(const string &key, ArgumentPtr ptr) {
+Status PostBox::Register(const string &key, ArgumentPtr ptr, bool set_ready) {
   DLOG(INFO) << "register Argument [" << key << "] to postbox";
   DLOG(INFO) << "args.size() " << args_.size();
   auto it = args_.find(key);
@@ -63,9 +63,11 @@ Status PostBox::Send(const string &key, ArgumentPtr arg) {
   auto it = args_.find(arg_key);
   CH_STEST_RETURN2(it != args_.end(), error::OUT_OF_RANGE,
                    "no key called %s in postbox", arg_key.c_str());
-
   auto &arg_item = it->second;
-  arg_item.SetReady(arg);
+  if (arg != nullptr)
+    arg_item.SetReady(arg);
+  else
+    arg_item.SetReady();
   return status;
 }
 
@@ -88,6 +90,29 @@ Status PostBox::Consume(const string &key, ReadyCallback &&callback) {
 
   arg_item.Consume(std::move(callback));
   DLOG(INFO) << "succcessfully consume Argument " << key;
+  return status;
+}
+
+Status PostBox::Consume(const string &key, ArgumentPtr *arg) {
+  Status status;
+  auto it = args_.find(key);
+  CHECK(it != args_.end()) << "key " << key << " not found";
+  auto &arg_item = it->second;
+  if (arg_item.IsReady()) {
+    *arg = arg_item.Arg();
+    return status;
+  }
+  status.Update(error::NOT_INITED, "");
+  return status;
+}
+
+Status PostBox::ForceConsume(const string &key, ArgumentPtr *arg) {
+  Status status;
+  auto it = args_.find(key);
+  CHECK(it != args_.end()) << "key " << key << " not found";
+  auto &arg_item = it->second;
+  *arg = arg_item.Arg();
+  CHECK(arg_item.Arg()) << "force consumed " << key << " which is nullptr";
   return status;
 }
 

@@ -11,30 +11,44 @@ Graph::Graph(GraphDef &def, PostBox *postbox)
   CH_CHECK_OK(ConnectNodes());
 }
 
-Status Graph::StartExec() {
-  Status status;
-
-  service_thread_ = std::unique_ptr<std::thread>(new std::thread([&] {
-    for (auto &item : node_lib_.Nodes()) {
-      auto &node = item.second;
-      CH_CHECK_OK(node->StartService());
-    }
-
-    DLOG(INFO) << "begin to join all thread";
-
-    for (auto &item : node_lib_.Nodes()) {
-      DLOG(INFO) << "thread " << item.first << " join";
-      item.second->ServiceThreadJoin();
-    }
-  }));
-
-  return status;
-}
-
 Status Graph::Compute(std::vector<ArgumentDef> &inputs) {
   Status status;
-  // fill dataprovider
   CH_CHECK_OK(data_provider_->Fill(inputs));
+  for (auto task_type :
+       std::vector<TaskType>{TaskType::FORWARD, TaskType::BACKWARD}) {
+    auto &nodes_cpt_order = task_type == TaskType::FORWARD
+                                ? nodes_fwd_cpt_order_
+                                : nodes_bwd_cpt_order_;
+    // determine nodes computation order in the first pass
+    if (nodes_cpt_order.empty()) {
+      std::unordered_set<std::string> computed_nodes;
+
+      for (int i = 0; i < node_lib_.Size(); i++) {
+        for (auto &n : node_lib_.Nodes()) {
+          auto &node = *n.second;
+          if (computed_nodes.count(node.Name().tostring()) != 0)
+            continue;
+          auto status = node.Compute(task_type);
+          DLOG(INFO) << "Node " << n.second->Name() << " compute "
+                     << status.ok();
+          if (status.ok()) {
+            computed_nodes.emplace(node.Name().tostring());
+            nodes_cpt_order.emplace_back(node.Name().tostring());
+          }
+        }
+      }
+
+      CHECK_EQ(nodes_cpt_order.size(), node_lib_.Size())
+          << "some node compute failed";
+
+    } else {
+      for (const auto &node_name : nodes_cpt_order) {
+        Node *node;
+        CH_CHECK_OK(node_lib_.Retrive(node_name, &node));
+        CH_CHECK_OK(node->Compute(task_type));
+      }
+    }
+  }
   return status;
 }
 
@@ -44,8 +58,9 @@ Status Graph::CreateNodes() {
   CHECK(node_lib_.IsEmpty()) << "duplicate creating nodes";
   LOG(INFO) << "node.size: " << def_.nodes().size();
   for (const auto &node_def : def_.nodes()) {
-    LOG(INFO) << strings::Printf("create node: %s[%s]", node_def.name().c_str(),
-                                 node_def.signature().c_str());
+    DLOG(INFO) << strings::Printf("create node: %s[%s]",
+                                  node_def.name().c_str(),
+                                  node_def.signature().c_str());
     CH_CHECK_OK(node_lib_.RegisterCreate(node_def.name(), node_def));
   }
   DLOG(INFO) << "finish create nodes ...";
@@ -79,16 +94,16 @@ Status Graph::ConnectNodes() {
   return status;
 }
 
-void Graph::ServiceThreadJoin() {
-  if (service_thread_ && service_thread_->joinable()) {
-    service_thread_->join();
-  }
-}
+// void Graph::ServiceThreadJoin() {
+//   if (service_thread_ && service_thread_->joinable()) {
+//     service_thread_->join();
+//   }
+// }
 
-Graph::~Graph() {
-  DLOG(INFO) << "graph desc";
+// Graph::~Graph() {
+//   DLOG(INFO) << "graph desc";
 
-  ServiceThreadJoin();
-}
+//   ServiceThreadJoin();
+// }
 
 } // namespace chasky

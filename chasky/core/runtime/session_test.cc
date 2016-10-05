@@ -29,14 +29,14 @@ public:
     auto node_def_1 =
         NodeDefBuilder()
             .Name("node-1")
-            .Signature("IdenticalFunc:11")
+            .Signature("identical_func:11")
             .Attr("dim", AttrValueBuilder().Value(dim).Finalize())
             .Attr("batch_size", AttrValueBuilder().Value(batch_size).Finalize())
             .Finalize();
     auto node_def_2 =
         NodeDefBuilder()
             .Name("node-2")
-            .Signature("IdenticalFunc:11")
+            .Signature("identical_func:11")
             .Attr("dim", AttrValueBuilder().Value(dim).Finalize())
             .Attr("batch_size", AttrValueBuilder().Value(batch_size).Finalize())
             .Finalize();
@@ -44,7 +44,7 @@ public:
         NodeDefBuilder()
             .Name("node-3")
             .SetIsEnd(true)
-            .Signature("IdenticalFunc:11")
+            .Signature("identical_func:11")
             .Attr("dim", AttrValueBuilder().Value(dim).Finalize())
             .Attr("batch_size", AttrValueBuilder().Value(batch_size).Finalize())
             .Finalize();
@@ -102,7 +102,7 @@ TEST_F(SessionTest, create_graph) {
 }
 
 TEST_F(SessionTest, data_provider) {
-  session->StartExec();
+  // session->StartExec();
   DLOG(INFO) << "after exec, still can run something";
 
   // Data provider fill data batch
@@ -117,10 +117,10 @@ TEST_F(SessionTest, data_provider) {
   args.push_back(batch_def);
   data.Serialize(&args.back());
   DLOG(INFO) << "send batch of data to data provider";
+
   ASSERT_TRUE(session->Compute(args).ok());
 
-  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  session->DestroyGraph();
+  // session->DestroyGraph();
 }
 
 } // namespace test

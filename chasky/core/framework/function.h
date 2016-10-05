@@ -48,12 +48,10 @@ public:
     std::vector<ArgumentPtr> weight_grads;
   };
 
-  // void SetExecContext(ExecContext *context);
   Function() {}
 
   // Set model's parameters before function's compuatation.
   void SetModelParameters(std::vector<ArgumentPtr> *params) {
-    CHECK(params);
     params_ = params;
   }
 
@@ -163,5 +161,4 @@ private:
 //   FunctionLibrary::Instance().Register(                                        \
 //       NAME, [] { return std::unique_ptr<Function>(new CLASS); });
 }
-
 #endif

@@ -5,4 +5,4 @@
 #include "chasky/core/functions/null_func.h"
 #include "chasky/core/functions/identical_func.h"
 #include "chasky/core/functions/fully_connected_func.h"
-#include "chasky/core/functions/RMSElossFunc_def.h"
+#include "chasky/core/functions/rmse_loss_func.h"
