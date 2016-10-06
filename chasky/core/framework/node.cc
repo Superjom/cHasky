@@ -8,98 +8,6 @@
 namespace chasky {
 using namespace std;
 
-// namespace {
-// class ArgumentsCollector {
-// public:
-//   typedef std::function<std::string(const std::string &node_name,
-//                                     const std::string &arg_name)>
-//                                     key_creator_t;
-
-//   ArgumentsCollector(PostBox *postbox, EdgeLib *edge_lib,
-//                      const std::string &node_name)
-//       : postbox_(postbox), edge_lib_(edge_lib), node_name_(node_name) {}
-
-//   const std::vector<std::string> *
-//   CollectArgumentKeys(const std::string &arg_name, int direction,
-//                       key_creator_t key_creator) {
-//     auto arg_key = key_creator(node_name_, arg_name);
-//     const std::vector<std::string> *nodes;
-//     std::vector<std::string> single_node;
-//     switch (direction) {
-//     case 1:
-//       CH_CHECK_OK(edge_lib_->RetriveByTarget(arg_key, &nodes));
-//       break;
-//     case -1:
-//       CH_CHECK_OK(edge_lib_->RetriveBySource(arg_key, &nodes));
-//       break;
-//     case 0: {
-//       single_node.push_back(arg_key);
-//       nodes = &single_node;
-//     } break;
-//     default:
-//       LOG(FATAL) << "not supported direction";
-//     }
-//     return nodes;
-//   }
-
-//   std::vector<ArgumentPtr> GatherSingleArgument(const vector<string> &nodes,
-//                                                 int direction, bool force) {
-//     ArgumentPtr arg;
-//     std::vector<ArgumentPtr> args;
-//     CHECK_EQ(nodes.size(), 1UL);
-//     if (postbox_->Consume(nodes.front(), &arg, force).ok() && arg) {
-//       args.emplace_back(arg);
-//     } else if (direction == 0) {
-//       if (postbox_->Consume(nodes.front(), &arg, force).ok() && arg) {
-//         args.emplace_back(arg);
-//       }
-//     }
-//     return args;
-//   }
-
-//   std::vector<ArgumentPtr> GatherListArgument(const vector<string> &nodes,
-//                                               int direction, bool force) {
-//     std::vector<ArgumentPtr> args;
-//     std::vector<ArgumentPtr> field_args;
-//     for (auto &src_arg : nodes) {
-//       ArgumentPtr arg;
-//       if (postbox_->Consume(src_arg, &arg, force).ok()) {
-//         // data provider's backward argument is nullptr, ignore this case
-//         if (arg)
-//           field_args.emplace_back(arg);
-//       } else {
-//         return args;
-//       }
-//     }
-
-//     ArgumentPtr list_arg = std::make_shared<Argument>();
-//     CH_CHECK_OK(list_arg->SetList(field_args));
-//     args.emplace_back(list_arg);
-//     return args;
-//   }
-
-//   std::vector<ArgumentPtr> CollectInputArguments() {
-//     key_creator_t key_creator = [](const std::string &node_name,
-//                                    const std::string &arg_name) {
-//       return PostBox::CreateArgKey(node_name, arg_name, FORWARD);
-//     };
-//     auto arg_keys = CollectArgumentKeys()
-
-//   }
-
-// private:
-//   PostBox *postbox_;
-//   EdgeLib *edge_lib_;
-//   std::string node_name_;
-//   std::vector<std::string> arg_keys_;
-//   // cache the argument keys(in postbox) to simplify collection period.
-//   std::vector<std::string> input_arg_keys_;
-//   std::vector<std::string> output_arg_keys_;
-//   std::vector<std::string> input_grad_arg_keys_;
-//   std::vector<std::string> output_grad_arg_keys_;
-// };
-// }
-
 std::unique_ptr<Node> Node::Create(const NodeDef &def, PostBox *postbox,
                                    EdgeLib *edge_lib) {
   return std::unique_ptr<Node>{new Node(def, postbox, edge_lib)};
@@ -293,16 +201,9 @@ Status Node::ReleaseActivations() {
 
 Status Node::ReleaseGradients() {
   Status status;
-  // const auto &node_name = def_.name();
-  // for (size_t i = 0; i < func_def_->inputs_size(); i++) {
-  //   const auto &arg_def = func_def_->inputs(i);
   DLOG(INFO) << "release gradients";
   CHECK_EQ(func_->CompItem().input_grads.size(), input_grads_keys_.size());
   for (size_t i = 0; i < input_grads_keys_.size(); i++) {
-    // for (const auto &arg_key : input_grads_keys_) {
-    // const auto &arg_name = arg_def.name();
-    // auto arg_key = PostBox::CreateArgKey(node_name, arg_name, BACKWARD);
-    // CHECK(func_->CompItem().input_grads[i]);
     auto &arg_key = input_grads_keys_[i];
     DLOG(INFO) << "release gradient to " << arg_key;
     postbox_->Send(arg_key, func_->CompItem().input_grads[i]);
