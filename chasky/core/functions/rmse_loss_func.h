@@ -11,24 +11,29 @@
 namespace chasky {
 namespace functions {
 
-REGISTER_FUNC_DEF(rmse_loss_func,
-                  FunctionDefBuilder()
-                      .Name("rmse_loss_func")
-                      .Input(ArgumentDefBuilder().Name("target").Finalize())
-                      .Input(ArgumentDefBuilder().Name("label").Finalize())
-                      .Output(ArgumentDefBuilder().Name("loss").Finalize())
-                      .Attr(AttrDefBuilder()
-                                .Name("dim")
-                                .Type("int64")
-                                .Doc("dimention, both the input and label "
-                                     "should have the same dimention")
-                                .Finalize())
-                      .Attr(AttrDefBuilder()
-                                .Name("batch_size")
-                                .Type("int64")
-                                .Doc("size of the input batch")
-                                .Finalize())
-                      .Finalize());
+REGISTER_FUNC_DEF(
+    rmse_loss_func,
+    FunctionDefBuilder()
+        .Name("rmse_loss_func")
+        .Input(ArgumentDefBuilder()
+                   .Name("prediction")
+                   .Type("float_mat")
+                   .Finalize())
+        .Input(ArgumentDefBuilder().Name("target").Type("float_mat").Finalize())
+        .Output(ArgumentDefBuilder().Name("loss").Type("float_mat").Finalize())
+        .Attr(AttrDefBuilder()
+                  .Name("dim")
+                  .Type("int64")
+                  .Doc("dimention, both the input and label "
+                       "should have the same dimention")
+                  .Finalize())
+        .Attr(AttrDefBuilder()
+                  .Name("batch_size")
+                  .Type("int64")
+                  .Doc("size of the input batch")
+                  .Finalize())
+        .FuncType(FunctionDef_FuncType_LOSS)
+        .Finalize());
 
 } // namespace functions
 } // namespace chasky

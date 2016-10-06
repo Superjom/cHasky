@@ -22,4 +22,16 @@ message FunctionDef {
   repeated ArgumentDef params = 6;
   // Human readable description
   string doc = 8;
+
+  // Function's type
+  FuncType func_type = 9;
+
+  enum FuncType {
+    // Normal function
+    NORMAL = 0;
+    // Loss function
+    LOSS = 1;
+    // Evaluation function
+    EVALUATION = 2;
+  }
 }

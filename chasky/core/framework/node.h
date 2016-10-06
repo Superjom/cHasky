@@ -25,6 +25,8 @@ using node_ptr_t = std::shared_ptr<Node>;
 // out-link edges, and other nodes will receive this arguments.
 class Node {
 public:
+  typedef std::function<std::string(const std::string &node_name,
+                                    const std::string &arg_name)> key_creator_t;
   // Create a node from definition
   static std::unique_ptr<Node> Create(const NodeDef &def, PostBox *postbox,
                                       EdgeLib *edge_lib);
@@ -53,8 +55,6 @@ protected:
   // Collect gradient of this node and source nodes which point to this.
   Status CollectOutputGradArguments();
 
-  typedef std::function<std::string(const std::string &node_name,
-                                    const std::string &arg_name)> key_creator_t;
   // @direction:
   //    0 : direct
   //    1 : forward
@@ -62,7 +62,8 @@ protected:
   Status CollectArguments(
       std::vector<ArgumentPtr> *args,
       const google::protobuf::RepeatedPtrField<ArgumentDef> &arg_defs,
-      int direction, key_creator_t key_creator);
+      std::vector<string> *arg_keys, int direction, key_creator_t key_creator,
+      bool force = false);
 
   Status CollectParameters();
 
@@ -85,15 +86,17 @@ protected:
 private:
   NodeDef def_;
   FunctionDef *func_def_;
+  PostBox *postbox_;
+  EdgeLib *edge_lib_;
   // Current task
   TaskType cur_task_;
   // the corresponding function
   std::unique_ptr<Function> func_;
   std::vector<ArgumentPtr> params_;
-  // std::vector<ArgumentPtr> *out_args_;
-
-  PostBox *postbox_;
-  EdgeLib *edge_lib_;
+  std::vector<string> input_grads_keys_;
+  std::vector<string> output_grads_keys_;
+  std::vector<string> input_keys_;
+  std::vector<string> output_keys_;
 };
 
 } // namespace chasky

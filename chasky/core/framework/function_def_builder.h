@@ -69,6 +69,11 @@ public:
     return *this;
   }
 
+  FunctionDefBuilder &FuncType(FunctionDef::FuncType x) {
+    def_.set_func_type(x);
+    return *this;
+  }
+
   // Fill empty attributes by inspecting from inputs and outputs
   FunctionDef Finalize();
 

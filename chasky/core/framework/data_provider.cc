@@ -1,5 +1,6 @@
 #include <memory>
 
+#include "chasky/core/runtime/postbox.h"
 #include "chasky/core/framework/data_provider.h"
 
 namespace chasky {
@@ -44,7 +45,7 @@ DataProvider::DataProvider(const DataProviderDef &def, PostBox *postbox,
     CH_CHECK_OK(postbox_->Register(key, outputs_.back()));
     // register backward argument, with nothing to do
     key = PostBox::CreateArgKey(def_.name(), arg_def.name(), BACKWARD);
-    CH_CHECK_OK(postbox_->Register(key, nullptr));
+    CH_CHECK_OK(postbox_->Register(key, nullptr, true, ArgType::PLACE_HOLDER));
   }
 }
 

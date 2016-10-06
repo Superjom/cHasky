@@ -29,8 +29,12 @@ Status Graph::Compute(std::vector<ArgumentDef> &inputs) {
           if (computed_nodes.count(node.Name().tostring()) != 0)
             continue;
           auto status = node.Compute(task_type);
-          DLOG(INFO) << "Node " << n.second->Name() << " compute "
-                     << status.ok();
+          if (status.ok()) {
+            DLOG(INFO) << "Node " << n.second->Name()
+                       << (task_type == TaskType::FORWARD ? " forward"
+                                                          : " backward")
+                       << " compute successfully";
+          }
           if (status.ok()) {
             computed_nodes.emplace(node.Name().tostring());
             nodes_cpt_order.emplace_back(node.Name().tostring());

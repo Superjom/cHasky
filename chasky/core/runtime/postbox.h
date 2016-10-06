@@ -11,6 +11,14 @@
 namespace chasky {
 using std::string;
 
+enum class ArgType {
+  // Normal arguments
+  NORMAL = 0,
+  // Some useless arguments, just placeholder, such as data provider's gradient
+  // arguments.
+  PLACE_HOLDER = 1
+};
+
 /*
  * A PostBox is an abstraction for argument transfer between producer and
  * consumer
@@ -35,7 +43,7 @@ public:
 
   // Register an empty argument item.
   Status Register(const string &key, ArgumentPtr ptr = nullptr,
-                  bool set_ready = false);
+                  bool set_ready = false, ArgType type = ArgType::NORMAL);
 
   // Key should be created by CreateArgKey
   Status Send(const string &key, ArgumentPtr arg);
@@ -49,11 +57,12 @@ public:
   Status Consume(const string &key, ReadyCallback &&callback);
 
   // Consumer consume an argument without wait, return error::NOT_INITED if
-  // argument is not ready.
-  Status Consume(const string &key, ArgumentPtr *arg);
+  // argument is not ready. If @force is set, force consume the key regardless
+  // of its state.
+  Status Consume(const string &key, ArgumentPtr *arg, bool force = false);
 
-  // force consume the argument, no regard of the ready status.
-  Status ForceConsume(const string&key, ArgumentPtr*arg);
+  // // force consume the argument, no regard of the ready status.
+  // Status ForceConsume(const string &key, ArgumentPtr *arg);
 
   // Abort all parameter's transfer.
   Status Abort();
@@ -81,9 +90,7 @@ public:
       // SetUnready();
     }
 
-    void SetReady() {
-      is_ready_ = true;
-    }
+    void SetReady() { is_ready_ = true; }
 
     void SetUnready() {
       // arg_ = nullptr;
@@ -101,11 +108,16 @@ public:
 
     void SetArgument(ArgumentPtr x) { arg_ = x; }
 
+    void SetType(ArgType type) { type_ = type; }
+
+    bool IsPlaceHolder() { return type_ == ArgType::PLACE_HOLDER; }
+
   private:
     ArgumentPtr arg_;
     std::mutex *lock_;
     bool is_ready_ = false;
     std::vector<ReadyCallback> ready_callbacks_;
+    ArgType type_;
   };
 
 private:

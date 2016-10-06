@@ -28,8 +28,6 @@ TEST_F(PostBoxTest, Consume) {
   };
   postbox.Consume("node1:arg1:0", std::move(callback));
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
   postbox.Send("node1:arg1:0", nullptr);
 
   ASSERT_TRUE(flag);

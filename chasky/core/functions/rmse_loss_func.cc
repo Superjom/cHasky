@@ -1,4 +1,5 @@
 #include "chasky/core/common/register.h"
+#include "chasky/core/runtime/postbox.h"
 #include "chasky/core/common/eigen_matrix.h"
 #include "chasky/core/functions/rmse_loss_func.h"
 
@@ -60,11 +61,10 @@ public:
   virtual Status BackwardCompute() override {
     Status status;
     CHECK_EQ(InputGrads().size(), 1UL);
-    CHECK_EQ(OutputGrads().size(), 1UL);
-
+    // CHECK_EQ(OutputGrads().size(), 1UL);
     auto &preGrad = *InputGrad(0)->ArgField()->float_mat_val->MatPtr();
     auto &grad = *InputGrad(0)->ArgField()->float_mat_val->MatPtr();
-
+    // TODO add implementation here
     return status;
   }
 
@@ -77,5 +77,4 @@ private:
 REGISTER_FUNC(rmse_loss_func, CH_MAT_FLOAT,
               rmse_loss_func<math::CpuFloatMatrix>);
 }
-
 }

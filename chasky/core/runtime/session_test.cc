@@ -20,7 +20,12 @@ public:
     auto data_provider_def = DataProviderDefBuilder()
                                  .Name("data-provider")
                                  .Field(ArgumentDefBuilder()
-                                            .Name("id")
+                                            .Name("input")
+                                            .Type("float_mat")
+                                            .Shape(dim, batch_size)
+                                            .Finalize())
+                                 .Field(ArgumentDefBuilder()
+                                            .Name("label")
                                             .Type("float_mat")
                                             .Shape(dim, batch_size)
                                             .Finalize())
@@ -43,8 +48,17 @@ public:
     auto node_def_3 =
         NodeDefBuilder()
             .Name("node-3")
-            .SetIsEnd(true)
+            .SetIsEnd(false)
             .Signature("identical_func:11")
+            .Attr("dim", AttrValueBuilder().Value(dim).Finalize())
+            .Attr("batch_size", AttrValueBuilder().Value(batch_size).Finalize())
+            .Finalize();
+
+    auto loss_node_def =
+        NodeDefBuilder()
+            .Name("loss")
+            .SetIsEnd(true)
+            .Signature("rmse_loss_func:11")
             .Attr("dim", AttrValueBuilder().Value(dim).Finalize())
             .Attr("batch_size", AttrValueBuilder().Value(batch_size).Finalize())
             .Finalize();
@@ -65,18 +79,34 @@ public:
 
     auto edge_def_3 = EdgeDefBuilder()
                           .SrcNode("data-provider")
-                          .SrcArg("id")
+                          .SrcArg("input")
                           .TrgNode("node-1")
                           .TrgArg("input")
                           .Finalize();
 
+    auto edge_def_4 = EdgeDefBuilder()
+                          .SrcNode("node-3")
+                          .SrcArg("output")
+                          .TrgNode("loss")
+                          .TrgArg("prediction")
+                          .Finalize();
+    auto edge_def_5 = EdgeDefBuilder()
+                          .SrcNode("data-provider")
+                          .SrcArg("label")
+                          .TrgNode("loss")
+                          .TrgArg("target")
+                          .Finalize();
+
     graph_def = graph_builder.AddNode(node_def_1)
                     .SetDataProvider(data_provider_def)
+                    .AddNode(loss_node_def)
                     .AddNode(node_def_2)
                     .AddNode(node_def_3)
                     .AddEdge(edge_def_1)
                     .AddEdge(edge_def_2)
                     .AddEdge(edge_def_3)
+                    .AddEdge(edge_def_4)
+                    .AddEdge(edge_def_5)
                     .Finalize();
   }
 
@@ -117,6 +147,9 @@ TEST_F(SessionTest, data_provider) {
   args.push_back(batch_def);
   data.Serialize(&args.back());
   DLOG(INFO) << "send batch of data to data provider";
+
+  args.push_back(batch_def);
+  data.Serialize(&args.back());
 
   ASSERT_TRUE(session->Compute(args).ok());
 
